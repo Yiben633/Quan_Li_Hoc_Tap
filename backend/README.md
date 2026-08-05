@@ -132,6 +132,19 @@ PATCH  /api/notes/:id/pin
 
 Document upload dùng `StorageProvider` với local adapter hiện tại và contract `local | s3-compatible` để thay thế adapter khi triển khai object storage. Giới hạn file lấy từ `DOCUMENT_MAX_UPLOAD_BYTES`; MIME nguy hiểm bị chặn, file lưu thất bại sẽ rollback file/metadata. Nội dung Note được sanitize server-side bằng `sanitize-html` trước khi ghi database.
 
+## Notifications
+
+```text
+GET   /api/notifications?isRead=&page=&limit=
+PATCH /api/notifications/:id/read
+PATCH /api/notifications/read-all
+GET   /api/notification-settings
+PATCH /api/notification-settings
+GET   /api/cron/notifications
+```
+
+Local server chạy notification scan mỗi 5 phút bằng `node-cron`. Vercel dùng `/api/cron/notifications` với `CRON_SECRET`; `backend/vercel.json` đã cấu hình lịch Cron 5 phút. Engine quét task, schedule/exam, study plan và goal, deduplicate theo entity/type/time window, đồng thời tôn trọng in-app/email settings.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:

@@ -24,6 +24,7 @@ import { gradesRouter } from './modules/grades/grades.routes.js';
 import { studySessionsRouter } from './modules/study-sessions/study-sessions.routes.js';
 import { documentsRouter } from './modules/documents/documents.routes.js';
 import { notesRouter } from './modules/notes/notes.routes.js';
+import { notificationCronRouter, notificationsRouter, notificationSettingsRouter } from './modules/notifications/notifications.routes.js';
 import { resolve } from 'node:path';
 
 export const app = express();
@@ -55,5 +56,8 @@ app.use('/api', gradesRouter);
 app.use('/api', studySessionsRouter);
 app.use('/api/documents', documentsRouter);
 app.use('/api/notes', notesRouter);
+app.use('/api/notifications', notificationsRouter);
+app.use('/api/notification-settings', notificationSettingsRouter);
+app.use('/api/cron', notificationCronRouter);
 app.use(notFound);
 app.use(errorHandler);
