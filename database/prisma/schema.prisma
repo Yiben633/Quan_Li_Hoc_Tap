@@ -60,6 +60,44 @@ enum TaskStatus {
   @@map("task_status")
 }
 
+enum ScheduleType {
+  class
+  self_study
+  exam
+  presentation
+  group_work
+  personal
+
+  @@map("schedule_type")
+}
+
+enum RecurrenceRule {
+  none
+  daily
+  weekly
+
+  @@map("recurrence_rule")
+}
+
+enum GoalType {
+  score
+  study_time
+  task_count
+  course_completion
+  gpa
+
+  @@map("goal_type")
+}
+
+enum GoalStatus {
+  in_progress
+  achieved
+  failed
+  archived
+
+  @@map("goal_status")
+}
+
 model User {
   id               String         @id @default(uuid()) @db.Uuid
   fullName         String         @map("full_name")
@@ -85,6 +123,9 @@ model User {
   subjects         Subject[]
   studyPlans       StudyPlan[]
   tasks            Task[]
+  schedules        Schedule[]
+  events           Event[]
+  goals            Goal[]
 
   @@index([email])
   @@index([studentCode])
@@ -228,11 +269,83 @@ model Subject {
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   studyPlans  StudyPlan[]
   tasks       Task[]
+  schedules   Schedule[]
+  goals       Goal[]
 
   @@index([userId, status])
   @@index([semesterId, status])
   @@index([userId, deletedAt])
   @@map("subjects")
+}
+
+model Schedule {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @map("user_id") @db.Uuid
+  subjectId       String?        @map("subject_id") @db.Uuid
+  type            ScheduleType
+  title           String
+  dayOfWeek       Int?           @map("day_of_week")
+  startTime       String         @map("start_time")
+  endTime         String         @map("end_time")
+  startDate       DateTime       @map("start_date") @db.Date
+  endDate         DateTime?      @map("end_date") @db.Date
+  recurrenceRule  RecurrenceRule @default(none) @map("recurrence_rule")
+  colorHex        String?        @map("color_hex")
+  reminderBefore  Int?           @map("reminder_before")
+  deletedAt       DateTime?      @map("deleted_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject         Subject?       @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startDate])
+  @@index([userId, deletedAt])
+  @@index([subjectId])
+  @@map("schedules")
+}
+
+model Event {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  title          String
+  description    String?
+  startAt        DateTime  @map("start_at")
+  endAt          DateTime? @map("end_at")
+  isAllDay       Boolean   @default(false) @map("is_all_day")
+  colorHex       String?   @map("color_hex")
+  reminderBefore Int?      @map("reminder_before")
+  deletedAt      DateTime? @map("deleted_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startAt])
+  @@index([userId, deletedAt])
+  @@map("events")
+}
+
+/// Goal progress is intentionally not stored as progressPercent. The backend computes
+/// it from targetValue/currentValue or domain data such as study sessions, tasks,
+/// grades and GPA depending on Goal.type.
+model Goal {
+  id           String     @id @default(uuid()) @db.Uuid
+  userId       String     @map("user_id") @db.Uuid
+  subjectId    String?    @map("subject_id") @db.Uuid
+  name         String
+  type         GoalType
+  targetValue  Decimal    @map("target_value") @db.Decimal(10, 2)
+  currentValue Decimal    @default(0) @map("current_value") @db.Decimal(10, 2)
+  deadline     DateTime?  @db.Date
+  status       GoalStatus @default(in_progress)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject      Subject?   @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([subjectId, status])
+  @@index([userId, deadline])
+  @@map("goals")
 }
 
 model Role {
