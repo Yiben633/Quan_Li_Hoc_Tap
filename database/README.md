@@ -161,6 +161,14 @@ Công thức "điểm cuối kỳ cần đạt" không lưu trong database. Back
 
 Database không xử lý nội dung file. Backend phải validate dung lượng, MIME type, quyền truy cập storage và bảo mật upload trước khi lưu metadata.
 
+## Advanced Entities
+
+`Notification.relatedEntityType` và `Notification.relatedEntityId` là polymorphic reference mềm. Database không enforce foreign key cho cặp trường này; backend phải kiểm tra entity liên quan trước khi tạo notification.
+
+`GroupMember` có unique constraint `(studyGroupId, userId)` để một user không bị thêm trùng vào cùng một nhóm học.
+
+`ActivityLog.userId` nullable để ghi log hệ thống, cron job hoặc tác vụ nền không gắn trực tiếp với một user cụ thể.
+
 ## Reset Database Local
 
 Xóa container và volume database local:

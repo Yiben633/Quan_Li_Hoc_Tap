@@ -129,6 +129,59 @@ enum StorageProvider {
   @@map("storage_provider")
 }
 
+enum NotificationType {
+  deadline_soon
+  task_overdue
+  class_soon
+  exam_soon
+  plan_incomplete
+  goal_at_risk
+  goal_achieved
+  system
+
+  @@map("notification_type")
+}
+
+enum NotificationChannel {
+  in_app
+  email
+  push
+
+  @@map("notification_channel")
+}
+
+enum GroupMemberRole {
+  leader
+  member
+
+  @@map("group_member_role")
+}
+
+enum GroupMemberStatus {
+  pending
+  accepted
+  rejected
+
+  @@map("group_member_status")
+}
+
+enum FeedbackType {
+  bug
+  feature_request
+  question
+
+  @@map("feedback_type")
+}
+
+enum FeedbackStatus {
+  open
+  in_progress
+  resolved
+  closed
+
+  @@map("feedback_status")
+}
+
 model User {
   id               String         @id @default(uuid()) @db.Uuid
   fullName         String         @map("full_name")
@@ -160,6 +213,14 @@ model User {
   studySessions    StudySession[]
   documents        Document[]
   notes            Note[]
+  notifications    Notification[]
+  notificationSetting NotificationSetting?
+  flashcardSets    FlashcardSet[]
+  ownedStudyGroups StudyGroup[]   @relation("StudyGroupOwner")
+  groupMemberships GroupMember[]
+  assignedGroupTasks GroupTask[]  @relation("GroupTaskAssignee")
+  feedbacks        Feedback[]
+  activityLogs     ActivityLog[]
 
   @@index([email])
   @@index([studentCode])
@@ -311,6 +372,7 @@ model Subject {
   studySessions   StudySession[]
   documents       Document[]
   notes           Note[]
+  flashcardSets   FlashcardSet[]
 
   @@index([userId, status])
   @@index([semesterId, status])
@@ -502,6 +564,158 @@ model Goal {
   @@index([subjectId, status])
   @@index([userId, deadline])
   @@map("goals")
+}
+
+model Notification {
+  id                String              @id @default(uuid()) @db.Uuid
+  userId            String              @map("user_id") @db.Uuid
+  type              NotificationType
+  title             String
+  message           String
+  relatedEntityType String?             @map("related_entity_type")
+  relatedEntityId   String?             @map("related_entity_id") @db.Uuid
+  isRead            Boolean             @default(false) @map("is_read")
+  channel           NotificationChannel @default(in_app)
+  sentAt            DateTime?           @map("sent_at")
+  createdAt         DateTime            @default(now()) @map("created_at")
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationSetting {
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @unique @map("user_id") @db.Uuid
+  reminderMinutesBefore Int      @default(60) @map("reminder_minutes_before")
+  emailEnabled          Boolean  @default(false) @map("email_enabled")
+  pushEnabled           Boolean  @default(false) @map("push_enabled")
+  inAppEnabled          Boolean  @default(true) @map("in_app_enabled")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
+}
+
+model FlashcardSet {
+  id          String      @id @default(uuid()) @db.Uuid
+  userId      String      @map("user_id") @db.Uuid
+  subjectId   String?     @map("subject_id") @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject     Subject?    @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  flashcards  Flashcard[]
+
+  @@index([userId])
+  @@index([subjectId])
+  @@map("flashcard_sets")
+}
+
+model Flashcard {
+  id             String       @id @default(uuid()) @db.Uuid
+  flashcardSetId String       @map("flashcard_set_id") @db.Uuid
+  question       String
+  answer         String
+  isDifficult    Boolean      @default(false) @map("is_difficult")
+  correctCount   Int          @default(0) @map("correct_count")
+  wrongCount     Int          @default(0) @map("wrong_count")
+  nextReviewAt   DateTime?    @map("next_review_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  flashcardSet   FlashcardSet @relation(fields: [flashcardSetId], references: [id], onDelete: Cascade)
+
+  @@index([flashcardSetId])
+  @@index([nextReviewAt])
+  @@map("flashcards")
+}
+
+model StudyGroup {
+  id          String        @id @default(uuid()) @db.Uuid
+  ownerId     String        @map("owner_id") @db.Uuid
+  name        String
+  description String?
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  owner       User          @relation("StudyGroupOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  tasks       GroupTask[]
+
+  @@index([ownerId])
+  @@map("study_groups")
+}
+
+model GroupMember {
+  id           String            @id @default(uuid()) @db.Uuid
+  studyGroupId String            @map("study_group_id") @db.Uuid
+  userId       String            @map("user_id") @db.Uuid
+  role         GroupMemberRole   @default(member)
+  status       GroupMemberStatus @default(pending)
+  joinedAt     DateTime?         @map("joined_at")
+  studyGroup   StudyGroup        @relation(fields: [studyGroupId], references: [id], onDelete: Cascade)
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([studyGroupId, userId])
+  @@index([userId, status])
+  @@map("group_members")
+}
+
+model GroupTask {
+  id             String      @id @default(uuid()) @db.Uuid
+  studyGroupId   String      @map("study_group_id") @db.Uuid
+  assignedUserId String?     @map("assigned_user_id") @db.Uuid
+  title          String
+  description    String?
+  dueDate        DateTime?   @map("due_date")
+  status         TaskStatus  @default(todo)
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  studyGroup     StudyGroup  @relation(fields: [studyGroupId], references: [id], onDelete: Cascade)
+  assignedUser   User?       @relation("GroupTaskAssignee", fields: [assignedUserId], references: [id], onDelete: SetNull)
+
+  @@index([studyGroupId, status])
+  @@index([assignedUserId, status])
+  @@index([dueDate])
+  @@map("group_tasks")
+}
+
+model Feedback {
+  id         String         @id @default(uuid()) @db.Uuid
+  userId     String         @map("user_id") @db.Uuid
+  type       FeedbackType
+  title      String
+  content    String
+  status     FeedbackStatus @default(open)
+  adminReply String?        @map("admin_reply")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  resolvedAt DateTime?      @map("resolved_at")
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+  @@map("feedbacks")
+}
+
+model ActivityLog {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String?   @map("user_id") @db.Uuid
+  action     String
+  entityType String?   @map("entity_type")
+  entityId   String?   @map("entity_id") @db.Uuid
+  ipAddress  String?   @map("ip_address")
+  userAgent  String?   @map("user_agent")
+  metadata   Json?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
+  @@map("activity_logs")
 }
 
 model Role {
