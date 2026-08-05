@@ -34,6 +34,22 @@ docker compose up -d backend
 
 Service backend dùng multi-stage Dockerfile, chờ database/Redis healthy rồi chạy server cổng `4000`.
 
+## Semester và Subject API
+
+Các route yêu cầu `Authorization: Bearer <accessToken>` và đều giới hạn theo owner hiện tại:
+
+```text
+GET|POST /api/semesters
+GET|PATCH|DELETE /api/semesters/:id
+POST /api/semesters/:id/close
+POST /api/semesters/:id/duplicate
+GET|POST /api/subjects
+GET|PATCH|DELETE /api/subjects/:id
+PATCH /api/subjects/:id/complete
+```
+
+List endpoint hỗ trợ pagination, filter/search và sort. Delete là soft delete; Subject detail trả `taskTotal`, `taskDone`, `totalStudyMinutes` và `currentAverage`.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:

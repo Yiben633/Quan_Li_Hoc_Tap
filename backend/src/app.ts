@@ -10,6 +10,8 @@ import { errorHandler, notFound } from './middlewares/error-handler.js';
 import { healthRouter } from './routes/health.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { usersRouter } from './modules/users/users.routes.js';
+import { semestersRouter } from './modules/semesters/semesters.routes.js';
+import { subjectsRouter } from './modules/subjects/subjects.routes.js';
 import { resolve } from 'node:path';
 
 export const app = express();
@@ -25,6 +27,8 @@ app.use(requestLogger);
 app.use(healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/semesters', semestersRouter);
+app.use('/api/subjects', subjectsRouter);
 app.use('/uploads', express.static(resolve(process.cwd(), 'uploads')));
 app.get('/api', (_req, res) => res.json({ success: true, message: 'StudyFlow API', data: { version: '0.1.0' } }));
 app.use(notFound);

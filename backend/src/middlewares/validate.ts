@@ -2,10 +2,11 @@ import type { RequestHandler } from 'express';
 import type { ZodType } from 'zod';
 
 const validate = (source: 'body' | 'query'): ((schema: ZodType) => RequestHandler) =>
-  (schema) => (req, _res, next) => {
+  (schema) => (req, res, next) => {
     const result = schema.safeParse(req[source]);
     if (!result.success) return next(result.error);
-    req[source] = result.data;
+    if (source === 'query') res.locals.validatedQuery = result.data;
+    else req.body = result.data;
     next();
   };
 
