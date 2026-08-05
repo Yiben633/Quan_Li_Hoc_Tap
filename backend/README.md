@@ -91,6 +91,18 @@ POST /api/goals/cron/daily
 
 Calendar chuẩn hóa schedule recurrence, event, task due date và exam date về `{ type, title, startAt, endAt, colorHex, sourceEntity }`. Cron goal cần header `x-cron-secret` khi `CRON_SECRET` được cấu hình.
 
+## Grades và GPA
+
+```text
+GET|POST /api/subjects/:subjectId/grade-components
+PATCH|DELETE /api/grade-components/:id
+PUT /api/grade-components/:id/grade
+GET /api/subjects/:subjectId/grade-summary
+GET /api/gpa/:semesterId
+```
+
+Grade summary chỉ tính component đã có điểm. `requiredFinalScore` dùng tổng weight thực tế, đồng thời trả `isTargetPossible`, `missingComponents` và `warnings`.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:
