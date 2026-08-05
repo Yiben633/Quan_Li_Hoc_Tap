@@ -1,0 +1,116 @@
+# Database Layer
+
+Hạ tầng database local cho dự án **StudyFlow - Quản lý học tập**.
+
+## Thành Phần
+
+- PostgreSQL 16: database chính.
+- Redis 7: cache, OTP, session timer và notification queue.
+- pgAdmin 4: UI debug database, chỉ bật khi dùng profile `tools`.
+
+## Chuẩn Bị
+
+Tạo file `.env` từ file mẫu:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Sau đó chỉnh lại các mật khẩu trong `.env`.
+
+## Chạy PostgreSQL Và Redis
+
+```powershell
+docker compose up -d db redis
+```
+
+Kiểm tra trạng thái:
+
+```powershell
+docker compose ps
+```
+
+Hai service `db` và `redis` cần ở trạng thái healthy.
+
+## Bật pgAdmin
+
+```powershell
+docker compose --profile tools up -d pgadmin
+```
+
+Mở pgAdmin tại:
+
+```text
+http://localhost:5050
+```
+
+Thông tin đăng nhập lấy từ:
+
+- `PGADMIN_DEFAULT_EMAIL`
+- `PGADMIN_DEFAULT_PASSWORD`
+
+Kết nối server PostgreSQL trong pgAdmin:
+
+- Host: `db`
+- Port: `5432`
+- Maintenance database: giá trị `POSTGRES_DB`
+- Username: giá trị `POSTGRES_USER`
+- Password: giá trị `POSTGRES_PASSWORD`
+
+## Kiểm Tra Kết Nối PostgreSQL
+
+Nếu máy có `psql`:
+
+```powershell
+psql "postgresql://studyflow:change_me_strong_password@localhost:5432/studyflow_dev"
+```
+
+Hoặc dùng container:
+
+```powershell
+docker compose exec db psql -U studyflow -d studyflow_dev
+```
+
+## Kiểm Tra Redis
+
+```powershell
+docker compose exec redis redis-cli -a change_me_redis_password ping
+```
+
+Kết quả mong đợi:
+
+```text
+PONG
+```
+
+## Reset Database Local
+
+Xóa container và volume database local:
+
+```powershell
+docker compose down -v
+```
+
+Sau đó chạy lại:
+
+```powershell
+docker compose up -d db redis
+```
+
+Lưu ý: `down -v` sẽ xóa toàn bộ dữ liệu local trong PostgreSQL, Redis và pgAdmin.
+
+## Biến Môi Trường Quan Trọng
+
+- `POSTGRES_USER`: user PostgreSQL.
+- `POSTGRES_PASSWORD`: mật khẩu PostgreSQL.
+- `POSTGRES_DB`: database mặc định.
+- `POSTGRES_PORT`: port expose ra máy host.
+- `DATABASE_URL`: connection string dùng cho Prisma/backend.
+- `REDIS_PASSWORD`: mật khẩu Redis local.
+- `REDIS_URL`: connection string Redis.
+- `PGADMIN_DEFAULT_EMAIL`: email đăng nhập pgAdmin.
+- `PGADMIN_DEFAULT_PASSWORD`: mật khẩu pgAdmin.
+- `PGADMIN_PORT`: port pgAdmin trên máy host.
+
+Không commit file `.env` thật lên GitHub.
+
