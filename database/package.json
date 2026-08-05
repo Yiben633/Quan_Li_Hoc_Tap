@@ -13,7 +13,8 @@
     "db:check:semester-subject": "node scripts/check-semester-subject-schema.mjs",
     "db:check:plan-task": "node scripts/check-plan-task-schema.mjs",
     "db:check:calendar-goal": "node scripts/check-calendar-goal-schema.mjs",
-    "db:check:grade": "node scripts/check-grade-schema.mjs"
+    "db:check:grade": "node scripts/check-grade-schema.mjs",
+    "db:check:study-document-note": "node scripts/check-study-document-note-schema.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3"

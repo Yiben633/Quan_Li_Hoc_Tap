@@ -147,6 +147,20 @@ Công thức "điểm cuối kỳ cần đạt" không lưu trong database. Back
 (targetGrade * totalWeight - SUM(scoredScore * scoredWeight)) / remainingWeight
 ```
 
+## Study Time, Document Và Note
+
+`StudySession` lưu phiên học tổng thể; `PomodoroSession` lưu các phiên con như `focus`, `short_break`, `long_break`. Khi xóa cứng một `StudySession`, các `PomodoroSession` con sẽ cascade theo.
+
+`Document` chỉ lưu metadata:
+
+- `fileUrl`
+- `fileType`
+- `storageProvider`
+- `sizeBytes`
+- `tags`
+
+Database không xử lý nội dung file. Backend phải validate dung lượng, MIME type, quyền truy cập storage và bảo mật upload trước khi lưu metadata.
+
 ## Reset Database Local
 
 Xóa container và volume database local:

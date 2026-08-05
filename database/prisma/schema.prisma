@@ -98,6 +98,37 @@ enum GoalStatus {
   @@map("goal_status")
 }
 
+enum PomodoroSessionType {
+  focus
+  short_break
+  long_break
+
+  @@map("pomodoro_session_type")
+}
+
+enum DocumentFileType {
+  pdf
+  word
+  excel
+  ppt
+  image
+  link
+  video
+  code
+  other
+
+  @@map("document_file_type")
+}
+
+enum StorageProvider {
+  local
+  s3
+  cloudinary
+  minio
+
+  @@map("storage_provider")
+}
+
 model User {
   id               String         @id @default(uuid()) @db.Uuid
   fullName         String         @map("full_name")
@@ -126,6 +157,9 @@ model User {
   schedules        Schedule[]
   events           Event[]
   goals            Goal[]
+  studySessions    StudySession[]
+  documents        Document[]
+  notes            Note[]
 
   @@index([email])
   @@index([studentCode])
@@ -208,6 +242,8 @@ model Task {
   subject          Subject?         @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   subTasks         SubTask[]
   attachments      TaskAttachment[]
+  documents        Document[]
+  notes            Note[]
 
   @@index([userId, status])
   @@index([userId, dueDate])
@@ -272,6 +308,9 @@ model Subject {
   schedules   Schedule[]
   goals       Goal[]
   gradeComponents GradeComponent[]
+  studySessions   StudySession[]
+  documents       Document[]
+  notes           Note[]
 
   @@index([userId, status])
   @@index([semesterId, status])
@@ -310,6 +349,89 @@ model Grade {
   gradeComponent   GradeComponent @relation(fields: [gradeComponentId], references: [id], onDelete: Cascade)
 
   @@map("grades")
+}
+
+model StudySession {
+  id               String            @id @default(uuid()) @db.Uuid
+  userId           String            @map("user_id") @db.Uuid
+  subjectId        String?           @map("subject_id") @db.Uuid
+  startedAt        DateTime          @map("started_at")
+  endedAt          DateTime?         @map("ended_at")
+  totalMinutes     Int               @default(0) @map("total_minutes")
+  note             String?
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject          Subject?          @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  pomodoroSessions PomodoroSession[]
+
+  @@index([userId, startedAt])
+  @@index([subjectId, startedAt])
+  @@map("study_sessions")
+}
+
+model PomodoroSession {
+  id             String              @id @default(uuid()) @db.Uuid
+  studySessionId String              @map("study_session_id") @db.Uuid
+  sessionType    PomodoroSessionType @map("session_type")
+  plannedMinutes Int                 @map("planned_minutes")
+  actualMinutes  Int?                @map("actual_minutes")
+  startedAt      DateTime            @map("started_at")
+  endedAt        DateTime?           @map("ended_at")
+  isCompleted    Boolean             @default(false) @map("is_completed")
+  studySession   StudySession        @relation(fields: [studySessionId], references: [id], onDelete: Cascade)
+
+  @@index([studySessionId, startedAt])
+  @@map("pomodoro_sessions")
+}
+
+/// Documents only store file metadata. File size, MIME type, virus checks and
+/// storage authorization are enforced in the backend upload pipeline.
+model Document {
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @map("user_id") @db.Uuid
+  subjectId       String?          @map("subject_id") @db.Uuid
+  taskId          String?          @map("task_id") @db.Uuid
+  title           String
+  fileUrl         String           @map("file_url")
+  fileType        DocumentFileType @map("file_type")
+  storageProvider StorageProvider  @map("storage_provider")
+  sizeBytes       Int?             @map("size_bytes")
+  tags            String[]         @default([])
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject         Subject?         @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  task            Task?            @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([userId, subjectId])
+  @@index([userId, taskId])
+  @@index([userId, deletedAt])
+  @@map("documents")
+}
+
+model Note {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  subjectId       String?   @map("subject_id") @db.Uuid
+  taskId          String?   @map("task_id") @db.Uuid
+  title           String
+  contentRichText String    @map("content_rich_text")
+  isPinned        Boolean   @default(false) @map("is_pinned")
+  tags            String[]  @default([])
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject         Subject?  @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  task            Task?     @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isPinned])
+  @@index([userId, subjectId])
+  @@index([userId, taskId])
+  @@index([userId, deletedAt])
+  @@map("notes")
 }
 
 model Schedule {
