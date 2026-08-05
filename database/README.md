@@ -111,6 +111,31 @@ $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55
 npm run db:check:auth
 ```
 
+## Seed Dữ Liệu Mẫu
+
+Seed tạo roles, tài khoản mẫu, học kỳ, 4 môn học, study plan, task, grade, document, note, goal, schedule, event và notification mẫu.
+
+```powershell
+cd database
+$env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+npm run db:seed
+```
+
+Tài khoản mẫu:
+
+- Admin: `admin@studyflow.local` / `Admin@123456`
+- Student: `student@studyflow.local` / `Student@123456`
+
+Reset toàn bộ database local, chạy lại migration và seed:
+
+```powershell
+cd database
+$env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+npm run db:reset
+```
+
+`db:reset` dùng `prisma migrate reset --force`; Prisma sẽ gọi seed command đã khai báo trong `package.json`.
+
 ## Soft Delete Cho Semester Và Subject
 
 `Semester` và `Subject` dùng trường `deletedAt` để xóa mềm. Khi người dùng xóa học kỳ hoặc môn học, backend nên set `deletedAt = now()` thay vì xóa cứng ngay.
@@ -168,6 +193,79 @@ Database không xử lý nội dung file. Backend phải validate dung lượng,
 `GroupMember` có unique constraint `(studyGroupId, userId)` để một user không bị thêm trùng vào cùng một nhóm học.
 
 `ActivityLog.userId` nullable để ghi log hệ thống, cron job hoặc tác vụ nền không gắn trực tiếp với một user cụ thể.
+
+## Performance Indexes
+
+Migration `20260805220000_add_performance_indexes` bổ sung các index cho truy vấn thường gặp:
+
+- Dashboard task count: `tasks(user_id, status, due_date, deleted_at)`.
+- Kanban board: `tasks(user_id, subject_id, status, sort_order)`.
+- Calendar event range: `events(user_id, start_at, end_at, deleted_at)`.
+- Calendar schedule range: `schedules(user_id, start_date, end_date, recurrence_rule, deleted_at)`.
+- Study statistics: `study_sessions(user_id, subject_id, started_at)`.
+- Completed task statistics: `tasks(user_id, subject_id, completed_at)`.
+- Active goals: `goals(user_id, status, deadline)`.
+
+Những index này giúp dashboard query chính không phải scan rộng khi dữ liệu task, lịch và study session tăng lên.
+
+## Backup Và Restore
+
+Các script backup nằm trong `database/scripts`.
+
+Backup thủ công:
+
+```bash
+cd database
+export DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+./scripts/backup.sh
+```
+
+Mặc định backup lưu vào `database/backups/` với tên theo timestamp UTC.
+
+Restore thủ công:
+
+```bash
+cd database
+export DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+export BACKUP_FILE="./backups/studyflow_20260805T120000Z.dump"
+export CONFIRM_RESTORE="yes"
+./scripts/restore.sh
+```
+
+Restore là thao tác phá hủy dữ liệu hiện tại; script yêu cầu `CONFIRM_RESTORE=yes`.
+
+Cron job backup hằng ngày:
+
+```cron
+0 2 * * * cd /path/to/Quan_Ly_Hoc_Tap/database && DATABASE_URL="postgresql://..." BACKUP_DIR="./backups" ./scripts/backup.sh >> ./backups/backup.log 2>&1
+```
+
+## Migration Runner Cho CI
+
+Build migration runner:
+
+```bash
+cd database
+docker build -f Dockerfile.migrate -t studyflow-migration-runner .
+```
+
+Chạy migration deploy:
+
+```bash
+docker run --rm \
+  -e DATABASE_URL="postgresql://..." \
+  studyflow-migration-runner
+```
+
+Trong GitHub Actions hoặc CI khác, dùng lệnh tương đương:
+
+```bash
+cd database
+npm ci
+npx prisma migrate deploy
+```
+
+Không chạy `prisma migrate dev` trong CI production; dùng `prisma migrate deploy`.
 
 ## Reset Database Local
 
