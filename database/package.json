@@ -10,7 +10,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:check:auth": "node scripts/check-auth-schema.mjs",
-    "db:check:semester-subject": "node scripts/check-semester-subject-schema.mjs"
+    "db:check:semester-subject": "node scripts/check-semester-subject-schema.mjs",
+    "db:check:plan-task": "node scripts/check-plan-task-schema.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3"
