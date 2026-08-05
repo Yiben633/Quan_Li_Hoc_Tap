@@ -1,5 +1,6 @@
 import type { ErrorRequestHandler, RequestHandler } from 'express';
 import { ZodError } from 'zod';
+import multer from 'multer';
 import { logger } from './logger.js';
 import { sendError } from '../utils/http.js';
 
@@ -11,6 +12,11 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   if (res.headersSent) return;
   if (error instanceof ZodError) {
     sendError(res, 'Validation failed', error.issues, 422);
+    return;
+  }
+  if (error instanceof multer.MulterError) {
+    const message = error.code === 'LIMIT_FILE_SIZE' ? 'Uploaded file must not exceed 2MB' : error.message;
+    sendError(res, message, undefined, 422);
     return;
   }
   logger.error('unhandled_error', { requestId: res.locals.requestId, error });

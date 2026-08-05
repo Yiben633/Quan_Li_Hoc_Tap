@@ -36,7 +36,7 @@ type SafeUser = {
 
 type AuthTokens = { accessToken: string; refreshToken: string };
 
-function toSafeUser(user: {
+export function toSafeUser(user: {
   id: string;
   fullName: string;
   email: string;
