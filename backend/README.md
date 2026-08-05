@@ -103,6 +103,20 @@ GET /api/gpa/:semesterId
 
 Grade summary chỉ tính component đã có điểm. `requiredFinalScore` dùng tổng weight thực tế, đồng thời trả `isTargetPossible`, `missingComponents` và `warnings`.
 
+## Study Time và Pomodoro
+
+```text
+POST /api/study-sessions/start
+POST /api/study-sessions/:id/pause
+POST /api/study-sessions/:id/resume
+POST /api/study-sessions/:id/end
+POST /api/study-sessions/:id/pomodoro/start
+POST /api/study-sessions/:id/pomodoro/:pomodoroId/end
+GET  /api/statistics/study-time?range=day|week|month&subjectId=
+```
+
+Session đang chạy được giữ trong Redis để khôi phục trạng thái sau refresh. Khi end, tổng phút được đồng bộ vào `study_sessions.total_minutes`; mỗi user chỉ có một session active.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:
