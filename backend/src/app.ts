@@ -25,6 +25,11 @@ import { studySessionsRouter } from './modules/study-sessions/study-sessions.rou
 import { documentsRouter } from './modules/documents/documents.routes.js';
 import { notesRouter } from './modules/notes/notes.routes.js';
 import { notificationCronRouter, notificationsRouter, notificationSettingsRouter } from './modules/notifications/notifications.routes.js';
+import { reportsRouter } from './modules/reports/reports.routes.js';
+import { aiRouter } from './modules/ai/ai.routes.js';
+import { flashcardsRouter } from './modules/flashcards/flashcards.routes.js';
+import { groupsRouter } from './modules/groups/groups.routes.js';
+import { adminRouter } from './modules/admin/admin.routes.js';
 import { resolve } from 'node:path';
 
 export const app = express();
@@ -59,5 +64,10 @@ app.use('/api/notes', notesRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/notification-settings', notificationSettingsRouter);
 app.use('/api/cron', notificationCronRouter);
+app.use('/api', reportsRouter);
+app.use('/api/ai', aiRouter);
+app.use('/api', flashcardsRouter);
+app.use('/api/study-groups', groupsRouter);
+app.use('/api/admin', adminRouter);
 app.use(notFound);
 app.use(errorHandler);

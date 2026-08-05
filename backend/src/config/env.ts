@@ -13,6 +13,7 @@ const envSchema = z.object({
   CRON_SECRET: z.string().default(''),
   DOCUMENT_MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(20 * 1024 * 1024),
   STORAGE_PROVIDER: z.enum(['local', 's3-compatible']).default('local'),
+  AI_PROVIDER: z.string().default('mock'),
 });
 
 const parsed = envSchema.safeParse(process.env);

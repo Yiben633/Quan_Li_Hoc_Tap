@@ -145,6 +145,30 @@ GET   /api/cron/notifications
 
 Local server chạy notification scan mỗi 5 phút bằng `node-cron`. Vercel dùng `/api/cron/notifications` với `CRON_SECRET`; `backend/vercel.json` đã cấu hình lịch Cron 5 phút. Engine quét task, schedule/exam, study plan và goal, deduplicate theo entity/type/time window, đồng thời tôn trọng in-app/email settings.
 
+## Reports, AI, Flashcards, Groups và Admin
+
+```text
+GET  /api/statistics/overview
+GET  /api/reports/weekly
+GET  /api/reports/monthly
+GET  /api/reports/semester/:semesterId
+GET  /api/reports/by-subject/:id
+POST /api/reports/export?format=pdf|excel
+POST /api/ai/suggest-schedule
+POST /api/ai/reschedule
+POST /api/ai/chat
+POST /api/ai/summarize-document
+POST /api/ai/generate-flashcards
+GET|POST /api/flashcard-sets
+GET|POST /api/flashcard-sets/:setId/flashcards
+POST /api/flashcards/:id/review
+GET  /api/flashcards/due
+GET|POST /api/study-groups
+GET  /api/study-groups/:id/progress
+```
+
+AI schedule dùng greedy allocation theo các slot rảnh và trả warning khi không đủ phút. Provider AI lấy tên từ `AI_PROVIDER`, hiện adapter mock; mọi AI usage được ghi ActivityLog. Các route `/api/admin/*` bắt buộc role `admin`, gồm user management, feedback, activity logs, statistics và import subject template Excel.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:

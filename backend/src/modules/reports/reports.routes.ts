@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import * as controller from './reports.controller.js';
+export const reportsRouter = Router();
+reportsRouter.use(authenticate);
+reportsRouter.get('/statistics/overview', asyncHandler(controller.overview));
+reportsRouter.get('/reports/weekly', asyncHandler(controller.weekly));
+reportsRouter.get('/reports/monthly', asyncHandler(controller.monthly));
+reportsRouter.get('/reports/semester/:semesterId', asyncHandler(controller.semester));
+reportsRouter.get('/reports/by-subject/:id', asyncHandler(controller.subject));
+reportsRouter.post('/reports/export', asyncHandler(controller.exportReport));
