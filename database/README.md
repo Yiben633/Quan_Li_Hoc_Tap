@@ -220,6 +220,8 @@ export DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:
 ./scripts/backup.sh
 ```
 
+Script ưu tiên client PostgreSQL cài trên máy. Nếu không có `pg_dump`, script tự dùng client trong Docker service `db`; hãy bảo đảm `docker compose up -d db` đã chạy.
+
 Mặc định backup lưu vào `database/backups/` với tên theo timestamp UTC.
 
 Restore thủ công:
@@ -231,6 +233,8 @@ export BACKUP_FILE="./backups/studyflow_20260805T120000Z.dump"
 export CONFIRM_RESTORE="yes"
 ./scripts/restore.sh
 ```
+
+Nếu không có `pg_restore`, restore cũng tự chạy qua Docker service `db`. Có thể đổi service hoặc file Compose bằng `DB_SERVICE` và `COMPOSE_FILE`.
 
 Restore là thao tác phá hủy dữ liệu hiện tại; script yêu cầu `CONFIRM_RESTORE=yes`.
 

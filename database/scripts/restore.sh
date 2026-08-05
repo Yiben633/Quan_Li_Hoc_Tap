@@ -21,13 +21,29 @@ if [[ "${CONFIRM_RESTORE:-}" != "yes" ]]; then
   exit 1
 fi
 
-pg_restore \
-  --clean \
-  --if-exists \
-  --no-owner \
-  --no-acl \
-  --dbname="${DATABASE_URL}" \
-  "${BACKUP_FILE}"
+DB_SERVICE="${DB_SERVICE:-db}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+COMPOSE_FILE="${COMPOSE_FILE:-${PROJECT_ROOT}/docker-compose.yml}"
+
+if command -v pg_restore >/dev/null 2>&1; then
+  pg_restore \
+    --clean \
+    --if-exists \
+    --no-owner \
+    --no-acl \
+    --dbname="${DATABASE_URL}" \
+    "${BACKUP_FILE}"
+else
+  command -v docker >/dev/null 2>&1 || {
+    echo "pg_restore not found and Docker is unavailable. Install PostgreSQL client or Docker." >&2
+    exit 1
+  }
+
+  echo "pg_restore not found; using PostgreSQL client from Docker service '${DB_SERVICE}'." >&2
+  docker compose -f "${COMPOSE_FILE}" exec -T "${DB_SERVICE}" \
+    sh -c 'pg_restore --clean --if-exists --no-owner --no-acl --dbname="$POSTGRES_DB"' \
+    < "${BACKUP_FILE}"
+fi
 
 echo "Restore completed from: ${BACKUP_FILE}"
-
