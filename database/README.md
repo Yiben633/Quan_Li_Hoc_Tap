@@ -62,7 +62,7 @@ Kết nối server PostgreSQL trong pgAdmin:
 Nếu máy có `psql`:
 
 ```powershell
-psql "postgresql://studyflow:change_me_strong_password@localhost:5432/studyflow_dev"
+psql "postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev"
 ```
 
 Hoặc dùng container:
@@ -81,6 +81,34 @@ Kết quả mong đợi:
 
 ```text
 PONG
+```
+
+## Prisma Auth Schema
+
+Các file Prisma nằm trong `database/prisma/`.
+
+Chạy generate Prisma Client:
+
+```powershell
+cd database
+$env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+npm run db:generate
+```
+
+Kiểm tra migration:
+
+```powershell
+cd database
+$env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+npm exec prisma -- migrate status
+```
+
+Kiểm tra Prisma Client đọc được các bảng auth:
+
+```powershell
+cd database
+$env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+npm run db:check:auth
 ```
 
 ## Reset Database Local
@@ -114,3 +142,6 @@ Lưu ý: `down -v` sẽ xóa toàn bộ dữ liệu local trong PostgreSQL, Redi
 
 Không commit file `.env` thật lên GitHub.
 
+## Ghi Chú Về Port
+
+PostgreSQL trong Docker network luôn chạy ở `db:5432`. Port trên máy host mặc định dùng `55432` để tránh đụng PostgreSQL cài sẵn trên Windows. Nếu máy bạn không có PostgreSQL local và muốn dùng `5432`, đổi `POSTGRES_PORT=5432` trong `.env`.

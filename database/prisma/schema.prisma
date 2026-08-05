@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ThemeMode {
+  light
+  dark
+
+  @@map("theme_mode")
+}
+
+model User {
+  id               String         @id @default(uuid()) @db.Uuid
+  fullName         String         @map("full_name")
+  email            String         @unique
+  studentCode      String?        @unique @map("student_code")
+  passwordHash     String         @map("password_hash")
+  avatarUrl        String?        @map("avatar_url")
+  school           String?
+  major            String?
+  courseYear       Int?           @map("course_year")
+  timezone         String         @default("Asia/Ho_Chi_Minh")
+  language         String         @default("vi")
+  themeMode        ThemeMode      @default(light) @map("theme_mode")
+  isEmailVerified  Boolean        @default(false) @map("is_email_verified")
+  failedLoginCount Int            @default(0) @map("failed_login_count")
+  lockedUntil      DateTime?      @map("locked_until")
+  deletedAt        DateTime?      @map("deleted_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  roles            UserRole[]
+  refreshTokens    RefreshToken[]
+
+  @@index([email])
+  @@index([studentCode])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Role {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @unique
+  description String?
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  users       UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId     String   @map("user_id") @db.Uuid
+  roleId     String   @map("role_id") @db.Uuid
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
