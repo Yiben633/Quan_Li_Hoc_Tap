@@ -1,0 +1,25 @@
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { env } from './config/env.js';
+import { requestId } from './middlewares/request-id.js';
+import { requestLogger } from './middlewares/logger.js';
+import { errorHandler, notFound } from './middlewares/error-handler.js';
+import { healthRouter } from './routes/health.js';
+
+export const app = express();
+app.set('trust proxy', env.TRUST_PROXY === 'true');
+app.use(helmet());
+app.use(cors({ origin: env.CLIENT_ORIGIN.split(',').map((origin) => origin.trim()), credentials: true }));
+app.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(requestId);
+app.use(requestLogger);
+app.use(healthRouter);
+app.get('/api', (_req, res) => res.json({ success: true, message: 'StudyFlow API', data: { version: '0.1.0' } }));
+app.use(notFound);
+app.use(errorHandler);
