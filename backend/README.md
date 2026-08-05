@@ -117,6 +117,21 @@ GET  /api/statistics/study-time?range=day|week|month&subjectId=
 
 Session đang chạy được giữ trong Redis để khôi phục trạng thái sau refresh. Khi end, tổng phút được đồng bộ vào `study_sessions.total_minutes`; mỗi user chỉ có một session active.
 
+## Documents và Notes
+
+```text
+POST   /api/documents/upload
+GET    /api/documents?subjectId=&taskId=&tag=&search=&page=&limit=
+GET    /api/documents/:id/download
+PATCH  /api/documents/:id
+DELETE /api/documents/:id
+GET|POST       /api/notes
+GET|PATCH|DELETE /api/notes/:id
+PATCH  /api/notes/:id/pin
+```
+
+Document upload dùng `StorageProvider` với local adapter hiện tại và contract `local | s3-compatible` để thay thế adapter khi triển khai object storage. Giới hạn file lấy từ `DOCUMENT_MAX_UPLOAD_BYTES`; MIME nguy hiểm bị chặn, file lưu thất bại sẽ rollback file/metadata. Nội dung Note được sanitize server-side bằng `sanitize-html` trước khi ghi database.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:

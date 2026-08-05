@@ -22,6 +22,8 @@ import { goalsRouter } from './modules/goals/goals.routes.js';
 import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
 import { gradesRouter } from './modules/grades/grades.routes.js';
 import { studySessionsRouter } from './modules/study-sessions/study-sessions.routes.js';
+import { documentsRouter } from './modules/documents/documents.routes.js';
+import { notesRouter } from './modules/notes/notes.routes.js';
 import { resolve } from 'node:path';
 
 export const app = express();
@@ -51,5 +53,7 @@ app.use('/uploads', express.static(resolve(process.cwd(), 'uploads')));
 app.get('/api', (_req, res) => res.json({ success: true, message: 'StudyFlow API', data: { version: '0.1.0' } }));
 app.use('/api', gradesRouter);
 app.use('/api', studySessionsRouter);
+app.use('/api/documents', documentsRouter);
+app.use('/api/notes', notesRouter);
 app.use(notFound);
 app.use(errorHandler);
