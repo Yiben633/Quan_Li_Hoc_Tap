@@ -1,0 +1,72 @@
+import type { Request, Response } from 'express';
+import { sendError, sendSuccess } from '../../utils/http.js';
+import * as service from './auth.service.js';
+
+const COOKIE_NAME = 'refreshToken';
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax' as const,
+  path: '/api/auth',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+function context(req: Request) {
+  return { ipAddress: req.ip, userAgent: req.get('user-agent') };
+}
+
+function getRefreshToken(req: Request, bodyToken?: string) {
+  return req.cookies?.[COOKIE_NAME] ?? bodyToken;
+}
+
+function handleError(res: Response, error: unknown) {
+  const statusCode = typeof error === 'object' && error && 'statusCode' in error && typeof error.statusCode === 'number' ? error.statusCode : 500;
+  const message = error instanceof Error ? error.message : 'Internal server error';
+  return sendError(res, statusCode >= 500 && process.env.NODE_ENV === 'production' ? 'Internal server error' : message, undefined, statusCode);
+}
+
+export async function register(req: Request, res: Response) {
+  try { return sendSuccess(res, 'Registration successful', await service.register(req.body, context(req)), 201); } catch (error) { return handleError(res, error); }
+}
+
+export async function login(req: Request, res: Response) {
+  try {
+    const result = await service.login(req.body.email, req.body.password, context(req));
+    res.cookie(COOKIE_NAME, result.refreshToken, cookieOptions);
+    return sendSuccess(res, 'Login successful', { user: result.user, accessToken: result.accessToken });
+  } catch (error) { return handleError(res, error); }
+}
+
+export async function refresh(req: Request, res: Response) {
+  try {
+    const rawToken = getRefreshToken(req, req.body.refreshToken);
+    if (!rawToken) return sendError(res, 'Refresh token required', undefined, 401);
+    const result = await service.refresh(rawToken, context(req));
+    res.cookie(COOKIE_NAME, result.refreshToken, cookieOptions);
+    return sendSuccess(res, 'Token refreshed', { user: result.user, accessToken: result.accessToken });
+  } catch (error) { return handleError(res, error); }
+}
+
+export async function logout(req: Request, res: Response) {
+  try {
+    await service.logout(getRefreshToken(req, req.body.refreshToken), context(req));
+    res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: undefined });
+    return sendSuccess(res, 'Logout successful', null);
+  } catch (error) { return handleError(res, error); }
+}
+
+export async function forgotPassword(req: Request, res: Response) {
+  try { return sendSuccess(res, 'If the account exists, a reset OTP has been sent', await service.forgotPassword(req.body.email)); } catch (error) { return handleError(res, error); }
+}
+
+export async function verifyOtp(req: Request, res: Response) {
+  try { await service.verifyOtp(req.body.email, req.body.otp); return sendSuccess(res, 'OTP verified', null); } catch (error) { return handleError(res, error); }
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  try { await service.resetPassword(req.body.email, req.body.otp, req.body.newPassword, context(req)); return sendSuccess(res, 'Password reset successful', null); } catch (error) { return handleError(res, error); }
+}
+
+export async function me(req: Request, res: Response) {
+  try { return sendSuccess(res, 'Current user', await service.getCurrentUser(req.user!.id)); } catch (error) { return handleError(res, error); }
+}
