@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.js';
+import { validateBody } from '../../middlewares/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import * as controller from './events.controller.js';
+import { eventCreateSchema, eventUpdateSchema } from './events.schemas.js';
+export const eventsRouter = Router();
+eventsRouter.use(authenticate);
+eventsRouter.get('/', asyncHandler(controller.list));
+eventsRouter.post('/', validateBody(eventCreateSchema), asyncHandler(controller.create));
+eventsRouter.get('/:id', asyncHandler(controller.detail));
+eventsRouter.patch('/:id', validateBody(eventUpdateSchema), asyncHandler(controller.update));
+eventsRouter.delete('/:id', asyncHandler(controller.remove));

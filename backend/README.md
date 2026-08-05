@@ -73,6 +73,24 @@ PATCH /api/kanban/move
 
 Study Plan tự đồng bộ `progressPercent` theo số Task `done`. Reorder và Kanban move chạy trong Prisma transaction, sau đó trả lại danh sách/board mới nhất để frontend cập nhật optimistic UI.
 
+## Calendar, Dashboard và Goals
+
+```text
+GET|POST /api/schedules
+GET|PATCH|DELETE /api/schedules/:id
+GET|POST /api/events
+GET|PATCH|DELETE /api/events/:id
+GET /api/calendar?view=day|week|month&date=YYYY-MM-DD
+GET /api/dashboard/summary
+GET /api/dashboard/progress-chart?range=week|month
+GET|POST /api/goals
+GET|PATCH|DELETE /api/goals/:id
+GET /api/goals/:id/progress
+POST /api/goals/cron/daily
+```
+
+Calendar chuẩn hóa schedule recurrence, event, task due date và exam date về `{ type, title, startAt, endAt, colorHex, sourceEntity }`. Cron goal cần header `x-cron-secret` khi `CRON_SECRET` được cấu hình.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:

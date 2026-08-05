@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.js';
+import { validateQuery } from '../../middlewares/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import * as controller from './dashboard.controller.js';
+import { chartQuerySchema } from './dashboard.schemas.js';
+export const dashboardRouter = Router();
+dashboardRouter.use(authenticate);
+dashboardRouter.get('/summary', asyncHandler(controller.summary));
+dashboardRouter.get('/progress-chart', validateQuery(chartQuerySchema), asyncHandler(controller.chart));

@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.js';
+import { validateBody, validateQuery } from '../../middlewares/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import * as controller from './schedules.controller.js';
+import { scheduleCreateSchema, scheduleListSchema, scheduleUpdateSchema } from './schedules.schemas.js';
+export const schedulesRouter = Router();
+schedulesRouter.use(authenticate);
+schedulesRouter.get('/', validateQuery(scheduleListSchema), asyncHandler(controller.list));
+schedulesRouter.post('/', validateBody(scheduleCreateSchema), asyncHandler(controller.create));
+schedulesRouter.get('/:id', asyncHandler(controller.detail));
+schedulesRouter.patch('/:id', validateBody(scheduleUpdateSchema), asyncHandler(controller.update));
+schedulesRouter.delete('/:id', asyncHandler(controller.remove));

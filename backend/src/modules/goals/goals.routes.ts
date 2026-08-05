@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.js';
+import { validateBody, validateQuery } from '../../middlewares/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import * as controller from './goals.controller.js';
+import { goalCreateSchema, goalListSchema, goalUpdateSchema } from './goals.schemas.js';
+export const goalsRouter = Router();
+goalsRouter.post('/cron/daily', asyncHandler(controller.dailyCron));
+goalsRouter.use(authenticate);
+goalsRouter.get('/', validateQuery(goalListSchema), asyncHandler(controller.list));
+goalsRouter.post('/', validateBody(goalCreateSchema), asyncHandler(controller.create));
+goalsRouter.get('/:id/progress', asyncHandler(controller.progress));
+goalsRouter.get('/:id', asyncHandler(controller.detail));
+goalsRouter.patch('/:id', validateBody(goalUpdateSchema), asyncHandler(controller.update));
+goalsRouter.delete('/:id', asyncHandler(controller.remove));
