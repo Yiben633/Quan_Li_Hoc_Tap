@@ -1,0 +1,24 @@
+import { Router } from 'express';
+import { authenticate } from '../../middlewares/auth.js';
+import { validateBody, validateQuery } from '../../middlewares/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import * as controller from './tasks.controller.js';
+import { reorderSchema, subTaskCreateSchema, subTaskUpdateSchema, taskCreateSchema, taskListSchema, taskStatusSchema, taskUpdateSchema } from './tasks.schemas.js';
+
+export const tasksRouter = Router();
+tasksRouter.use(authenticate);
+tasksRouter.get('/today', asyncHandler(controller.today));
+tasksRouter.get('/overdue', asyncHandler(controller.overdue));
+tasksRouter.post('/reorder', validateBody(reorderSchema), asyncHandler(controller.reorder));
+tasksRouter.get('/', validateQuery(taskListSchema), asyncHandler(controller.list));
+tasksRouter.post('/', validateBody(taskCreateSchema), asyncHandler(controller.create));
+tasksRouter.get('/:id/subtasks', asyncHandler(controller.subtasks));
+tasksRouter.post('/:id/subtasks', validateBody(subTaskCreateSchema), asyncHandler(controller.createSubtask));
+tasksRouter.patch('/:id/subtasks/:subtaskId', validateBody(subTaskUpdateSchema), asyncHandler(controller.updateSubtask));
+tasksRouter.delete('/:id/subtasks/:subtaskId', asyncHandler(controller.removeSubtask));
+tasksRouter.patch('/:id/status', validateBody(taskStatusSchema), asyncHandler(controller.status));
+tasksRouter.patch('/:id/complete', asyncHandler(controller.complete));
+tasksRouter.post('/:id/duplicate', asyncHandler(controller.duplicate));
+tasksRouter.get('/:id', asyncHandler(controller.detail));
+tasksRouter.patch('/:id', validateBody(taskUpdateSchema), asyncHandler(controller.update));
+tasksRouter.delete('/:id', asyncHandler(controller.remove));

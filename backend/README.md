@@ -50,6 +50,29 @@ PATCH /api/subjects/:id/complete
 
 List endpoint hỗ trợ pagination, filter/search và sort. Delete là soft delete; Subject detail trả `taskTotal`, `taskDone`, `totalStudyMinutes` và `currentAverage`.
 
+## Study Plan, Task và Kanban
+
+Các route yêu cầu access token:
+
+```text
+GET|POST /api/study-plans
+GET|PATCH|DELETE /api/study-plans/:id
+GET|POST /api/tasks
+GET|PATCH|DELETE /api/tasks/:id
+PATCH /api/tasks/:id/status
+PATCH /api/tasks/:id/complete
+POST  /api/tasks/:id/duplicate
+POST  /api/tasks/reorder
+GET|POST /api/tasks/:id/subtasks
+PATCH|DELETE /api/tasks/:id/subtasks/:subtaskId
+GET /api/tasks/today
+GET /api/tasks/overdue
+GET /api/kanban/board
+PATCH /api/kanban/move
+```
+
+Study Plan tự đồng bộ `progressPercent` theo số Task `done`. Reorder và Kanban move chạy trong Prisma transaction, sau đó trả lại danh sách/board mới nhất để frontend cập nhật optimistic UI.
+
 ## User Profile
 
 Các route dưới đây yêu cầu `Authorization: Bearer <accessToken>`:
