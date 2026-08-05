@@ -129,6 +129,24 @@ ON subjects(user_id, semester_id, code)
 WHERE deleted_at IS NULL;
 ```
 
+## Grade Và GPA
+
+Điểm trung bình hiện tại của từng môn được mô tả bằng SQL view `subject_grade_summaries`.
+
+Công thức:
+
+```text
+SUM(score * weight_percent) / SUM(weight_percent)
+```
+
+Chỉ các `GradeComponent` đã có `Grade.score` mới được tính vào tử số và mẫu số. Component chưa có điểm, ví dụ điểm cuối kỳ chưa nhập, sẽ không kéo trung bình hiện tại xuống.
+
+Công thức "điểm cuối kỳ cần đạt" không lưu trong database. Backend sẽ tính khi gọi API grade summary:
+
+```text
+(targetGrade * totalWeight - SUM(scoredScore * scoredWeight)) / remainingWeight
+```
+
 ## Reset Database Local
 
 Xóa container và volume database local:

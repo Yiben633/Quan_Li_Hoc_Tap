@@ -271,11 +271,45 @@ model Subject {
   tasks       Task[]
   schedules   Schedule[]
   goals       Goal[]
+  gradeComponents GradeComponent[]
 
   @@index([userId, status])
   @@index([semesterId, status])
   @@index([userId, deletedAt])
   @@map("subjects")
+}
+
+model GradeComponent {
+  id            String   @id @default(uuid()) @db.Uuid
+  subjectId     String   @map("subject_id") @db.Uuid
+  name          String
+  maxScore      Decimal  @default(10) @map("max_score") @db.Decimal(5, 2)
+  weightPercent Decimal  @map("weight_percent") @db.Decimal(5, 2)
+  examDate      DateTime? @map("exam_date") @db.Date
+  note          String?
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  subject       Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  grade         Grade?
+
+  @@index([subjectId, sortOrder])
+  @@map("grade_components")
+}
+
+/// The required final exam score is calculated in the backend, not persisted here.
+/// Formula:
+/// (targetGrade * totalWeight - SUM(scoredScore * scoredWeight)) / remainingWeight.
+model Grade {
+  id               String         @id @default(uuid()) @db.Uuid
+  gradeComponentId String         @unique @map("grade_component_id") @db.Uuid
+  score            Decimal?       @db.Decimal(5, 2)
+  gradedAt         DateTime?      @map("graded_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  gradeComponent   GradeComponent @relation(fields: [gradeComponentId], references: [id], onDelete: Cascade)
+
+  @@map("grades")
 }
 
 model Schedule {
