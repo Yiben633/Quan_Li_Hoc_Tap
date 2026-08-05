@@ -3,6 +3,8 @@
 Hệ thống: **Quản lý và lập kế hoạch học tập cho sinh viên**  
 Stack: Node.js, Express, TypeScript, Prisma, PostgreSQL, Redis, JWT, Docker.
 
+Ghi chú deploy: Docker dùng cho local/dev. Nếu deploy production trên Vercel, Express cần được đóng gói dạng Vercel Function hoặc tách thành app API phù hợp serverless. Các job định kỳ nên có endpoint cron để Vercel Cron gọi thay vì chỉ dựa vào process chạy nền.
+
 Giả định: database layer đã có Prisma schema và migration. Làm từng prompt theo thứ tự, test API sau mỗi bước.
 
 ## PROMPT 0 - Khởi Tạo Backend
@@ -20,12 +22,17 @@ Yêu cầu:
 - Middleware: requestId, logger, errorHandler, notFound, validateBody, validateQuery, authenticate, authorize.
 - Endpoint `GET /health` kiểm tra server, database và Redis.
 - Dockerfile multi-stage và compose service `backend`.
+- Thêm adapter entrypoint cho Vercel:
+  - `src/server.ts` dùng cho local/Docker long-running server.
+  - `api/index.ts` hoặc cấu hình tương đương export Express app cho Vercel Functions.
+- Tạo `vercel.json` mẫu nếu backend deploy cùng repo hoặc ghi rõ cấu hình trong docs deployment.
 - README backend hướng dẫn chạy local, test và build.
 
 Checklist:
 - `npm run dev` chạy được.
 - `GET /health` trả 200 khi DB/Redis healthy.
 - Lỗi validation trả format thống nhất.
+- `vercel build` hoặc build command tương ứng không lỗi nếu bật cấu hình Vercel.
 ```
 
 ## PROMPT 1 - Auth Module
@@ -225,7 +232,8 @@ Endpoints:
 - PATCH /api/notification-settings.
 
 Cron:
-- Chạy mỗi 5 phút.
+- Local: chạy mỗi 5 phút bằng node-cron.
+- Production Vercel: tạo endpoint `GET /api/cron/notifications` và cấu hình Vercel Cron gọi mỗi 5 phút hoặc theo giới hạn plan.
 - Quét task sắp đến hạn, task quá hạn, lịch học/thi sắp tới, study plan gần deadline, goal at risk.
 - Tạo notification theo setting của từng user.
 - Tránh tạo trùng bằng khóa logic hoặc kiểm tra relatedEntity + type + time window.
@@ -233,6 +241,7 @@ Cron:
 
 Yêu cầu:
 - Tách NotificationChannel interface để sau này thêm WebSocket/PWA push.
+- Bảo vệ cron endpoint bằng `CRON_SECRET`.
 ```
 
 ## PROMPT 10 - Reports, AI, Flashcard, Group, Admin
@@ -287,6 +296,10 @@ CI/Docker:
 - Healthcheck và depends_on hợp lý.
 - docker-compose.override.yml cho dev hot reload.
 - GitHub Actions: install, lint, test, build.
+- Vercel:
+  - Tài liệu hóa env cần khai báo: DATABASE_URL, DIRECT_URL nếu dùng Prisma migration, REDIS_URL, JWT_SECRET, REFRESH_TOKEN_SECRET, FRONTEND_URL, CRON_SECRET.
+  - Không chạy migration tự động trong mỗi serverless request.
+  - Migration chạy bằng GitHub Actions, Vercel build step riêng hoặc thủ công qua CLI.
 - README hướng dẫn chạy toàn hệ thống.
 - `README-security.md` checklist bảo mật.
 
@@ -295,4 +308,3 @@ Checklist:
 - Docker compose build sạch.
 - Không hardcode secret.
 ```
-

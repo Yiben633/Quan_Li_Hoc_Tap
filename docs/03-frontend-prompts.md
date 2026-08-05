@@ -3,6 +3,8 @@
 Hệ thống: **Quản lý và lập kế hoạch học tập cho sinh viên**  
 Stack: React, Vite, TypeScript, TailwindCSS, React Query, Zustand, Docker.
 
+Ghi chú deploy: Docker/Nginx dùng cho local hoặc self-host. Với production trên Vercel, Vite React có thể deploy trực tiếp bằng build command `npm run build`, output `dist`, và biến môi trường public phải có prefix `VITE_`.
+
 Giả định: backend đã có API tương ứng. Làm từng prompt theo thứ tự, chạy `npm run dev` và kiểm tra UI sau mỗi bước.
 
 ## PROMPT 0 - Khởi Tạo Frontend
@@ -16,12 +18,18 @@ Yêu cầu:
 - Tạo `services/apiClient.ts` với axios instance, attach accessToken, refresh token khi 401 và xử lý logout khi refresh thất bại.
 - Tạo route config, ProtectedRoute, AdminRoute.
 - Tạo Dockerfile multi-stage và nginx.conf fallback React Router.
+- Tạo cấu hình Vercel-ready:
+  - `vercel.json` với rewrite fallback về `/index.html` nếu cần cho SPA.
+  - Build command: `npm run build`.
+  - Output directory: `dist`.
+  - Env: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV` nếu dùng.
 - Cấu hình Tailwind design tokens bằng CSS variables.
 
 Checklist:
 - Trang root render được.
 - Routing hoạt động.
 - API base URL đọc từ VITE_API_URL.
+- Deploy preview trên Vercel đọc đúng env theo Preview/Production.
 ```
 
 ## PROMPT 1 - Design System Và App Layout
@@ -310,10 +318,10 @@ Yêu cầu:
 - Tất cả destructive actions có confirm.
 - Tất cả form có thông báo lỗi tiếng Việt rõ ràng.
 - README hướng dẫn chạy frontend và toàn bộ stack.
+- README có thêm hướng dẫn deploy Vercel: import GitHub repo, chọn root directory frontend nếu tách project, khai báo env và kiểm tra preview URL.
 
 Checklist:
 - `npm run build` pass.
 - Không có text tràn khỏi button/card ở mobile.
 - Loading, empty, error, success state đầy đủ.
 ```
-

@@ -9,6 +9,7 @@ Stack đề xuất:
 - Backend: Node.js, Express, TypeScript, Prisma, JWT, Redis, Docker.
 - Frontend: React, Vite, TypeScript, TailwindCSS, React Query, Zustand.
 - DevOps: Docker Compose, GitHub Actions, migration runner, backup script.
+- Deployment: Vercel cho frontend production, Vercel Functions hoặc service Node riêng cho backend, cloud PostgreSQL/Redis cho môi trường online.
 
 ## Nguyên tắc làm dự án
 
@@ -17,6 +18,7 @@ Stack đề xuất:
 3. Sau mỗi prompt phải có checklist nghiệm thu: build được, test được, endpoint hoạt động, migration chạy được hoặc UI render đúng.
 4. Ưu tiên MVP chắc chắn trước: Auth, học kỳ, môn học, kế hoạch, task, dashboard, lịch.
 5. Tính năng nâng cao như AI assistant, flashcard, nhóm học tập, PWA làm sau khi lõi ổn định.
+6. Docker dùng cho local/dev; Vercel dùng cho preview/production. Không phụ thuộc vào Docker khi deploy lên Vercel.
 
 ## Giai Đoạn 0 - Nền Móng
 
@@ -24,6 +26,7 @@ Mục tiêu:
 - Tạo cấu trúc monorepo rõ ràng.
 - Có Docker Compose chạy PostgreSQL, Redis, backend, frontend.
 - Có chuẩn env, logging, error handling, validation, seed dữ liệu mẫu.
+- Có cấu hình Vercel-ready ngay từ đầu: `vercel.json`, biến môi trường, build command, preview deployment.
 
 Thành phẩm:
 - `database/` có Prisma schema, migration, seed.
@@ -72,6 +75,21 @@ Mục tiêu:
 - Nhóm học tập.
 - Admin dashboard.
 - PWA và polish UX.
+
+## Chiến Lược Deploy
+
+Local development:
+- Dùng Docker Compose để chạy PostgreSQL, Redis, backend và frontend đồng bộ.
+- Dùng seed data để demo nhanh.
+
+Preview/production:
+- Frontend React/Vite deploy lên Vercel.
+- Database dùng PostgreSQL cloud như Neon, Supabase hoặc Vercel Postgres nếu chọn được.
+- Redis dùng Upstash Redis hoặc Redis cloud tương thích HTTP/TCP.
+- Backend có 2 hướng:
+  - Hướng A: Deploy Express lên Vercel Functions để đơn giản hóa preview, phù hợp MVP và API vừa phải.
+  - Hướng B: Deploy backend Node.js riêng trên Render/Fly.io/Railway/VPS nếu cần WebSocket lâu dài, job nền nặng hoặc xử lý file lớn.
+- Cron job trên production có thể dùng Vercel Cron gọi endpoint `/api/cron/*`; local vẫn dùng node-cron.
 
 ## Chuẩn Dữ Liệu Chung
 
@@ -128,4 +146,3 @@ Một prompt được xem là hoàn thành khi:
 - Frontend render đúng loading, empty, error và success state.
 - README hoặc ghi chú chạy local được cập nhật nếu thay đổi cách chạy.
 - Không hardcode secret, URL môi trường hoặc tài khoản thật.
-

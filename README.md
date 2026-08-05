@@ -12,6 +12,7 @@ Tên gợi ý: **StudyFlow**
 2. `docs/01-database-prompts.md` - dựng PostgreSQL, Redis, Prisma schema, seed và backup.
 3. `docs/02-backend-prompts.md` - dựng Express API, auth, CRUD, dashboard, notification, AI, admin.
 4. `docs/03-frontend-prompts.md` - dựng React UI, layout, dashboard, task, calendar, report, PWA.
+5. `docs/04-deployment-vercel-prompts.md` - chuẩn bị deploy Vercel, env, cron, database cloud và CI.
 
 ## Nguyên Tắc Dùng Prompt
 
@@ -39,6 +40,7 @@ Tính năng xịn:
 
 1. Backend prompt 10-11.
 2. Frontend prompt 14-16.
+3. Deployment prompt 0-6 để đưa web lên Vercel và nối database cloud.
 
 ## Definition Of Done
 
@@ -50,4 +52,3 @@ Một phần được xem là xong khi:
 - Không hardcode secret.
 - Có checklist nghiệm thu rõ ràng.
 - Có hướng dẫn chạy lại từ đầu cho người khác.
-
