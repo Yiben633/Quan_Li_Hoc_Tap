@@ -14,6 +14,18 @@ npm run dev
 
 Khởi động hạ tầng trước bằng `docker compose up -d db redis` từ thư mục gốc. Kiểm tra `http://localhost:4000/health`; response healthy có dạng `{ success, message, data }`.
 
+## Toàn hệ thống Docker
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+docker compose ps
+```
+
+Frontend mở tại `http://localhost:3000`, backend tại `http://localhost:4000`, và frontend proxy các request `/api` tới backend. Dev hot reload dùng `docker compose -f docker-compose.yml -f docker-compose.override.yml up --build`.
+
+CI chạy `prisma migrate deploy`, lint, test và build. Migration không chạy trong mỗi request/serverless function; Vercel dùng `backend/vercel.json` cho build và Cron, còn migration chạy từ GitHub Actions hoặc CLI riêng.
+
 Các biến `JWT_ACCESS_SECRET` và `JWT_REFRESH_SECRET` phải là chuỗi đủ dài khi chạy thật. Không commit `.env`.
 
 ## Test và build

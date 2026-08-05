@@ -1,0 +1,51 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: studyflow
+          POSTGRES_PASSWORD: studyflow_ci_password
+          POSTGRES_DB: studyflow_ci
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U studyflow -d studyflow_ci"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://studyflow:studyflow_ci_password@localhost:55432/studyflow_ci?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_ACCESS_SECRET: test-access-secret-long-enough
+      JWT_REFRESH_SECRET: test-refresh-secret-long-enough
+      CLIENT_ORIGIN: http://localhost:3000
+      CRON_SECRET: ci-cron-secret-long-enough
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npx prisma migrate deploy --schema ../database/prisma/schema.prisma
+      - run: npm run lint
+      - run: npm test -- --runInBand
+      - run: npm run build

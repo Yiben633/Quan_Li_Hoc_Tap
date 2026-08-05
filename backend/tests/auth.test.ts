@@ -17,6 +17,15 @@ function refreshCookie(response: request.Response) {
   return cookie.split(';')[0];
 }
 
+function csrfCookie(response: request.Response) {
+  const setCookie = response.headers['set-cookie'];
+  const cookie = Array.isArray(setCookie) ? setCookie.find((value: string) => value.startsWith('csrfToken=')) : undefined;
+  if (!cookie) throw new Error('CSRF cookie was not returned');
+  return cookie.split(';')[0];
+}
+
+function csrfValue(cookie: string) { return cookie.replace(/^csrfToken=/, ''); }
+
 describe('auth module', () => {
   beforeAll(async () => {
     if (redis.status === 'wait') await redis.connect();
@@ -63,26 +72,28 @@ describe('auth module', () => {
   it('returns the current user and rotates refresh tokens on refresh', async () => {
     const login = await request(app).post('/api/auth/login').send({ email, password });
     const oldCookie = refreshCookie(login);
+    const oldCsrfCookie = csrfCookie(login);
     const me = await request(app).get('/api/auth/me').set('Authorization', `Bearer ${login.body.data.accessToken}`);
     expect(me.status).toBe(200);
     expect(me.body.data.email).toBe(email);
 
-    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', oldCookie).send({});
+    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', [oldCookie, oldCsrfCookie]).set('x-csrf-token', csrfValue(oldCsrfCookie)).send({});
     expect(refreshed.status).toBe(200);
     const nextCookie = refreshCookie(refreshed);
     expect(nextCookie).not.toBe(oldCookie);
 
-    const reused = await request(app).post('/api/auth/refresh').set('Cookie', oldCookie).send({});
+    const reused = await request(app).post('/api/auth/refresh').set('Cookie', [oldCookie, oldCsrfCookie]).set('x-csrf-token', csrfValue(oldCsrfCookie)).send({});
     expect(reused.status).toBe(401);
   });
 
   it('revokes the current refresh token on logout', async () => {
     const login = await request(app).post('/api/auth/login').send({ email, password });
     const cookie = refreshCookie(login);
-    const logout = await request(app).post('/api/auth/logout').set('Cookie', cookie).send({});
+    const csrf = csrfCookie(login);
+    const logout = await request(app).post('/api/auth/logout').set('Cookie', [cookie, csrf]).set('x-csrf-token', csrfValue(csrf)).send({});
     expect(logout.status).toBe(200);
 
-    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', cookie).send({});
+    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', [cookie, csrf]).set('x-csrf-token', csrfValue(csrf)).send({});
     expect(refreshed.status).toBe(401);
   });
 

@@ -1,8 +1,10 @@
 import type { Request, Response } from 'express';
+import { randomBytes } from 'node:crypto';
 import { sendError, sendSuccess } from '../../utils/http.js';
 import * as service from './auth.service.js';
 
 const COOKIE_NAME = 'refreshToken';
+const CSRF_COOKIE_NAME = 'csrfToken';
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
@@ -10,6 +12,7 @@ const cookieOptions = {
   path: '/api/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
+const csrfCookieOptions = { ...cookieOptions, httpOnly: false };
 
 function context(req: Request) {
   return { ipAddress: req.ip, userAgent: req.get('user-agent') };
@@ -17,6 +20,19 @@ function context(req: Request) {
 
 function getRefreshToken(req: Request, bodyToken?: string) {
   return req.cookies?.[COOKIE_NAME] ?? bodyToken;
+}
+
+function setAuthCookies(res: Response, refreshToken: string) {
+  res.cookie(COOKIE_NAME, refreshToken, cookieOptions);
+  res.cookie(CSRF_COOKIE_NAME, randomBytes(32).toString('hex'), csrfCookieOptions);
+}
+
+function assertCsrf(req: Request) {
+  const cookieToken = req.cookies?.[COOKIE_NAME];
+  if (!cookieToken) return true;
+  const csrfCookie = req.cookies?.[CSRF_COOKIE_NAME];
+  const csrfHeader = req.header('x-csrf-token');
+  return Boolean(csrfCookie && csrfHeader && csrfCookie === csrfHeader);
 }
 
 function handleError(res: Response, error: unknown) {
@@ -32,25 +48,28 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   try {
     const result = await service.login(req.body.email, req.body.password, context(req));
-    res.cookie(COOKIE_NAME, result.refreshToken, cookieOptions);
+    setAuthCookies(res, result.refreshToken);
     return sendSuccess(res, 'Login successful', { user: result.user, accessToken: result.accessToken });
   } catch (error) { return handleError(res, error); }
 }
 
 export async function refresh(req: Request, res: Response) {
   try {
+    if (!assertCsrf(req)) return sendError(res, 'CSRF validation failed', undefined, 403);
     const rawToken = getRefreshToken(req, req.body.refreshToken);
     if (!rawToken) return sendError(res, 'Refresh token required', undefined, 401);
     const result = await service.refresh(rawToken, context(req));
-    res.cookie(COOKIE_NAME, result.refreshToken, cookieOptions);
+    setAuthCookies(res, result.refreshToken);
     return sendSuccess(res, 'Token refreshed', { user: result.user, accessToken: result.accessToken });
   } catch (error) { return handleError(res, error); }
 }
 
 export async function logout(req: Request, res: Response) {
   try {
+    if (!assertCsrf(req)) return sendError(res, 'CSRF validation failed', undefined, 403);
     await service.logout(getRefreshToken(req, req.body.refreshToken), context(req));
     res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: undefined });
+    res.clearCookie(CSRF_COOKIE_NAME, { ...csrfCookieOptions, maxAge: undefined });
     return sendSuccess(res, 'Logout successful', null);
   } catch (error) { return handleError(res, error); }
 }
