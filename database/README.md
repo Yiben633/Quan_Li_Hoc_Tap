@@ -111,6 +111,24 @@ $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55
 npm run db:check:auth
 ```
 
+## Soft Delete Cho Semester Và Subject
+
+`Semester` và `Subject` dùng trường `deletedAt` để xóa mềm. Khi người dùng xóa học kỳ hoặc môn học, backend nên set `deletedAt = now()` thay vì xóa cứng ngay.
+
+Lý do:
+
+- Giữ lại lịch sử học tập để thống kê, báo cáo và khôi phục khi xóa nhầm.
+- Tránh mất dây chuyền dữ liệu liên quan như kế hoạch, task, điểm số, tài liệu và ghi chú.
+- Cho phép áp dụng unique mềm: một user không thể có 2 môn cùng `code` trong cùng học kỳ nếu môn cũ chưa bị xóa mềm, nhưng có thể dùng lại code đó sau khi môn cũ đã có `deletedAt`.
+
+Database hiện có partial unique index:
+
+```sql
+CREATE UNIQUE INDEX subjects_active_user_semester_code_key
+ON subjects(user_id, semester_id, code)
+WHERE deleted_at IS NULL;
+```
+
 ## Reset Database Local
 
 Xóa container và volume database local:

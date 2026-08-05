@@ -14,6 +14,24 @@ enum ThemeMode {
   @@map("theme_mode")
 }
 
+enum SemesterStatus {
+  planning
+  active
+  closed
+  archived
+
+  @@map("semester_status")
+}
+
+enum SubjectStatus {
+  in_progress
+  completed
+  dropped
+  archived
+
+  @@map("subject_status")
+}
+
 model User {
   id               String         @id @default(uuid()) @db.Uuid
   fullName         String         @map("full_name")
@@ -35,11 +53,66 @@ model User {
   updatedAt        DateTime       @updatedAt @map("updated_at")
   roles            UserRole[]
   refreshTokens    RefreshToken[]
+  semesters        Semester[]
+  subjects         Subject[]
 
   @@index([email])
   @@index([studentCode])
   @@index([deletedAt])
   @@map("users")
+}
+
+/// Semesters use soft delete through deletedAt so historical study data can be restored
+/// and dashboard/statistics can avoid accidental data loss.
+model Semester {
+  id              String         @id @default(uuid()) @db.Uuid
+  userId          String         @map("user_id") @db.Uuid
+  name            String
+  academicYear    String         @map("academic_year")
+  startDate       DateTime       @map("start_date") @db.Date
+  endDate         DateTime       @map("end_date") @db.Date
+  status          SemesterStatus @default(planning)
+  targetGpa       Decimal?       @map("target_gpa") @db.Decimal(4, 2)
+  expectedCredits Int?           @map("expected_credits")
+  note            String?
+  deletedAt       DateTime?      @map("deleted_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects        Subject[]
+
+  @@unique([id, userId])
+  @@index([userId, status])
+  @@index([userId, deletedAt])
+  @@map("semesters")
+}
+
+/// Subjects also use soft delete through deletedAt. The database migration adds a
+/// partial unique index so a user cannot reuse the same subject code in one semester
+/// while an active, non-deleted subject with that code still exists.
+model Subject {
+  id          String        @id @default(uuid()) @db.Uuid
+  semesterId  String        @map("semester_id") @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  code        String
+  name        String
+  credits     Int
+  lecturer    String?
+  room        String?
+  colorHex    String        @map("color_hex")
+  targetGrade Decimal?      @map("target_grade") @db.Decimal(4, 2)
+  status      SubjectStatus @default(in_progress)
+  note        String?
+  deletedAt   DateTime?     @map("deleted_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  semester    Semester      @relation(fields: [semesterId, userId], references: [id, userId], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([semesterId, status])
+  @@index([userId, deletedAt])
+  @@map("subjects")
 }
 
 model Role {
@@ -78,4 +151,3 @@ model RefreshToken {
   @@index([expiresAt])
   @@map("refresh_tokens")
 }
-
