@@ -50,12 +50,16 @@ Yêu cầu:
   - Build command: `npm run build`.
   - Output directory: `dist`.
   - Env: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV` nếu dùng.
-- Cấu hình Tailwind design tokens bằng CSS variables.
+- Cấu hình design tokens bằng CSS variables, dùng được với Tailwind hoặc CSS
+  hiện có; không hard-code màu trong component.
+- Cấu hình proxy `/api` và `/uploads` cho môi trường local; ghi chú rõ rằng
+  production phải proxy/serve được cả hai đường dẫn.
 
 Checklist:
 - Trang root render được.
 - Routing hoạt động.
 - API base URL đọc từ VITE_API_URL.
+- SPA gọi được API và tải được avatar/file local qua `/uploads`.
 - Deploy preview trên Vercel đọc đúng env theo Preview/Production.
 ```
 
@@ -79,6 +83,11 @@ Phong cách:
   animation tiết chế, gradient xanh kết hợp mint/amber; không làm giảm khả năng
   đọc dữ liệu.
 - Tôn trọng `prefers-reduced-motion` và giữ animation không bắt buộc để thao tác.
+- Dark/light/system phải có token riêng và đạt tương phản dễ đọc cho text,
+  placeholder, icon, link, trạng thái active và disabled; không dùng xanh đậm
+  trên nền xanh đậm.
+- Icon-only button phải có accessible label/tooltip; form field phải liên kết
+  đúng label, error và trạng thái loading.
 ```
 
 ## PROMPT 2 - Auth Pages
@@ -101,19 +110,26 @@ State:
 Yêu cầu:
 - Validate real-time bằng Zod + react-hook-form.
 - Hiển thị lỗi API rõ ràng bằng tiếng Việt.
+- `remember me` lưu access token/user ở localStorage khi bật và sessionStorage
+  khi tắt; logout phải xóa cả hai nơi. Không lưu password hoặc refresh token
+  dạng plaintext trong storage.
+- Không hiển thị lỗi chung chung nếu API trả lỗi validation, conflict hoặc
+  database unavailable; map về thông báo thân thiện theo từng trường hợp.
 - Sau login chuyển về Dashboard.
 ```
 
 ## PROMPT 3 - Settings Và Hồ Sơ Cá Nhân
 
 Profile fields related to school, major, student code, and course year are
-optional and must never block saving a profile. Add general-purpose fields such
-as occupation, learning purpose, preferred study style, or age group only when
-they are useful to the user.
+optional and must never block saving a profile. General-purpose context such as
+occupation, learning purpose, preferred study style, or age group is optional,
+collapsed by default, and should be shown only when it helps the user.
 
 ```text
 Xây dựng SettingsPage với tabs:
-- Hồ sơ: avatar, họ tên; trường, ngành, khóa học và các thông tin bối cảnh khác đều là tùy chọn.
+- Hồ sơ: avatar, họ tên; trường, ngành, khóa học và mọi thông tin bối cảnh đều
+  là tùy chọn. Không hỏi tuổi chính xác; nhóm tuổi/phong cách học chỉ là lựa
+  chọn bổ sung, không được chặn nút lưu.
 - Bảo mật: đổi mật khẩu.
 - Giao diện: light/dark/system nếu muốn, lưu localStorage.
 - Ngôn ngữ: cấu trúc sẵn cho vi/en.
@@ -121,7 +137,10 @@ Xây dựng SettingsPage với tabs:
 - Nhắc nhở: notification settings.
 
 Yêu cầu:
-- Upload avatar có preview trước khi gửi.
+- Upload avatar có crop/drag/zoom và preview trước khi gửi; khi user bấm “Dùng
+  ảnh này”, tự động upload và cập nhật avatar, không yêu cầu bấm lưu lần hai.
+- Khi chọn ảnh mới hoặc thay đổi profile, hiển thị nút Hủy và khôi phục đúng
+  trạng thái trước đó. Nếu upload lỗi, giữ avatar cũ và hiển thị lỗi tiếng Việt.
 - React Query invalidate user profile sau khi cập nhật.
 - Toast thành công/thất bại.
 ```
