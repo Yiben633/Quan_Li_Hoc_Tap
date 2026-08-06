@@ -121,3 +121,21 @@
 [data-theme='dark'] .goal-panel .progress-line span {
   background: linear-gradient(90deg, #4d7dff, #6c9aff);
 }
+
+[data-theme='dark'] .event-date.blue {
+  color: #79a1ff;
+  background: #29427d;
+}
+
+[data-theme='dark'] .event-date.orange {
+  color: #ffb04d;
+  background: #62431f;
+}
+
+[data-theme='dark'] .event-row > div:last-child strong {
+  color: #f3f6fb;
+}
+
+[data-theme='dark'] .event-row .subtle {
+  color: #c1ccdc;
+}
