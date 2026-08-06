@@ -5,7 +5,7 @@ import type { SelectHTMLAttributes } from 'react'
 
 type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & { label?: string; error?: string; customMenu?: boolean }
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select({ label, error, children, customMenu, value, defaultValue, onChange, ...props }, ref) {
-  customMenu = customMenu || props.name === 'status' || props.name === 'semesterId' || props['aria-label'] === 'Lọc không gian học' || props['aria-label'] === 'Lọc trạng thái'
+  customMenu = customMenu || props.name === 'status' || props.name === 'semesterId' || props['aria-label'] === 'Lọc không gian học' || props['aria-label'] === 'Lọc trạng thái' || props['aria-label'] === 'Lọc độ ưu tiên'
   const options = Children.toArray(children).filter(isValidElement).map((child) => { const option = child.props as { value?: string; children?: ReactNode }; return { value: String(option.value ?? ''), label: String(option.children ?? '') } })
   const [currentValue, setCurrentValue] = useState(String(value ?? defaultValue ?? ''))
   const selected = options.find((option) => option.value === String(value ?? currentValue)) ?? options[0]
