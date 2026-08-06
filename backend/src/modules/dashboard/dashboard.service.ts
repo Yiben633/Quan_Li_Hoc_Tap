@@ -1,9 +1,12 @@
 import { prisma } from '../../lib/prisma.js';
 import { list as listGoals } from '../goals/goals.service.js';
 
-function startOfDay(date = new Date()) { const value = new Date(date); value.setUTCHours(0, 0, 0, 0); return value; }
+const VIETNAM_OFFSET_MS = 7 * 60 * 60 * 1000;
+function vietnamParts(date = new Date()) { const shifted = new Date(date.getTime() + VIETNAM_OFFSET_MS); return { year: shifted.getUTCFullYear(), month: shifted.getUTCMonth() + 1, day: shifted.getUTCDate() }; }
+function dateKey(date: Date) { const parts = vietnamParts(date); return `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`; }
+function startOfDay(date = new Date()) { const parts = vietnamParts(date); return new Date(Date.UTC(parts.year, parts.month - 1, parts.day) - VIETNAM_OFFSET_MS); }
 function addDays(date: Date, days: number) { const value = new Date(date); value.setUTCDate(value.getUTCDate() + days); return value; }
-function monday(date = new Date()) { const day = date.getUTCDay(); return addDays(startOfDay(date), -(day === 0 ? 6 : day - 1)); }
+function monday(date = new Date()) { const parts = vietnamParts(date); const day = new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay(); return addDays(startOfDay(date), -(day === 0 ? 6 : day - 1)); }
 
 export async function summary(userId: string) {
   const today = startOfDay(); const tomorrow = addDays(today, 1); const weekStart = monday(); const weekEnd = addDays(weekStart, 7); const upcomingEnd = addDays(today, 7);
@@ -26,8 +29,8 @@ export async function progressChart(userId: string, chartRange: 'week' | 'month'
     prisma.studySession.findMany({ where: { userId, startedAt: { gte: start, lt: end } }, select: { startedAt: true, totalMinutes: true } }),
   ]);
   const points = new Map<string, { date: string; taskDone: number; studyMinutes: number }>();
-  for (let cursor = start; cursor < end; cursor = addDays(cursor, 1)) { const key = cursor.toISOString().slice(0, 10); points.set(key, { date: key, taskDone: 0, studyMinutes: 0 }); }
-  for (const task of tasks) { if (task.completedAt) { const point = points.get(task.completedAt.toISOString().slice(0, 10)); if (point) point.taskDone += 1; } }
-  for (const session of sessions) { const point = points.get(session.startedAt.toISOString().slice(0, 10)); if (point) point.studyMinutes += session.totalMinutes; }
+  for (let cursor = start; cursor < end; cursor = addDays(cursor, 1)) { const key = dateKey(cursor); points.set(key, { date: key, taskDone: 0, studyMinutes: 0 }); }
+  for (const task of tasks) { if (task.completedAt) { const point = points.get(dateKey(task.completedAt)); if (point) point.taskDone += 1; } }
+  for (const session of sessions) { const point = points.get(dateKey(session.startedAt)); if (point) point.studyMinutes += session.totalMinutes; }
   return { range: chartRange, start, end, points: [...points.values()] };
 }
