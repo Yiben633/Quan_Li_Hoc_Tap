@@ -1,11 +1,19 @@
 # PROMPT VIBECODE - FRONTEND LAYER
 
-Hệ thống: **Quản lý và lập kế hoạch học tập cho sinh viên**  
+Hệ thống: **Quản lý và lập kế hoạch học tập cho mọi người ở mọi độ tuổi**  
 Stack: React, Vite, TypeScript, TailwindCSS, React Query, Zustand, Docker.
 
 Ghi chú deploy: Docker/Nginx dùng cho local hoặc self-host. Với production trên Vercel, Vite React có thể deploy trực tiếp bằng build command `npm run build`, output `dist`, và biến môi trường public phải có prefix `VITE_`.
 
 Giả định: backend đã có API tương ứng. Làm từng prompt theo thứ tự, chạy `npm run dev` và kiểm tra UI sau mỗi bước.
+
+## Product Scope
+
+StudyFlow is a personal learning and planning workspace for people of all ages
+and backgrounds. Education-specific data such as school, student code, major,
+course year, semester, subject, and grades is optional. A user must be able to
+register and use tasks, goals, calendar, notes, documents, and study sessions
+without entering any school-related information.
 
 ## PROMPT 0 - Khởi Tạo Frontend
 
@@ -54,7 +62,8 @@ Phong cách:
 
 ```text
 Xây dựng:
-- RegisterPage: fullName, email, studentCode, password, confirmPassword, school, major, courseYear.
+- RegisterPage: fullName, email, password, confirmPassword. Do not require or ask for school-specific fields during registration.
+- Optional profile context can be completed later: studentCode, school, major, courseYear, occupation, learning purpose.
 - LoginPage: email, password, remember me, Google login placeholder, forgot password link.
 - ForgotPasswordPage: stepper 3 bước gồm nhập email, nhập OTP, đặt mật khẩu mới.
 
@@ -72,9 +81,14 @@ Yêu cầu:
 
 ## PROMPT 3 - Settings Và Hồ Sơ Cá Nhân
 
+Profile fields related to school, major, student code, and course year are
+optional and must never block saving a profile. Add general-purpose fields such
+as occupation, learning purpose, preferred study style, or age group only when
+they are useful to the user.
+
 ```text
 Xây dựng SettingsPage với tabs:
-- Hồ sơ: avatar, họ tên, trường, ngành, khóa học.
+- Hồ sơ: avatar, họ tên; trường, ngành, khóa học và các thông tin bối cảnh khác đều là tùy chọn.
 - Bảo mật: đổi mật khẩu.
 - Giao diện: light/dark/system nếu muốn, lưu localStorage.
 - Ngôn ngữ: cấu trúc sẵn cho vi/en.
