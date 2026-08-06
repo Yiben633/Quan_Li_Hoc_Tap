@@ -83,6 +83,11 @@
 [data-theme='dark'] .learning-page .custom-select-trigger,
 [data-theme='dark'] .topic-filters .search-field { background: #1a2332; }
 
+[data-theme='dark'] .topbar .dropdown-trigger { color: var(--ink); background: transparent; border-color: transparent; }
+[data-theme='dark'] .topbar .dropdown-trigger:hover,
+[data-theme='dark'] .topbar .dropdown-trigger[aria-expanded='true'] { background: #293548; border-color: var(--line); }
+[data-theme='dark'] .topbar .notification-button { color: #b7c3d6; background: transparent; }
+
 [data-theme='dark'] .field input[type='date'] { color-scheme: dark; }
 [data-theme='dark'] .field input[type='date']::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.82); }
 [data-theme='dark'] .date-input svg { color: #a9b8ce; }
