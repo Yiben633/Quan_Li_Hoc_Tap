@@ -1,0 +1,2 @@
+import type { SelectHTMLAttributes } from 'react'
+export function Select({ label, error, children, ...props }: SelectHTMLAttributes<HTMLSelectElement> & { label?: string; error?: string }) { return <label className="field">{label && <span>{label}</span>}<select className={error ? 'has-error' : ''} aria-invalid={Boolean(error)} {...props}>{children}</select>{error && <small className="field-error">{error}</small>}</label> }
