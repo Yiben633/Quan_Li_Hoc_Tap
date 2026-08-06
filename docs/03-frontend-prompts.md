@@ -56,6 +56,10 @@ Phong cách:
 - Không dùng palette một màu đơn điệu.
 - Dùng lucide-react cho icon.
 - Tất cả form có loading, disabled, error và success state.
+- Dùng motion nhẹ và gradient có chủ đích: hover/focus 150-220ms, progress/card
+  animation tiết chế, gradient xanh kết hợp mint/amber; không làm giảm khả năng
+  đọc dữ liệu.
+- Tôn trọng `prefers-reduced-motion` và giữ animation không bắt buộc để thao tác.
 ```
 
 ## PROMPT 2 - Auth Pages

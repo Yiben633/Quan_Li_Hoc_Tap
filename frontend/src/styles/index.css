@@ -18,6 +18,20 @@
 .auth-options .check-field input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
 .auth-options .check-field span { white-space: nowrap; }
 
+/* Auth motion language: subtle, readable, and reduced-motion friendly. */
+.auth-art { background: linear-gradient(135deg, #f0f5ff 0%, #e8f0ff 48%, #eafaf5 100%); isolation: isolate; }
+.auth-art::before { animation: ring-drift 14s ease-in-out infinite; }
+.auth-art::after { content: ''; position: absolute; width: 240px; height: 240px; left: 8%; bottom: 10%; z-index: -1; background: linear-gradient(145deg, rgba(35,155,114,.12), rgba(56,103,232,.04)); border-radius: 45% 55% 60% 40%; filter: blur(2px); animation: soft-drift 11s ease-in-out infinite alternate; }
+.art-card { animation: card-float 5s ease-in-out infinite; backdrop-filter: blur(8px); }
+.art-progress span { background: linear-gradient(90deg, #3867e8, #5b8df5); animation: progress-grow 1.4s .25s ease-out both; }
+.art-note { animation: note-breathe 6s ease-in-out infinite; }
+@keyframes card-float { 0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); } 50% { transform: translate3d(0, -10px, 0) rotate(-2deg); } }
+@keyframes ring-drift { 0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); } 50% { transform: translate3d(-18px, 12px, 0) rotate(8deg); } }
+@keyframes soft-drift { 0% { transform: translate3d(0, 0, 0) rotate(-8deg); } 100% { transform: translate3d(22px, -14px, 0) rotate(12deg); } }
+@keyframes progress-grow { from { width: 0 !important; } to { width: 68%; } }
+@keyframes note-breathe { 0%, 100% { opacity: .78; transform: translateY(0) rotate(3deg); } 50% { opacity: 1; transform: translateY(-4px) rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
+
 /* Shared UI primitives */
 button, input, textarea, select { font: inherit; } button:disabled { cursor: not-allowed; opacity: .55; }
 .button.ghost { color: var(--muted); background: transparent; }.button.danger { color: #fff; background: #d9545d; }.spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }

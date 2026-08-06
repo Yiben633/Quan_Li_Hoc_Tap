@@ -95,6 +95,23 @@ and progress comparison without turning the screen into a decorative card wall.
 - Use real product imagery only when it helps users inspect content. Avoid stock
   hero imagery for the core workspace.
 
+## Motion And Color
+
+Use one restrained motion language across future prompts and screens:
+
+- Prefer 150-220ms transitions for controls and 4-6 second ease-in-out loops
+  for ambient learning visuals.
+- Use gradient accents only where they clarify hierarchy, such as auth artwork,
+  progress fills, focus surfaces, and empty states. Keep operational panels
+  mostly solid so data stays easy to scan.
+- Combine blue with mint, green, or warm amber instead of making the whole app a
+  single blue/purple gradient.
+- Animate progress fills from zero, cards with a small vertical float, and
+  decorative background geometry with very slow drift. Avoid bouncing or moving
+  text that harms reading.
+- Always include a `prefers-reduced-motion` fallback and never make animation
+  necessary to complete an action.
+
 ## Implementation Order
 
 1. Application shell: sidebar, top bar, responsive navigation, tokens, and route
