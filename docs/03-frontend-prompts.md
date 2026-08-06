@@ -9,11 +9,30 @@ Giả định: backend đã có API tương ứng. Làm từng prompt theo thứ
 
 ## Product Scope
 
-StudyFlow is a personal learning and planning workspace for people of all ages
-and backgrounds. Education-specific data such as school, student code, major,
-course year, semester, subject, and grades is optional. A user must be able to
-register and use tasks, goals, calendar, notes, documents, and study sessions
-without entering any school-related information.
+StudyFlow là không gian học tập và lập kế hoạch cá nhân cho mọi độ tuổi, hoàn
+cảnh và mục đích. Các dữ liệu học thuật như trường, mã học viên, ngành, khóa,
+học kỳ, chủ đề/môn học và điểm số đều là tùy chọn. Người dùng phải có thể đăng
+ký và sử dụng task, mục tiêu, lịch, ghi chú, tài liệu và phiên học mà không cần
+nhập bất kỳ thông tin trường lớp nào.
+
+## Product Principles
+
+- Registration and the first dashboard must work for a child, teenager, adult,
+  lifelong learner, hobby learner, or professional without school information.
+- Use neutral labels such as “không gian học”, “chủ đề”, “mục tiêu”, “kế hoạch”
+  and “phiên học” in the primary UI. Use “học kỳ”, “môn học”, “điểm số” and
+  “GPA” only when the user has enabled an academic context.
+- Do not assume that every user has exams, grades, a teacher, a class, a school,
+  or a fixed academic calendar.
+- Optional fields must stay optional in forms, filters, empty states, API
+  payloads, and navigation. An empty academic context must never look like an
+  error or an incomplete account.
+- Prefer age-neutral language and avoid collecting a child's exact age unless a
+  future feature genuinely needs it. If a child-oriented mode is added, keep
+  data collection minimal and provide clear guardian/privacy safeguards.
+- Every feature should have a useful empty state for self-directed learning:
+  reading, languages, skills, certifications, hobbies, work training, or exam
+  preparation are all valid use cases.
 
 ## PROMPT 0 - Khởi Tạo Frontend
 
@@ -66,8 +85,10 @@ Phong cách:
 
 ```text
 Xây dựng:
-- RegisterPage: fullName, email, password, confirmPassword. Do not require or ask for school-specific fields during registration.
-- Optional profile context can be completed later: studentCode, school, major, courseYear, occupation, learning purpose.
+- RegisterPage: fullName, email, password, confirmPassword. Không yêu cầu và
+  không hỏi thông tin trường lớp trong lúc đăng ký.
+- Có thể bổ sung bối cảnh sau: studentCode, school, major, courseYear,
+  occupation, learning purpose; mọi trường đều tùy chọn.
 - LoginPage: email, password, remember me, Google login placeholder, forgot password link.
 - ForgotPasswordPage: stepper 3 bước gồm nhập email, nhập OTP, đặt mật khẩu mới.
 
@@ -113,10 +134,13 @@ Xây dựng DashboardPage gọi `/api/dashboard/summary` và `/api/dashboard/pro
 UI gồm:
 - Stat cards: task hôm nay, đã hoàn thành, quá hạn, giờ học tuần này.
 - Biểu đồ tiến độ tuần/tháng bằng Recharts, có segmented control.
-- Môn học đang theo dõi, hiển thị màu theo subject.colorHex.
+- Chủ đề hoặc không gian học đang theo dõi, hiển thị màu theo subject.colorHex
+  khi có liên kết; không yêu cầu user phải tạo subject.
 - Lịch học và hạn nộp gần nhất 5 mục.
 - Mục tiêu active với progress bar.
-- Quick actions: tạo học kỳ, tạo môn, tạo task, mở Kanban.
+- Quick actions: tạo mục tiêu, tạo kế hoạch, tạo task, mở lịch, bắt đầu phiên
+  học và mở Kanban. Chỉ hiển thị “tạo học kỳ” hoặc “tạo môn” trong academic
+  context.
 
 Yêu cầu:
 - Skeleton khi loading.
@@ -124,17 +148,26 @@ Yêu cầu:
 - Error state có nút thử lại.
 ```
 
-## PROMPT 5 - Học Kỳ Và Môn Học
+## PROMPT 5 - Không Gian Học Và Chủ Đề
 
 ```text
 Xây dựng:
-- SemesterListPage: card/table, filter status, thêm/sửa/xóa mềm/đóng học kỳ/sao chép học kỳ.
-- SubjectListPage: filter theo semester, search, status; grid card theo màu môn học.
-- SubjectDetailPage: tabs Lịch học, Bài tập, Tài liệu, Điểm số, Tiến độ, Ghi chú, Thời gian học.
+- LearningSpaceListPage: card/table, filter status, thêm/sửa/xóa mềm, lưu trữ
+  và sao chép không gian học. Có thể map tới Semester API khi user dùng
+  academic context.
+- TopicListPage: filter theo learning space nếu có, search, status; grid card
+  theo màu chủ đề. Có thể map tới Subject API nhưng không được yêu cầu
+  semesterId.
+- TopicDetailPage: tabs Lịch, Bài tập, Tài liệu, Tiến độ, Ghi chú và Thời gian
+  học. Tab Điểm số chỉ hiển thị khi user bật academic context.
 
 Yêu cầu:
 - Form dùng modal hoặc drawer.
-- Query key rõ ràng: ["semesters"], ["subjects", semesterId], ["subject", id].
+- Query key rõ ràng và hỗ trợ dữ liệu không có context: ["semesters"],
+  ["subjects", { learningSpaceId }], ["subject", id].
+- Giữ nguyên backend contract hiện có (`/api/semesters`, `/api/subjects` và
+  `semesterId`) khi gọi API; chỉ đổi nhãn hiển thị và adapter ở frontend,
+  không tự ý tạo endpoint mới trong prompt này.
 - Lazy-load dữ liệu tab khi user mở tab.
 - Confirm dialog cho thao tác xóa.
 ```
@@ -143,8 +176,10 @@ Yêu cầu:
 
 ```text
 Xây dựng:
-- StudyPlanListPage: filter theo ngày/tuần/tháng/học kỳ/môn/mục tiêu, hiển thị priority, status và progress.
-- TaskListPage: table/list với filter subject, status, priority, dueDate, search; pagination; sort.
+- StudyPlanListPage: filter theo ngày/tuần/tháng, không gian học/chủ đề nếu có,
+  mục tiêu, priority, status và progress.
+- TaskListPage: table/list với filter topic nếu có, status, priority, dueDate,
+  search; pagination; sort. Không yêu cầu user phải gắn task vào subject.
 - TaskDetailDrawer: mô tả, subtask checklist, file đính kèm, note liên quan, duplicate task, delete task.
 
 Yêu cầu:
@@ -160,9 +195,10 @@ Xây dựng KanbanPage bằng dnd-kit hoặc @hello-pangea/dnd.
 
 UI:
 - 4 cột: Chưa bắt đầu, Đang thực hiện, Đang chờ, Hoàn thành.
-- Card có tên task, môn học, priority badge, due date, số subtask done/tổng.
-- Thêm task nhanh ở đầu mỗi cột.
-- Filter theo môn, priority, khoảng thời gian.
+- Card có tên task, chủ đề hoặc không gian học nếu có, priority badge, due date,
+  số subtask done/tổng.
+- Thêm task nhanh ở đầu mỗi cột, không mở form học thuật bắt buộc.
+- Filter theo chủ đề nếu có, priority, khoảng thời gian.
 - Mobile scroll ngang.
 
 Logic:
@@ -178,8 +214,8 @@ Xây dựng CalendarPage bằng FullCalendar React hoặc react-big-calendar.
 
 Tính năng:
 - View ngày/tuần/tháng.
-- Hiển thị schedule, event, task due date, exam date.
-- Màu theo type hoặc subject.colorHex.
+- Hiển thị schedule, event, task due date và exam date nếu có.
+- Màu theo type hoặc subject.colorHex khi một sự kiện có liên kết chủ đề.
 - Click ô trống để tạo sự kiện.
 - Kéo thả để đổi ngày/giờ.
 - Modal thêm/sửa/xóa event/schedule.
@@ -205,22 +241,25 @@ Yêu cầu:
 - Empty state thân thiện.
 ```
 
-## PROMPT 10 - Điểm Số Và GPA
+## PROMPT 10 - Đánh Giá Tiến Bộ (Tùy Chọn)
 
 ```text
-Xây dựng:
-- GradePage trong SubjectDetailPage.
-- GradeOverviewPage tổng hợp mọi môn.
-- GpaOverviewPage theo học kỳ.
+Xây dựng module đánh giá tiến bộ như một tính năng tùy chọn, không xuất hiện
+như lỗi thiếu dữ liệu với người dùng tự học:
+- EvaluationPage trong TopicDetailPage khi academic context được bật.
+- GradeOverviewPage tổng hợp các topic có grade component.
+- GpaOverviewPage theo learning space chỉ dành cho người dùng muốn theo dõi
+  GPA.
 
 UI:
 - Bảng GradeComponent: tên, trọng số, max score, điểm hiện tại, ngày thi.
 - Cảnh báo nếu tổng trọng số khác 100%.
 - Summary card: điểm hiện tại, điểm mục tiêu, điểm cần đạt, trạng thái khả thi.
-- Recharts LineChart cho GPA qua các học kỳ.
+- Recharts LineChart cho điểm/GPA qua các learning space khi có dữ liệu.
 
 Yêu cầu:
-- Input điểm validate trong khoảng 0 đến maxScore.
+- Input điểm validate trong khoảng 0 đến maxScore; không bắt buộc nhập điểm để
+  sử dụng các phần còn lại của ứng dụng.
 - Auto-save hoặc nút Lưu rõ ràng.
 ```
 
@@ -230,7 +269,8 @@ Yêu cầu:
 Xây dựng StudyTimerWidget đặt trong AppLayout.
 
 Tính năng:
-- Chọn môn học, ghi chú, bắt đầu/tạm dừng/tiếp tục/kết thúc.
+- Chọn chủ đề nếu có, ghi chú, bắt đầu/tạm dừng/tiếp tục/kết thúc. Người dùng
+  vẫn có thể bắt đầu phiên học mà không cần chọn chủ đề.
 - Pomodoro 25/5, nghỉ dài sau 4 phiên, tùy chỉnh phút.
 - Thông báo trình duyệt hoặc âm thanh khi hết phiên.
 - Persist trạng thái timer bằng Zustand persist/localStorage.
@@ -250,14 +290,14 @@ Documents:
 - Drag-drop upload bằng react-dropzone.
 - Progress bar upload.
 - Grid/list toggle.
-- Filter subject, tag, type; search.
+- Filter learning space/chủ đề nếu có, tag, type; search.
 - Preview PDF/ảnh, download, rename, retag, delete.
 
 Notes:
 - NoteListPage dạng lưới.
 - NoteEditorPage dùng TipTap.
 - Hỗ trợ heading, bold, italic, list, link, image.
-- Pin note, tag, gắn subject/task.
+- Pin note, tag, gắn learning space/chủ đề/task nếu có.
 - Auto-save debounce 1-2 giây, hiển thị trạng thái đã lưu.
 ```
 
@@ -271,13 +311,14 @@ Biểu đồ:
 - Tỷ lệ hoàn thành task.
 - Thời gian học theo môn.
 - Task hoàn thành vs quá hạn.
-- Điểm số từng môn.
+- Điểm số theo chủ đề nếu user có bật academic context.
 - Tiến độ mục tiêu.
-- GPA theo học kỳ.
+- GPA theo learning space nếu user có sử dụng tính năng GPA.
 
 Tính năng:
-- Filter khoảng thời gian: tuần, tháng, học kỳ, môn.
-- Export report modal: weekly, monthly, semester, by subject; PDF hoặc Excel.
+- Filter khoảng thời gian: tuần, tháng, learning space, chủ đề.
+- Export report modal: weekly, monthly, learning space, by topic; PDF hoặc
+  Excel. Các bộ lọc điểm/GPA là tùy chọn.
 - Gọi API export và tự tải file về hoặc mở tab mới.
 ```
 
@@ -285,15 +326,17 @@ Tính năng:
 
 ```text
 SmartScheduleSuggestionPage:
-- Form chọn task/môn/hạn nộp/độ khó/khung giờ rảnh.
+- Form chọn task/chủ đề tùy chọn/hạn hoàn thành/độ khó/khung giờ rảnh.
 - Gọi /api/ai/suggest-schedule.
 - Hiển thị timeline theo ngày.
 - Cho phép kéo chỉnh rồi áp dụng vào lịch.
-- Warning khi lịch quá tải.
+- Warning khi lịch quá tải và đề xuất chia nhỏ phiên học phù hợp với thời gian
+  tập trung của người dùng.
 
 AiAssistantPage:
 - UI chat, quick prompts, typing indicator, streaming nếu backend hỗ trợ.
-- Gợi ý: tạo kế hoạch ôn thi, tóm tắt tài liệu, tạo flashcard.
+- Gợi ý: tạo kế hoạch học một kỹ năng, tóm tắt tài liệu, tạo flashcard, chia
+  mục tiêu thành các bước nhỏ. “Ôn thi” chỉ là một ví dụ tùy chọn.
 
 Flashcard:
 - FlashcardSetListPage CRUD bộ thẻ.
@@ -305,15 +348,19 @@ Flashcard:
 
 ```text
 StudyGroupPage:
-- Danh sách nhóm đã tham gia/tạo.
+- Danh sách nhóm đã tham gia/tạo, với lựa chọn nhóm học riêng tư hoặc chia sẻ.
 - Tạo nhóm, mời thành viên bằng email.
 - StudyGroupDetailPage có tabs: task nhóm, tài liệu, lịch họp, thảo luận, tiến độ.
+- Không hiển thị công khai email, tuổi hoặc thông tin trường của thành viên.
+  Nếu hỗ trợ người dùng nhỏ tuổi, cần trạng thái riêng tư mặc định và cơ chế
+  mời an toàn.
 - Group task có Kanban nhỏ và avatar người được giao.
 
 Admin:
 - AdminDashboardPage: thống kê user, plan, task, document.
 - AdminUserListPage: search, filter role/status, lock/unlock, reset password, role management.
-- AdminSubjectTemplatePage: CRUD và import Excel có preview lỗi từng dòng.
+- AdminSubjectTemplatePage: CRUD và import Excel có preview lỗi từng dòng; đổi
+  tên hiển thị thành TopicTemplate nếu sản phẩm không dùng academic context.
 - AdminContentPage: FAQ, guide, sample documents, system notification.
 - AdminFeedbackPage: trả lời feedback, đổi trạng thái.
 - AdminActivityLogPage: filter user/action/date.
@@ -335,6 +382,12 @@ Yêu cầu:
 - Web Notification API cho notification mới nếu user cho phép.
 - Tất cả destructive actions có confirm.
 - Tất cả form có thông báo lỗi tiếng Việt rõ ràng.
+- Rà soát toàn bộ copy: không mặc định user là sinh viên, không gọi mọi mục
+  tiêu là ôn thi, và không ép tạo học kỳ/môn học/điểm số.
+- Kiểm tra các luồng cho ba persona tối thiểu: trẻ tự học có người hỗ trợ,
+  người trưởng thành học kỹ năng, và người dùng academic muốn theo dõi GPA.
+- Không thu thập hoặc hiển thị dữ liệu trẻ em quá mức cần thiết; thêm privacy
+  note và trạng thái lỗi thân thiện nếu một tính năng cần quyền người giám hộ.
 - README hướng dẫn chạy frontend và toàn bộ stack.
 - README có thêm hướng dẫn deploy Vercel: import GitHub repo, chọn root directory frontend nếu tách project, khai báo env và kiểm tra preview URL.
 
