@@ -23,7 +23,7 @@ export async function summary(userId: string) {
 }
 
 export async function progressChart(userId: string, chartRange: 'week' | 'month') {
-  const start = chartRange === 'week' ? monday() : addDays(startOfDay(), -29); const end = addDays(start, chartRange === 'week' ? 7 : 30);
+  const start = chartRange === 'week' ? monday() : addDays(startOfDay(), -14); const end = addDays(start, chartRange === 'week' ? 7 : 30);
   const [tasks, sessions] = await Promise.all([
     prisma.task.findMany({ where: { userId, status: 'done', deletedAt: null, completedAt: { gte: start, lt: end } }, select: { completedAt: true } }),
     prisma.studySession.findMany({ where: { userId, startedAt: { gte: start, lt: end } }, select: { startedAt: true, totalMinutes: true } }),
