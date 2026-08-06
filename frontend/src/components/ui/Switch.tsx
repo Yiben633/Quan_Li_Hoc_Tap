@@ -1,2 +1,5 @@
+import { forwardRef } from 'react'
 import type { InputHTMLAttributes } from 'react'
-export function Switch({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) { return <label className="switch-field"><input type="checkbox" role="switch" {...props} /><span className="switch-track" /><span>{label}</span></label> }
+
+type SwitchProps = InputHTMLAttributes<HTMLInputElement> & { label: string }
+export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch({ label, ...props }, ref) { return <label className="switch-field"><input ref={ref} type="checkbox" role="switch" {...props} /><span className="switch-track" /><span>{label}</span></label> })

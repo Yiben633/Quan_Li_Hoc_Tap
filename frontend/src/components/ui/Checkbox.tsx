@@ -1,2 +1,5 @@
+import { forwardRef } from 'react'
 import type { InputHTMLAttributes } from 'react'
-export function Checkbox({ label, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string }) { return <label className="check-field"><input type="checkbox" {...props} /><span>{label}</span></label> }
+
+type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & { label: string }
+export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Checkbox({ label, ...props }, ref) { return <label className="check-field"><input ref={ref} type="checkbox" {...props} /><span>{label}</span></label> })
