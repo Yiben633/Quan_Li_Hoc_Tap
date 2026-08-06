@@ -98,6 +98,10 @@
 [data-theme='dark'] .task-toolbar input[type='date'] { min-height: 42px; background: #1a2332; border-color: var(--line); border-radius: 7px; }
 [data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); opacity: .92; }
 [data-theme='dark'] input[type='date'] { color-scheme: dark; }
+[data-theme='dark'] .date-input-control { position: relative; display: block; }
+[data-theme='dark'] .date-input-control input { padding-right: 42px; }
+[data-theme='dark'] .date-picker-button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 40px; height: 100%; padding: 0; color: #c8d5eb; background: transparent; border: 0; cursor: pointer; }
+[data-theme='dark'] .date-picker-button:hover { color: #fff; background: #293548; border-radius: 6px; }
 [data-theme='dark'] .task-toolbar input[type='date'],
 [data-theme='dark'] .modal-form input[type='date'] { padding-right: 38px; background-image: none; }
 [data-theme='dark'] .task-toolbar input[type='date']::-webkit-calendar-picker-indicator,
