@@ -7,6 +7,7 @@ let refreshPromise: Promise<string | null> | null = null
 apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
   if (token) config.headers.Authorization = `Bearer ${token}`
+  if (config.data instanceof FormData) delete config.headers['Content-Type']
   return config
 })
 

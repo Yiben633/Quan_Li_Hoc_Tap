@@ -127,7 +127,6 @@ function ProfileSettings() {
   const query = useProfileQuery();
   const update = useUpdateProfileMutation();
   const avatar = useUploadAvatarMutation();
-  const [file, setFile] = useState<File | null>(null);
   const [cropFile, setCropFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const initialValues = useRef<ProfileValues>(defaultProfile);
@@ -216,22 +215,11 @@ function ProfileSettings() {
     }
     setCropFile(nextFile);
   };
-  const saveAvatar = () =>
-    file &&
-    avatar.mutate(file, {
-      onSuccess: (next) => {
-        setUser(next);
-        setFile(null);
-        setPreview("");
-        toast.success("Đã cập nhật ảnh đại diện");
-      },
-      onError: (error) =>
-        toast.error(getApiErrorMessage(error, "Không thể cập nhật avatar")),
-    });
-  const hasChanges = isDirty || Boolean(file) || Boolean(cropFile);
+  const saveAvatar = (cropped: File) => avatar.mutate(cropped, { onSuccess: (next) => { setUser(next); setPreview(""); toast.success("Đã cập nhật ảnh đại diện"); }, onError: (error) => { setPreview(""); toast.error(getApiErrorMessage(error, "Không thể cập nhật avatar")); } });
+  const hasChanges = isDirty || Boolean(cropFile) || avatar.isPending;
   return (
     <>
-      <AvatarCropper file={cropFile} onCancel={() => setCropFile(null)} onComplete={(cropped) => { setFile(cropped); setPreview(URL.createObjectURL(cropped)); setCropFile(null); }} />
+      <AvatarCropper file={cropFile} onCancel={() => setCropFile(null)} onComplete={(cropped) => { setPreview(URL.createObjectURL(cropped)); setCropFile(null); saveAvatar(cropped); }} />
       <SettingsSection
       icon={<UserRound size={18} />}
       title="Hồ sơ cá nhân"
@@ -256,16 +244,7 @@ function ProfileSettings() {
         <div>
           <strong>{user?.email ?? "Tài khoản StudyFlow"}</strong>
           <p className="subtle">Ảnh JPG, PNG hoặc WEBP, tối đa 2MB.</p>
-          {file && (
-            <Button
-              type="button"
-              variant="secondary"
-              loading={avatar.isPending}
-              onClick={saveAvatar}
-            >
-              Lưu ảnh đại diện
-            </Button>
-          )}
+          {avatar.isPending && <p className="subtle">Đang lưu ảnh đại diện...</p>}
         </div>
       </div>
       <form
@@ -331,7 +310,7 @@ function ProfileSettings() {
             {isDirty ? "Bạn có thay đổi chưa lưu" : "Thông tin đã được lưu"}
           </span>
           <div className="settings-actions-buttons">
-            {hasChanges && <Button type="button" variant="secondary" onClick={() => { reset(initialValues.current); setFile(null); setCropFile(null); setPreview(""); }}>Hủy</Button>}
+            {hasChanges && <Button type="button" variant="secondary" onClick={() => { reset(initialValues.current); setCropFile(null); setPreview(""); }}>Hủy</Button>}
             <Button type="submit" loading={update.isPending}>
               <Save size={16} /> Lưu thay đổi
             </Button>
