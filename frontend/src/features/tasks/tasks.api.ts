@@ -11,6 +11,7 @@ export type TaskFilters = { subjectId?: string; status?: string; priority?: stri
 export type StudyPlan = { id: string; title: string; description?: string | null; subjectId?: string | null; status: string; priority: Priority; progressPercent: number; startDate?: string | null; endDate?: string | null; estimatedHours?: number | null; targetGoal?: string | null }
 
 export async function listTasks(params: TaskFilters = {}) { return (await apiClient.get<ApiResponse<Page<Task>>>('/tasks', { params })).data.data }
+export async function createTask(input: { title: string; description?: string | null; dueDate?: string | null; priority?: Priority; estimatedMinutes?: number | null; status?: TaskStatus }) { return (await apiClient.post<ApiResponse<Task>>('/tasks', input)).data.data }
 export async function getTask(id: string) { return (await apiClient.get<ApiResponse<TaskDetail>>(`/tasks/${id}`)).data.data }
 export async function updateTaskStatus(id: string, status: TaskStatus) { return (await apiClient.patch<ApiResponse<Task>>(`/tasks/${id}/status`, { status })).data.data }
 export async function updateTask(id: string, input: Partial<Task>) { return (await apiClient.patch<ApiResponse<Task>>(`/tasks/${id}`, input)).data.data }
