@@ -91,3 +91,33 @@
   color: #c7bdff;
   background: #393765;
 }
+
+[data-theme='dark'] .goal-ring {
+  background:
+    radial-gradient(closest-side, #f2f5fa 78%, transparent 79% 100%),
+    conic-gradient(#4d7dff 72%, #526078 0);
+}
+
+[data-theme='dark'] .goal-ring strong {
+  color: #22304a;
+}
+
+[data-theme='dark'] .goal-ring span {
+  color: #71819b;
+}
+
+[data-theme='dark'] .goal-detail strong {
+  color: #f6f8fc;
+}
+
+[data-theme='dark'] .goal-detail .subtle {
+  color: #c0cbdb;
+}
+
+[data-theme='dark'] .goal-panel .progress-line {
+  background: #39475e;
+}
+
+[data-theme='dark'] .goal-panel .progress-line span {
+  background: linear-gradient(90deg, #4d7dff, #6c9aff);
+}
