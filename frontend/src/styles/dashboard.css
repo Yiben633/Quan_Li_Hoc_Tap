@@ -9,6 +9,7 @@
 .quick-action small { color: var(--muted); font-size: 11px; }
 .quick-panel { margin-top: 18px; }
 .quick-panel .quick-actions { margin-top: 16px; }
+.progress-panel .chart-wrap { margin-left: 0; margin-right: 0; padding-inline: 28px; overflow: visible; }
 .inline-error { display: grid; place-items: center; gap: 10px; min-height: 210px; text-align: center; }
 .inline-error p { margin: 0; color: var(--muted); font-size: 13px; }
 .chart-skeleton { padding: 18px 0; }
