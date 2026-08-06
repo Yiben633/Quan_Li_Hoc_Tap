@@ -16,6 +16,8 @@ export const router = createBrowserRouter([
   { element: <ProtectedRoute />, children: [{ element: <AppLayout />, children: [
     { index: true, element: <DashboardPage /> },
     { path: 'tasks', element: <ModulePlaceholderPage title="Công việc" description="Quản lý task, kanban và tiến độ học tập." /> },
+    { path: 'goals', element: <ModulePlaceholderPage title="Mục tiêu" description="Theo dõi những điều bạn muốn hoàn thành." /> },
+    { path: 'study-plans', element: <ModulePlaceholderPage title="Kế hoạch học" description="Chia mục tiêu thành những bước nhỏ, rõ ràng." /> },
     { path: 'calendar', element: <ModulePlaceholderPage title="Lịch học" description="Tập hợp lịch học, sự kiện, deadline và kỳ thi." /> },
     { path: 'subjects', element: <ModulePlaceholderPage title="Môn học" description="Theo dõi môn học, điểm số và kế hoạch học." /> },
     { path: 'study', element: <ModulePlaceholderPage title="Tập trung" description="Bắt đầu phiên học và theo dõi Pomodoro." /> },

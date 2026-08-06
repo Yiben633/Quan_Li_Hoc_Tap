@@ -1,7 +1,75 @@
-import { ArrowUpRight, CalendarDays, Check, Clock3, MoreHorizontal, Target, TrendingUp } from 'lucide-react'
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
-const chartData = [{ day: 'T2', hours: 1.8 }, { day: 'T3', hours: 2.4 }, { day: 'T4', hours: 1.2 }, { day: 'T5', hours: 3.1 }, { day: 'T6', hours: 2.6 }, { day: 'T7', hours: 3.8 }, { day: 'CN', hours: 2.9 }]
-const tasks = [{ title: 'Ôn chương 3: Cấu trúc dữ liệu', subject: 'Cấu trúc dữ liệu', time: 'Hôm nay, 14:00', color: 'blue' }, { title: 'Hoàn thiện báo cáo nhóm', subject: 'Phương pháp nghiên cứu', time: 'Hôm nay, 18:30', color: 'violet' }, { title: 'Làm bài tập xác suất', subject: 'Xác suất thống kê', time: 'Ngày mai, 09:00', color: 'amber' }]
-export function DashboardPage() { return <div className="dashboard"><div className="page-heading"><div><p className="eyebrow">THỨ TƯ, 06 THÁNG 8</p><h1>Chào buổi sáng, Bình.</h1><p className="subtle">Sẵn sàng tiếp tục nhịp học hôm nay?</p></div><button className="button primary"><Clock3 size={17} /> Bắt đầu học</button></div><section className="stat-grid"><Stat icon={<Check />} label="Việc đã hoàn thành" value="18" change="+12% tuần này" tone="green" /><Stat icon={<Clock3 />} label="Giờ học tuần này" value="16.5h" change="+2.4h so với tuần trước" tone="blue" /><Stat icon={<Target />} label="Mục tiêu đang theo dõi" value="4" change="2 sắp đến hạn" tone="orange" /></section><div className="dashboard-grid"><section className="panel progress-panel"><div className="panel-heading"><div><h2>Thời gian học</h2><p className="subtle">Tổng thời gian tập trung trong tuần</p></div><button className="select-button">Tuần này <MoreHorizontal size={16} /></button></div><div className="chart-wrap"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData}><defs><linearGradient id="studyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3867e8" stopOpacity={0.2} /><stop offset="100%" stopColor="#3867e8" stopOpacity={0} /></linearGradient></defs><XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#8a94a6', fontSize: 12 }} /><Tooltip contentStyle={{ border: '1px solid #e5e9f0', borderRadius: 8, boxShadow: '0 8px 24px rgba(20, 31, 56, .08)' }} /><Area type="monotone" dataKey="hours" stroke="#3867e8" strokeWidth={2.5} fill="url(#studyFill)" /></AreaChart></ResponsiveContainer></div></section><section className="panel goal-panel"><div className="panel-heading"><div><h2>Mục tiêu nổi bật</h2><p className="subtle">Kỳ này</p></div><button className="icon-button" aria-label="Xem tất cả"><ArrowUpRight size={18} /></button></div><div className="goal-ring"><div><strong>72%</strong><span>tiến độ</span></div></div><div className="goal-detail"><strong>Đạt GPA 3.5 học kỳ này</strong><p className="subtle">Còn 6 tuần đến kỳ thi</p></div><div className="progress-line"><span style={{ width: '72%' }} /></div></section></div><div className="dashboard-grid lower-grid"><section className="panel task-panel"><div className="panel-heading"><div><h2>Việc cần làm</h2><p className="subtle">3 việc gần nhất</p></div><a className="text-link" href="/tasks">Xem tất cả <ArrowUpRight size={15} /></a></div><div className="task-list">{tasks.map((task) => <div className="task-row" key={task.title}><button className="check-button" aria-label={`Hoàn thành ${task.title}`}><Check size={14} /></button><div className="task-copy"><strong>{task.title}</strong><span><i className={`subject-dot ${task.color}`} />{task.subject}</span></div><time>{task.time}</time></div>)}</div></section><section className="panel calendar-panel"><div className="panel-heading"><div><h2>Lịch sắp tới</h2><p className="subtle">Lịch học và sự kiện</p></div><CalendarDays size={20} className="panel-icon" /></div><div className="event-list"><Event day="08" month="THÁNG 8" title="Lý thuyết đồ thị" time="08:00 - 10:00" tone="blue" /><Event day="09" month="THÁNG 8" title="Hạn nộp báo cáo nhóm" time="23:59" tone="orange" /></div></section></div></div> }
+import { ArrowUpRight, CalendarDays, Check, Clock3, Columns3, MoreHorizontal, Plus, Target, TrendingUp } from 'lucide-react'
+import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Link } from 'react-router-dom'
+import { EmptyState, Skeleton, Tabs } from '../components/ui'
+import { useDashboardSummaryQuery, useProgressChartQuery } from '../features/dashboard/dashboard.hooks'
+import { useAuthStore } from '../stores/authStore'
+import type { DashboardGoal, DashboardSchedule, DashboardSubject, DashboardTask } from '../features/dashboard/dashboard.api'
+import { formatDate } from '../utils/format'
+import { useState } from 'react'
+
+type Range = 'week' | 'month'
+
+export function DashboardPage() {
+  const user = useAuthStore((state) => state.user)
+  const [range, setRange] = useState<Range>('week')
+  const summary = useDashboardSummaryQuery()
+  const chart = useProgressChartQuery(range)
+
+  if (summary.isLoading) return <DashboardSkeleton />
+  if (summary.isError) return <DashboardError onRetry={() => summary.refetch()} />
+
+  const data = summary.data
+  if (!data) return <DashboardError onRetry={() => summary.refetch()} />
+  const nameParts = user?.fullName?.trim().split(/\s+/) ?? []
+  const firstName = nameParts[nameParts.length - 1] || 'bạn'
+  const hasData = data.tasksToday.length > 0 || data.activeSubjects.length > 0 || data.activeGoals.length > 0 || data.upcomingSchedules.length > 0
+  const chartData = chart.data?.points.map((point) => ({ ...point, label: formatChartDate(point.date, range) })) ?? []
+
+  return (
+    <div className="dashboard">
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">KHÔNG GIAN HỌC TẬP CỦA BẠN</p>
+          <h1>Chào buổi sáng, {firstName}.</h1>
+          <p className="subtle">Sẵn sàng tiếp tục nhịp học hôm nay?</p>
+        </div>
+        <Link className="button primary" to="/study"><Clock3 size={17} /> Bắt đầu học</Link>
+      </div>
+
+      {!hasData && <section className="panel dashboard-welcome"><EmptyState icon={<Target size={24} />} title="Bắt đầu xây dựng nhịp học của bạn" description="Tạo một mục tiêu hoặc bắt đầu phiên học đầu tiên. Bạn luôn có thể thêm chủ đề sau." action={<div className="quick-actions"><Link className="button primary" to="/tasks"><Plus size={16} /> Tạo việc đầu tiên</Link><Link className="button secondary" to="/study"><Clock3 size={16} /> Bắt đầu phiên học</Link></div>} /></section>}
+
+      <section className="stat-grid">
+        <Stat icon={<Check />} label="Việc hôm nay" value={String(data.tasksToday.length)} change="Đến hạn hôm nay" tone="green" />
+        <Stat icon={<Check />} label="Đã hoàn thành" value={String(data.taskDone)} change="Hoàn thành hôm nay" tone="green" />
+        <Stat icon={<Target />} label="Việc quá hạn" value={String(data.taskOverdue)} change={data.taskOverdue ? 'Cần xem lại' : 'Mọi thứ đang ổn'} tone="orange" />
+        <Stat icon={<Clock3 />} label="Giờ học tuần này" value={`${data.studyHoursThisWeek}h`} change={`${data.studyMinutesThisWeek} phút tập trung`} tone="blue" />
+      </section>
+
+      <div className="dashboard-grid">
+        <section className="panel progress-panel">
+          <div className="panel-heading"><div><h2>Tiến độ học tập</h2><p className="subtle">Thời gian tập trung và việc đã hoàn thành</p></div><Tabs value={range} onChange={setRange} items={[{ value: 'week', label: 'Tuần' }, { value: 'month', label: 'Tháng' }]} /></div>
+          {chart.isLoading ? <ChartSkeleton /> : chart.isError ? <InlineError onRetry={() => chart.refetch()} /> : chartData.length ? <div className="chart-wrap"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData}><defs><linearGradient id="studyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#79a4ff" stopOpacity={0.18} /><stop offset="100%" stopColor="#79a4ff" stopOpacity={0} /></linearGradient></defs><XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#aab8cf', fontSize: 12 }} /><YAxis hide /><Tooltip contentStyle={{ border: '1px solid #3b485d', borderRadius: 8, background: '#202a3a', color: '#f4f7fb' }} formatter={(value: number, name: string) => [name === 'studyMinutes' ? `${value} phút` : `${value} việc`, name === 'studyMinutes' ? 'Học tập' : 'Hoàn thành']} /><Area type="monotone" dataKey="studyMinutes" stroke="#79a4ff" strokeWidth={2.5} fill="url(#studyFill)" /></AreaChart></ResponsiveContainer></div> : <EmptyState title="Chưa có dữ liệu tiến độ" description="Thời gian học và việc hoàn thành sẽ xuất hiện ở đây." />}
+        </section>
+        <GoalPanel goals={data.activeGoals} />
+      </div>
+
+      <div className="dashboard-grid lower-grid">
+        <section className="panel task-panel"><div className="panel-heading"><div><h2>Việc cần làm</h2><p className="subtle">Các việc đến hạn hôm nay</p></div><Link className="text-link" to="/tasks">Xem tất cả <ArrowUpRight size={15} /></Link></div>{data.tasksToday.length ? <div className="task-list">{data.tasksToday.slice(0, 5).map((task) => <TaskRow key={task.id} task={task} />)}</div> : <EmptyState icon={<Check size={22} />} title="Hôm nay chưa có việc" description="Bạn có thể nghỉ ngơi hoặc tạo một việc mới." action={<Link className="button secondary" to="/tasks"><Plus size={15} /> Tạo việc</Link>} />}</section>
+        <section className="panel calendar-panel"><div className="panel-heading"><div><h2>Lịch sắp tới</h2><p className="subtle">Lịch học và sự kiện</p></div><CalendarDays size={20} className="panel-icon" /></div>{data.upcomingSchedules.length ? <div className="event-list">{data.upcomingSchedules.slice(0, 5).map((event) => <EventRow key={event.id} event={event} />)}</div> : <EmptyState icon={<CalendarDays size={22} />} title="Lịch của bạn đang trống" description="Thêm một lịch học, sự kiện hoặc thời gian tập trung." action={<Link className="button secondary" to="/calendar"><Plus size={15} /> Thêm vào lịch</Link>} />}</section>
+      </div>
+
+      <section className="panel quick-panel"><div className="panel-heading"><div><h2>Bắt đầu nhanh</h2><p className="subtle">Chọn một việc để tiếp tục</p></div><MoreHorizontal size={18} className="panel-icon" /></div><div className="quick-actions"><Link className="quick-action" to="/goals"><Target size={17} /><span><strong>Tạo mục tiêu</strong><small>Chọn điều muốn tiến bộ</small></span></Link><Link className="quick-action" to="/study-plans"><Check size={17} /><span><strong>Tạo kế hoạch</strong><small>Chia nhỏ các bước</small></span></Link><Link className="quick-action" to="/tasks"><Check size={17} /><span><strong>Tạo việc</strong><small>Chia nhỏ việc cần làm</small></span></Link><Link className="quick-action" to="/calendar"><CalendarDays size={17} /><span><strong>Mở lịch</strong><small>Sắp xếp thời gian</small></span></Link><Link className="quick-action" to="/study"><Clock3 size={17} /><span><strong>Tập trung</strong><small>Bắt đầu phiên học</small></span></Link><Link className="quick-action" to="/tasks?view=kanban"><Columns3 size={17} /><span><strong>Mở Kanban</strong><small>Điều phối tiến độ</small></span></Link></div></section>
+    </div>
+  )
+}
+
 function Stat({ icon, label, value, change, tone }: { icon: React.ReactNode; label: string; value: string; change: string; tone: string }) { return <div className="stat-card"><span className={`stat-icon ${tone}`}>{icon}</span><span className="stat-label">{label}</span><strong className="stat-value">{value}</strong><span className={`stat-change ${tone}`}><TrendingUp size={13} /> {change}</span></div> }
-function Event({ day, month, title, time, tone }: { day: string; month: string; title: string; time: string; tone: string }) { return <div className="event-row"><div className={`event-date ${tone}`}><strong>{day}</strong><span>{month}</span></div><div><strong>{title}</strong><p className="subtle">{time}</p></div></div> }
+function TaskRow({ task }: { task: DashboardTask }) { return <div className="task-row"><button className="check-button" aria-label={`Hoàn thành ${task.title}`}><Check size={14} /></button><div className="task-copy"><strong>{task.title}</strong><span>{task.dueDate ? `Hạn ${formatDate(task.dueDate)}` : 'Không có hạn'}</span></div><time>{task.status === 'done' ? 'Đã xong' : 'Hôm nay'}</time></div> }
+function EventRow({ event }: { event: DashboardSchedule }) { return <div className="event-row"><div className="event-date blue"><strong>{event.startDate ? new Date(event.startDate).getDate() : '•'}</strong><span>{event.startDate ? new Date(event.startDate).toLocaleDateString('vi-VN', { month: 'short' }) : 'SẮP TỚI'}</span></div><div><strong>{event.title}</strong><p className="subtle">{event.startTime}{event.endTime ? ` - ${event.endTime}` : ''}</p></div></div> }
+function GoalPanel({ goals }: { goals: DashboardGoal[] }) { const goal = goals[0]; if (!goal) return <section className="panel goal-panel"><div className="panel-heading"><div><h2>Mục tiêu nổi bật</h2><p className="subtle">Chưa có mục tiêu active</p></div><Target size={20} className="panel-icon" /></div><EmptyState title="Chọn một điều muốn tiến bộ" description="Mục tiêu giúp bạn giữ nhịp học theo cách của riêng mình." action={<Link className="button secondary" to="/goals"><Plus size={15} /> Tạo mục tiêu</Link>} /></section>; const progress = goal.progressPercent ?? Math.min(100, Math.round((Number(goal.currentValue) / Math.max(1, Number(goal.targetValue))) * 100)); return <section className="panel goal-panel"><div className="panel-heading"><div><h2>Mục tiêu nổi bật</h2><p className="subtle">Đang theo dõi</p></div><Link className="icon-button" to="/goals" aria-label="Xem mục tiêu"><ArrowUpRight size={18} /></Link></div><div className="goal-ring" style={{ background: `radial-gradient(closest-side, #f2f5fa 78%, transparent 79% 100%), conic-gradient(#4d7dff ${progress}%, #526078 0)` }}><div><strong>{progress}%</strong><span>tiến độ</span></div></div><div className="goal-detail"><strong>{goal.name}</strong>{goal.deadline && <p className="subtle">Hạn {formatDate(goal.deadline)}</p>}</div><div className="progress-line"><span style={{ width: `${progress}%` }} /></div></section> }
+function formatChartDate(date: string, range: Range) { return new Date(date).toLocaleDateString('vi-VN', { day: '2-digit', ...(range === 'month' ? { month: '2-digit' } : { weekday: 'short' }) }) }
+function ChartSkeleton() { return <div className="chart-wrap chart-skeleton"><Skeleton height="100%" /></div> }
+function InlineError({ onRetry }: { onRetry: () => void }) { return <div className="inline-error"><p>Không thể tải biểu đồ tiến độ.</p><button className="button secondary" onClick={onRetry}>Thử lại</button></div> }
+function DashboardError({ onRetry }: { onRetry: () => void }) { return <div className="empty-page"><span className="empty-icon"><Target size={24} /></span><h1>Chưa thể tải dashboard</h1><p className="subtle">Kiểm tra kết nối rồi thử lại nhé.</p><button className="button primary" onClick={onRetry}>Thử lại</button></div> }
+function DashboardSkeleton() { return <div className="dashboard"><div className="page-heading"><div><Skeleton width={180} height={12} /><Skeleton width={280} height={34} className="skeleton-heading" /><Skeleton width={240} height={16} /></div><Skeleton width={140} height={40} /></div><section className="stat-grid">{[1, 2, 3].map((item) => <Skeleton key={item} height={126} className="skeleton-card" />)}</section><div className="dashboard-grid"><section className="panel"><Skeleton height={280} /></section><section className="panel"><Skeleton height={280} /></section></div></div> }
