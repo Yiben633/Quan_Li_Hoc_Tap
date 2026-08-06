@@ -10,16 +10,20 @@ function monday(date = new Date()) { const parts = vietnamParts(date); const day
 
 export async function summary(userId: string) {
   const today = startOfDay(); const tomorrow = addDays(today, 1); const weekStart = monday(); const weekEnd = addDays(weekStart, 7); const upcomingEnd = addDays(today, 7);
-  const [tasksToday, taskDone, taskOverdue, studyTime, activeSubjects, upcomingSchedules, activeGoals] = await Promise.all([
+  const [tasksToday, taskDone, taskOverdue, studyTime, activeSubjects, upcomingSchedules, upcomingTasks, activeGoals] = await Promise.all([
     prisma.task.findMany({ where: { userId, deletedAt: null, dueDate: { gte: today, lt: tomorrow } }, orderBy: [{ status: 'asc' }, { dueDate: 'asc' }] }),
     prisma.task.count({ where: { userId, status: 'done', deletedAt: null, completedAt: { gte: today, lt: tomorrow } } }),
     prisma.task.count({ where: { userId, status: { not: 'done' }, deletedAt: null, dueDate: { lt: new Date() } } }),
     prisma.studySession.aggregate({ where: { userId, startedAt: { gte: weekStart, lt: weekEnd } }, _sum: { totalMinutes: true } }),
     prisma.subject.findMany({ where: { userId, status: 'in_progress', deletedAt: null, semester: { deletedAt: null } }, orderBy: { name: 'asc' } }),
     prisma.schedule.findMany({ where: { userId, deletedAt: null, startDate: { lte: upcomingEnd }, OR: [{ endDate: null }, { endDate: { gte: today } }] }, orderBy: [{ startDate: 'asc' }, { startTime: 'asc' }], take: 10 }),
+    prisma.task.findMany({ where: { userId, deletedAt: null, status: { not: 'done' }, dueDate: { gte: today, lt: upcomingEnd } }, orderBy: { dueDate: 'asc' }, take: 10 }),
     listGoals(userId, 'in_progress'),
   ]);
-  return { tasksToday, taskDone, taskOverdue, studyMinutesThisWeek: studyTime._sum.totalMinutes ?? 0, studyHoursThisWeek: Math.round(((studyTime._sum.totalMinutes ?? 0) / 60) * 100) / 100, activeSubjects, upcomingSchedules, activeGoals };
+  const scheduleItems = upcomingSchedules.map((item) => ({ ...item, type: 'schedule' }));
+  const taskItems = upcomingTasks.map((task) => ({ id: task.id, title: task.title, type: 'task_due', startDate: task.dueDate, startTime: task.dueDate?.toISOString().slice(11, 16) ?? '', endTime: null }));
+  const upcomingItems = [...scheduleItems, ...taskItems].sort((a, b) => { const aDate = new Date(a.startDate).getTime(); const bDate = new Date(b.startDate).getTime(); return aDate - bDate || a.startTime.localeCompare(b.startTime) }).slice(0, 10);
+  return { tasksToday, taskDone, taskOverdue, studyMinutesThisWeek: studyTime._sum.totalMinutes ?? 0, studyHoursThisWeek: Math.round(((studyTime._sum.totalMinutes ?? 0) / 60) * 100) / 100, activeSubjects, upcomingSchedules: upcomingItems, activeGoals };
 }
 
 export async function progressChart(userId: string, chartRange: 'week' | 'month') {
