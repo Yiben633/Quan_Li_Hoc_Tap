@@ -25,7 +25,7 @@ export function DashboardPage() {
   const firstName = nameParts[nameParts.length - 1] || 'bạn'
   const hasData = data.tasksToday.length > 0 || data.activeSubjects.length > 0 || data.activeGoals.length > 0 || data.upcomingSchedules.length > 0
   const todayKey = getVietnamTodayKey()
-  const chartData = chart.data?.points.map((point, index, points) => ({ ...point, label: range === 'month' && index % 3 !== 0 && index !== points.length - 1 && point.date !== todayKey ? '' : formatChartDate(point.date, range) })) ?? []
+  const chartData = chart.data?.points.map((point, index, points) => ({ ...point, label: range === 'month' && index % 2 !== 0 && index !== points.length - 1 && point.date !== todayKey ? '' : formatChartDate(point.date, range) })) ?? []
 
   return (
     <div className="dashboard">
