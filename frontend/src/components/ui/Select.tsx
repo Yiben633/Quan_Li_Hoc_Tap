@@ -1,6 +1,6 @@
 import { forwardRef, Children, isValidElement, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Check, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import type { SelectHTMLAttributes } from 'react'
 
 type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & { label?: string; error?: string; customMenu?: boolean }
@@ -11,6 +11,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
   useEffect(() => { if (!customMenu) return; const close = (event: MouseEvent) => { if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) setOpen(false) }; document.addEventListener('mousedown', close); return () => document.removeEventListener('mousedown', close) }, [customMenu])
-  if (customMenu) return <label className="field">{label && <span>{label}</span>}<div className="custom-select" ref={wrapperRef}><button type="button" className={`custom-select-trigger${error ? ' has-error' : ''}`} aria-label={props['aria-label']} aria-expanded={open} onClick={() => setOpen((current) => !current)}><span>{selected?.label}</span><ChevronDown size={16} /></button>{open && <div className="custom-select-menu" role="listbox">{options.map((option) => <button type="button" role="option" aria-selected={option.value === String(value ?? '')} className={`custom-select-option${option.value === String(value ?? '') ? ' selected' : ''}`} key={option.value} onClick={() => { onChange?.({ target: { value: option.value } } as React.ChangeEvent<HTMLSelectElement>); setOpen(false) }}><span>{option.label}</span>{option.value === String(value ?? '') && <Check size={15} />}</button>)}</div>}</div>{error && <small className="field-error">{error}</small>}</label>
+  if (customMenu) return <label className="field">{label && <span>{label}</span>}<div className="custom-select" ref={wrapperRef}><button type="button" className={`custom-select-trigger${error ? ' has-error' : ''}`} aria-label={props['aria-label']} aria-expanded={open} onClick={() => setOpen((current) => !current)}><span>{selected?.label}</span><ChevronDown size={16} /></button>{open && <div className="custom-select-menu" role="listbox">{options.map((option) => <button type="button" role="option" aria-selected={option.value === String(value ?? '')} className={`custom-select-option${option.value === String(value ?? '') ? ' selected' : ''}`} key={option.value} onClick={() => { onChange?.({ target: { value: option.value } } as React.ChangeEvent<HTMLSelectElement>); setOpen(false) }}><span>{option.label}</span></button>)}</div>}</div>{error && <small className="field-error">{error}</small>}</label>
   return <label className="field">{label && <span>{label}</span>}<select ref={ref} className={error ? 'has-error' : ''} aria-invalid={Boolean(error)} value={value} onChange={onChange} {...props}>{children}</select>{error && <small className="field-error">{error}</small>}</label>
 })

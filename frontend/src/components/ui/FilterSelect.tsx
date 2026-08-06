@@ -1,4 +1,4 @@
-import { ChevronDown, Check } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 type FilterOption = { value: string; label: string }
@@ -20,6 +20,6 @@ export function FilterSelect({ value, options, onChange, ariaLabel }: { value: s
     <button type="button" className="filter-select-trigger" aria-label={ariaLabel} aria-expanded={open} onClick={() => setOpen((current) => !current)}>
       <span>{selected?.label}</span><ChevronDown size={16} aria-hidden="true" />
     </button>
-    {open && <div className="filter-select-menu" role="listbox" aria-label={ariaLabel}>{options.map((option) => <button type="button" role="option" aria-selected={option.value === value} className={`filter-select-option${option.value === value ? ' selected' : ''}`} key={option.value} onClick={() => { onChange(option.value); setOpen(false) }}><span>{option.label}</span>{option.value === value && <Check size={15} aria-hidden="true" />}</button>)}</div>}
+    {open && <div className="filter-select-menu" role="listbox" aria-label={ariaLabel}>{options.map((option) => <button type="button" role="option" aria-selected={option.value === value} className={`filter-select-option${option.value === value ? ' selected' : ''}`} key={option.value} onClick={() => { onChange(option.value); setOpen(false) }}><span>{option.label}</span></button>)}</div>}
   </div>
 }
