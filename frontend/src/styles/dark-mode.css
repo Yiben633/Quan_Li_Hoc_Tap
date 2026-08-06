@@ -102,6 +102,24 @@
 [data-theme='dark'] .date-input-control input { padding-right: 42px; }
 [data-theme='dark'] .date-picker-button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 40px; height: 100%; padding: 0; color: #c8d5eb; background: transparent; border: 0; cursor: pointer; }
 [data-theme='dark'] .date-picker-button:hover { color: #fff; background: #293548; border-radius: 6px; }
+[data-theme='dark'] .topic-detail > .tabs {
+  background: #eef1f5;
+  border: 1px solid #e1e6ee;
+  box-shadow: none;
+}
+[data-theme='dark'] .topic-detail > .tabs button {
+  color: #71819b;
+  background: transparent;
+}
+[data-theme='dark'] .topic-detail > .tabs button:hover {
+  color: #24324a;
+  background: #e5eaf2;
+}
+[data-theme='dark'] .topic-detail > .tabs button.active {
+  color: #172033;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(20,31,56,.12);
+}
 [data-theme='dark'] .task-toolbar input[type='date'],
 [data-theme='dark'] .modal-form input[type='date'] { padding-right: 38px; background-image: none; }
 [data-theme='dark'] .task-toolbar input[type='date']::-webkit-calendar-picker-indicator,
