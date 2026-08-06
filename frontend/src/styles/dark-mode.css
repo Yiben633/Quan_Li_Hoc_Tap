@@ -120,6 +120,10 @@
   background: #2a3954;
   box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
+html:not([data-theme='dark']) .topic-detail > .tabs button:not(.active):hover {
+  color: #24324a;
+  background: #e5eaf2;
+}
 [data-theme='dark'] .task-toolbar input[type='date'],
 [data-theme='dark'] .modal-form input[type='date'] { padding-right: 38px; background-image: none; }
 [data-theme='dark'] .task-toolbar input[type='date']::-webkit-calendar-picker-indicator,
