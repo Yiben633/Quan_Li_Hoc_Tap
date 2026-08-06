@@ -1,1 +1,1 @@
-export type AuthUser = { id: string; fullName: string; email: string; roles?: string[] }
+export type AuthUser = { id: string; fullName: string; email: string; roles: string[]; studentCode?: string | null; school?: string | null; major?: string | null; courseYear?: number | null; avatarUrl?: string | null }
