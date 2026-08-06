@@ -16,7 +16,7 @@
 
 .auth-options .check-field { display: inline-flex; align-items: center; width: auto; gap: 9px; color: #586477; font-size: 12px; font-weight: 600; }
 .auth-options .check-field input { flex: 0 0 auto; width: 18px; height: 18px; margin: 0; accent-color: var(--blue); }
-.auth-options .check-field span { white-space: nowrap; }
+.auth-options .check-field span { white-space: nowrap; }.form-success { margin: 0 0 16px; padding: 10px 12px; color: var(--green); background: var(--green-soft); border: 1px solid rgba(35,155,114,.18); border-radius: 6px; font-size: 11px; line-height: 1.45; }
 
 /* Auth motion language: subtle, readable, and reduced-motion friendly. */
 .auth-art { background: linear-gradient(135deg, #f0f5ff 0%, #e8f0ff 48%, #eafaf5 100%); isolation: isolate; }
