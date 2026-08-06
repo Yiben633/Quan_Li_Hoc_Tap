@@ -15,8 +15,7 @@
 .progress-panel .recharts-xAxis .recharts-cartesian-axis-tick text { font-size: 10px !important; }
 .progress-panel .recharts-xAxis .recharts-cartesian-axis-tick:first-child,
 .progress-panel .recharts-xAxis .recharts-cartesian-axis-tick:last-child { transform: none; }
-.progress-panel .recharts-xAxis .recharts-cartesian-axis-tick:first-child text { text-anchor: start; }
-.progress-panel .recharts-xAxis .recharts-cartesian-axis-tick:last-child text { text-anchor: end; }
+.progress-panel .recharts-xAxis .recharts-cartesian-axis-tick text { text-anchor: middle; }
 .inline-error { display: grid; place-items: center; gap: 10px; min-height: 210px; text-align: center; }
 .inline-error p { margin: 0; color: var(--muted); font-size: 13px; }
 .chart-skeleton { padding: 18px 0; }
