@@ -53,8 +53,12 @@
 }
 
 [data-theme='dark'] .stat-icon.blue {
-  color: #91b5ff;
-  background: #263854;
+  color: #8ee2dc;
+  background: #24474f;
+}
+
+[data-theme='dark'] .stat-change.blue {
+  color: #79d8d0;
 }
 
 [data-theme='dark'] .topbar {
