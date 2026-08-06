@@ -9,11 +9,14 @@
 .topic-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .learning-card, .topic-card { min-height: 190px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
 .learning-card { position: relative; display: flex; flex-direction: column; min-height: 224px; overflow: hidden; background: var(--surface); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-.learning-card::before { content: ''; position: absolute; top: 0; right: 22px; left: 22px; height: 3px; background: var(--muted); border-radius: 0 0 4px 4px; opacity: .72; }
+.learning-card::before { display: none; }
 .learning-card:hover { border-color: rgba(56,103,232,.55); box-shadow: 0 12px 28px rgba(20,31,56,.12); transform: translateY(-3px); }
-.learning-card:has(.status-planning)::before { background: #d88a2b; }
-.learning-card:has(.status-active)::before { background: #36a982; }
-.learning-card:has(.status-closed)::before { background: #91a0b6; }
+.learning-card:has(.status-planning) { border-left: 3px solid rgba(216,138,43,.68); }
+.learning-card:has(.status-active) { border-left: 3px solid rgba(54,169,130,.68); }
+.learning-card:has(.status-closed) { border-left: 3px solid rgba(145,160,182,.68); }
+.learning-card:has(.status-planning):hover { border-left-color: #d88a2b; }
+.learning-card:has(.status-active):hover { border-left-color: #36a982; }
+.learning-card:has(.status-closed):hover { border-left-color: #91a0b6; }
 .learning-card-top, .topic-card-head, .learning-card-actions, .topic-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .learning-card h2, .topic-card h2 { margin: 24px 0 7px; font: 700 16px 'Plus Jakarta Sans', sans-serif; }
 .learning-card h2 { margin-top: 28px; margin-bottom: 6px; font-size: 20px; letter-spacing: 0; }
