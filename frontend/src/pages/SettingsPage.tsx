@@ -22,6 +22,7 @@ import {
   Tabs,
   Textarea,
 } from "../components/ui";
+import { AvatarCropper } from "../components/AvatarCropper";
 import { getApiErrorMessage } from "../features/auth/auth.api";
 import {
   useNotificationSettingsQuery,
@@ -127,6 +128,7 @@ function ProfileSettings() {
   const update = useUpdateProfileMutation();
   const avatar = useUploadAvatarMutation();
   const [file, setFile] = useState<File | null>(null);
+  const [cropFile, setCropFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const initialValues = useRef<ProfileValues>(defaultProfile);
   const {
@@ -212,8 +214,7 @@ function ProfileSettings() {
       toast.error("Avatar cần là JPG, PNG hoặc WEBP và tối đa 2MB");
       return;
     }
-    setFile(nextFile);
-    setPreview(URL.createObjectURL(nextFile));
+    setCropFile(nextFile);
   };
   const saveAvatar = () =>
     file &&
@@ -221,13 +222,17 @@ function ProfileSettings() {
       onSuccess: (next) => {
         setUser(next);
         setFile(null);
+        setPreview("");
         toast.success("Đã cập nhật ảnh đại diện");
       },
       onError: (error) =>
         toast.error(getApiErrorMessage(error, "Không thể cập nhật avatar")),
     });
+  const hasChanges = isDirty || Boolean(file) || Boolean(cropFile);
   return (
-    <SettingsSection
+    <>
+      <AvatarCropper file={cropFile} onCancel={() => setCropFile(null)} onComplete={(cropped) => { setFile(cropped); setPreview(URL.createObjectURL(cropped)); setCropFile(null); }} />
+      <SettingsSection
       icon={<UserRound size={18} />}
       title="Hồ sơ cá nhân"
       description="Chỉ những thông tin cần thiết mới được yêu cầu. Bạn có thể bỏ qua toàn bộ phần trường lớp."
@@ -326,14 +331,15 @@ function ProfileSettings() {
             {isDirty ? "Bạn có thay đổi chưa lưu" : "Thông tin đã được lưu"}
           </span>
           <div className="settings-actions-buttons">
-            {isDirty && <Button type="button" variant="secondary" onClick={() => reset(initialValues.current)}>Hủy</Button>}
+            {hasChanges && <Button type="button" variant="secondary" onClick={() => { reset(initialValues.current); setFile(null); setCropFile(null); setPreview(""); }}>Hủy</Button>}
             <Button type="submit" loading={update.isPending}>
               <Save size={16} /> Lưu thay đổi
             </Button>
           </div>
         </div>
       </form>
-    </SettingsSection>
+      </SettingsSection>
+    </>
   );
 }
 
