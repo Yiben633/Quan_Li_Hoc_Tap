@@ -16,6 +16,7 @@ build/
 database/backups/
 database/uploads/
 uploads/
+references/
 
 # Vercel
 .vercel/
@@ -32,4 +33,3 @@ pnpm-debug.log*
 Thumbs.db
 .idea/
 .vscode/
-
