@@ -18,7 +18,7 @@ apiClient.interceptors.response.use((response) => response, async (error: AxiosE
   const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
   if (error.response?.status !== 401 || !original || original._retry || original.url?.includes('/auth/refresh')) throw error
   original._retry = true
-  refreshPromise ??= apiClient.post<{ data?: { accessToken?: string } }>('/auth/refresh').then(({ data }) => data.data?.accessToken ?? null).finally(() => { refreshPromise = null })
+  refreshPromise ??= (async () => { const csrfToken = readCookie('csrfToken'); if (!csrfToken) { useAuthStore.getState().clearSession(); return null } try { const { data } = await apiClient.post<{ data?: { accessToken?: string } }>('/auth/refresh'); const token = data.data?.accessToken ?? null; if (!token) useAuthStore.getState().clearSession(); return token } catch { useAuthStore.getState().clearSession(); return null } })().finally(() => { refreshPromise = null })
   const token = await refreshPromise
   if (!token) { useAuthStore.getState().clearSession(); throw error }
   useAuthStore.getState().setSession(token)
