@@ -12,6 +12,9 @@ import './styles/tasks.css'
 import './styles/task-drawer.css'
 import './styles/dashboard-complete.css'
 import './styles/bulk-controls.css'
+import './styles/kanban.css'
+import './styles/kanban-overrides.css'
+import './styles/calendar.css'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } })
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><QueryClientProvider client={queryClient}><RouterProvider router={router} /><Toaster position="top-right" /></QueryClientProvider></React.StrictMode>)

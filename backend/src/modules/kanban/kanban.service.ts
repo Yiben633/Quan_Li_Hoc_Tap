@@ -12,7 +12,7 @@ async function verifySubject(userId: string, subjectId?: string) {
 
 export async function board(userId: string, query: { subjectId?: string; priority?: Priority }) {
   await verifySubject(userId, query.subjectId);
-  const tasks = await prisma.task.findMany({ where: { userId, deletedAt: null, ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.priority ? { priority: query.priority } : {}) }, orderBy: [{ status: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }] });
+  const tasks = await prisma.task.findMany({ where: { userId, deletedAt: null, ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.priority ? { priority: query.priority } : {}) }, include: { subTasks: { select: { id: true, isDone: true } }, subject: { select: { name: true, colorHex: true } }, studyPlan: { select: { title: true } } }, orderBy: [{ status: 'asc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }] });
   const columns = Object.fromEntries(statuses.map((status) => [status, tasks.filter((task) => task.status === status)])) as Record<TaskStatus, typeof tasks>;
   return { columns, tasks, total: tasks.length };
 }

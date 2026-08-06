@@ -1,0 +1,9 @@
+.kanban-quick-form { display: grid; grid-template-columns: minmax(0, 1fr) 32px 32px; gap: 5px; margin-bottom: 10px; }
+.kanban-quick-form input { min-width: 0; min-height: 34px; padding: 0 9px; color: var(--ink); background: var(--surface); border: 1px solid var(--blue); border-radius: 6px; outline: 0; font-size: 11px; }
+.kanban-quick-form button { display: grid; place-items: center; min-height: 34px; padding: 0; color: var(--blue); background: var(--blue-soft); border: 1px solid var(--line); border-radius: 6px; }
+.kanban-quick-form button:hover { border-color: var(--blue); }.kanban-quick-form button:last-child { color: var(--muted); }
+[data-theme='dark'] .kanban-quick-form input { background: #1a2332; border-color: #6688d2; }.kanban-quick-form input::placeholder { color: var(--muted); }
+.kanban-card { position: relative; }
+.kanban-delete-task { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 27px; height: 27px; padding: 0; color: var(--muted); background: transparent; border: 1px solid transparent; border-radius: 6px; }
+.kanban-delete-task:hover { color: #d9545d; background: rgba(217,84,93,.1); border-color: rgba(217,84,93,.28); }
+.kanban-delete-task:disabled { opacity: .55; }
