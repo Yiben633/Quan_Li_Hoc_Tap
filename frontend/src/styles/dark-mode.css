@@ -68,6 +68,7 @@
 [data-theme='dark'] .field input,
 [data-theme='dark'] .field textarea,
 [data-theme='dark'] .field select,
+[data-theme='dark'] .field input[type='date'],
 [data-theme='dark'] .select-button,
 [data-theme='dark'] .button.secondary,
 [data-theme='dark'] .dropdown-trigger,
@@ -77,6 +78,10 @@
   background: #1a2332;
   border-color: var(--line);
 }
+
+[data-theme='dark'] .field input[type='date'] { color-scheme: dark; }
+[data-theme='dark'] .field input[type='date']::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.82); }
+[data-theme='dark'] .date-input svg { color: #a9b8ce; }
 
 [data-theme='dark'] .field input::placeholder,
 [data-theme='dark'] .field textarea::placeholder,
