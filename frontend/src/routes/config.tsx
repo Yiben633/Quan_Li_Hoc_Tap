@@ -8,6 +8,9 @@ import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 import { ModulePlaceholderPage } from '../pages/ModulePlaceholderPage'
 import { AuthLayout } from '../layouts/AuthLayout'
 import { SettingsPage } from '../pages/SettingsPage'
+import { LearningSpacesPage } from '../pages/LearningSpacesPage'
+import { TopicsPage } from '../pages/TopicsPage'
+import { TopicDetailPage } from '../pages/TopicDetailPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
@@ -19,7 +22,9 @@ export const router = createBrowserRouter([
     { path: 'goals', element: <ModulePlaceholderPage title="Mục tiêu" description="Theo dõi những điều bạn muốn hoàn thành." /> },
     { path: 'study-plans', element: <ModulePlaceholderPage title="Kế hoạch học" description="Chia mục tiêu thành những bước nhỏ, rõ ràng." /> },
     { path: 'calendar', element: <ModulePlaceholderPage title="Lịch học" description="Tập hợp lịch học, sự kiện, deadline và kỳ thi." /> },
-    { path: 'subjects', element: <ModulePlaceholderPage title="Môn học" description="Theo dõi môn học, điểm số và kế hoạch học." /> },
+    { path: 'subjects', element: <LearningSpacesPage /> },
+    { path: 'topics', element: <TopicsPage /> },
+    { path: 'topics/:id', element: <TopicDetailPage /> },
     { path: 'study', element: <ModulePlaceholderPage title="Tập trung" description="Bắt đầu phiên học và theo dõi Pomodoro." /> },
     { path: 'settings', element: <SettingsPage /> },
     { element: <AdminRoute />, children: [{ path: 'admin', element: <ModulePlaceholderPage title="Quản trị" description="Khu vực quản lý dành cho admin." /> }] },

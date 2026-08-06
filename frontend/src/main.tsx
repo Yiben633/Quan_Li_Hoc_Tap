@@ -7,6 +7,7 @@ import { router } from './routes/config'
 import './styles/index.css'
 import './styles/dark-mode.css'
 import './styles/dashboard.css'
+import './styles/learning.css'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } })
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><QueryClientProvider client={queryClient}><RouterProvider router={router} /><Toaster position="top-right" /></QueryClientProvider></React.StrictMode>)
