@@ -5,7 +5,7 @@
   --ink: #f4f7fb;
   --muted: #b7c3d6;
   --line: #3b485d;
-  --blue-soft: #293f78;
+  --blue-soft: #2a3954;
   --green-soft: #214b43;
   --orange-soft: #553b24;
 }
@@ -45,6 +45,16 @@
 [data-theme='dark'] .settings-nav .tabs button.active {
   color: #78a0ff;
   background: var(--blue-soft);
+}
+
+[data-theme='dark'] .nav-link.active,
+[data-theme='dark'] .settings-nav .tabs button.active {
+  color: #b4caff;
+}
+
+[data-theme='dark'] .stat-icon.blue {
+  color: #91b5ff;
+  background: #263854;
 }
 
 [data-theme='dark'] .topbar {
@@ -143,12 +153,12 @@
 [data-theme='dark'] .text-link,
 [data-theme='dark'] .panel-icon,
 [data-theme='dark'] .panel-heading > .icon-button {
-  color: #82aaff;
+  color: #a7c4ff;
 }
 
 [data-theme='dark'] .text-link:hover,
 [data-theme='dark'] .panel-heading > .icon-button:hover {
-  color: #b2c8ff;
+  color: #d0ddff;
 }
 
 [data-theme='dark'] .panel-heading > .icon-button:hover {
