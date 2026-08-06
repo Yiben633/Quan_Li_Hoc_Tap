@@ -1,0 +1,93 @@
+/* Dark mode keeps secondary text readable during long study sessions. */
+[data-theme='dark'] {
+  --canvas: #121824;
+  --surface: #202a3a;
+  --ink: #f4f7fb;
+  --muted: #b7c3d6;
+  --line: #3b485d;
+  --blue-soft: #293f78;
+  --green-soft: #214b43;
+  --orange-soft: #553b24;
+}
+
+[data-theme='dark'] .sidebar,
+[data-theme='dark'] .settings-nav,
+[data-theme='dark'] .settings-section,
+[data-theme='dark'] .stat-card,
+[data-theme='dark'] .panel,
+[data-theme='dark'] .modal,
+[data-theme='dark'] .drawer,
+[data-theme='dark'] .dropdown-menu {
+  background: var(--surface);
+}
+
+[data-theme='dark'] .nav-link,
+[data-theme='dark'] .topbar-actions,
+[data-theme='dark'] .topbar-search,
+[data-theme='dark'] .icon-button,
+[data-theme='dark'] .menu-item,
+[data-theme='dark'] .tabs button,
+[data-theme='dark'] .select-button,
+[data-theme='dark'] .field,
+[data-theme='dark'] .auth-form label,
+[data-theme='dark'] .auth-options .check-field {
+  color: var(--muted);
+}
+
+[data-theme='dark'] .nav-link:hover,
+[data-theme='dark'] .icon-button:hover,
+[data-theme='dark'] .menu-item:hover {
+  color: var(--ink);
+  background: #293548;
+}
+
+[data-theme='dark'] .nav-link.active,
+[data-theme='dark'] .settings-nav .tabs button.active {
+  color: #78a0ff;
+  background: var(--blue-soft);
+}
+
+[data-theme='dark'] .topbar {
+  background: rgba(32, 42, 58, .96);
+}
+
+[data-theme='dark'] .field input,
+[data-theme='dark'] .field textarea,
+[data-theme='dark'] .field select,
+[data-theme='dark'] .select-button,
+[data-theme='dark'] .button.secondary,
+[data-theme='dark'] .dropdown-trigger,
+[data-theme='dark'] .tabs,
+[data-theme='dark'] .tabs button.active {
+  color: var(--ink);
+  background: #1a2332;
+  border-color: var(--line);
+}
+
+[data-theme='dark'] .field input::placeholder,
+[data-theme='dark'] .field textarea::placeholder,
+[data-theme='dark'] .topbar-search input::placeholder {
+  color: #9eacc1;
+  opacity: 1;
+}
+
+[data-theme='dark'] .task-row,
+[data-theme='dark'] .event-row,
+[data-theme='dark'] .notification-item,
+[data-theme='dark'] .dropdown-link {
+  border-color: #344155;
+}
+
+[data-theme='dark'] .progress-line {
+  background: #354154;
+}
+
+[data-theme='dark'] .badge.neutral {
+  color: #d2dbea;
+  background: #354154;
+}
+
+[data-theme='dark'] .badge.violet {
+  color: #c7bdff;
+  background: #393765;
+}
