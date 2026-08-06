@@ -106,6 +106,58 @@
   background: #393765;
 }
 
+[data-theme='dark'] .auth-page,
+[data-theme='dark'] .auth-layout {
+  background: var(--canvas);
+}
+
+[data-theme='dark'] .auth-panel {
+  background: var(--canvas);
+}
+
+[data-theme='dark'] .auth-logo,
+[data-theme='dark'] .auth-copy h1,
+[data-theme='dark'] .auth-form label,
+[data-theme='dark'] .auth-options .check-field,
+[data-theme='dark'] .auth-foot {
+  color: var(--ink);
+}
+
+[data-theme='dark'] .auth-copy > p:last-child,
+[data-theme='dark'] .auth-foot {
+  color: var(--muted);
+}
+
+[data-theme='dark'] .auth-form input {
+  color: var(--ink);
+  background: #1a2332;
+  border-color: var(--line);
+}
+
+[data-theme='dark'] .auth-form input::placeholder {
+  color: #9eacc1;
+}
+
+[data-theme='dark'] .auth-art {
+  background: linear-gradient(145deg, #1b2a42, #193b3d);
+}
+
+[data-theme='dark'] .auth-art::before {
+  border-color: rgba(126, 169, 255, .16);
+}
+
+[data-theme='dark'] .art-card {
+  color: var(--ink);
+  background: #253247;
+  border-color: #405273;
+  box-shadow: 0 22px 60px rgba(4, 10, 22, .32);
+}
+
+[data-theme='dark'] .art-card small,
+[data-theme='dark'] .art-note {
+  color: #c2cee0;
+}
+
 [data-theme='dark'] .goal-ring {
   background:
     radial-gradient(closest-side, #f2f5fa 78%, transparent 79% 100%),
