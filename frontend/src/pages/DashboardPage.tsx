@@ -24,7 +24,7 @@ export function DashboardPage() {
   const nameParts = user?.fullName?.trim().split(/\s+/) ?? []
   const firstName = nameParts[nameParts.length - 1] || 'bạn'
   const hasData = data.tasksToday.length > 0 || data.activeSubjects.length > 0 || data.activeGoals.length > 0 || data.upcomingSchedules.length > 0
-  const chartData = chart.data?.points.map((point) => ({ ...point, label: formatChartDate(point.date, range) })) ?? []
+  const chartData = chart.data?.points.map((point, index, points) => ({ ...point, label: range === 'month' && index % 3 !== 0 && index !== points.length - 1 ? '' : formatChartDate(point.date, range) })) ?? []
 
   return (
     <div className="dashboard">
