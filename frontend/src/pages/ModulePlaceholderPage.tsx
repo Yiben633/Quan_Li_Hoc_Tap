@@ -1,0 +1,2 @@
+import { Construction } from 'lucide-react'
+export function ModulePlaceholderPage({ title, description }: { title: string; description: string }) { return <section className="empty-page"><span className="empty-icon"><Construction size={24} /></span><p className="eyebrow">MODULE ĐANG ĐƯỢC XÂY DỰNG</p><h1>{title}</h1><p className="subtle">{description}</p><button className="button secondary">Quay lại tổng quan</button></section> }

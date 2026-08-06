@@ -1,0 +1,3 @@
+import { Bell, Menu, Search } from 'lucide-react'
+import { useAuthStore } from '../stores/authStore'
+export function Topbar({ onMenu }: { onMenu: () => void }) { const user = useAuthStore((state) => state.user); return <header className="topbar"><button className="icon-button mobile-only" onClick={onMenu} aria-label="Mở menu"><Menu size={20} /></button><div className="topbar-search"><Search size={17} /><input placeholder="Tìm kiếm trong StudyFlow" aria-label="Tìm kiếm" /></div><div className="topbar-actions"><button className="icon-button" aria-label="Thông báo"><Bell size={18} /><span className="notification-dot" /></button><div className="avatar">{user?.fullName?.slice(0, 1) ?? 'B'}</div><span className="user-name">{user?.fullName ?? 'Bạn học'}</span></div></header> }

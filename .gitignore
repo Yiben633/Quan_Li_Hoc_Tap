@@ -5,6 +5,9 @@ node_modules/
 dist/
 build/
 .next/
+frontend/*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
 
 # Environment files
 .env
