@@ -1,0 +1,5 @@
+import { z } from 'zod'
+export const profileSchema = z.object({ fullName: z.string().trim().min(2, 'Họ tên cần ít nhất 2 ký tự'), school: z.string().trim().optional(), major: z.string().trim().optional(), courseYear: z.string().optional(), timezone: z.string().min(1, 'Vui lòng chọn múi giờ'), language: z.enum(['vi', 'en']), themeMode: z.enum(['light', 'dark', 'system']), learningPurpose: z.string().max(300).optional(), preferredStyle: z.enum(['short', 'deep', 'mixed']), ageGroup: z.enum(['child', 'teen', 'adult', 'senior']) })
+export const passwordSchema = z.object({ currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'), newPassword: z.string().min(8, 'Mật khẩu mới cần ít nhất 8 ký tự'), confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu') }).refine((value) => value.newPassword === value.confirmPassword, { path: ['confirmPassword'], message: 'Mật khẩu nhập lại không khớp' })
+export type ProfileValues = z.infer<typeof profileSchema>
+export type PasswordValues = z.infer<typeof passwordSchema>
