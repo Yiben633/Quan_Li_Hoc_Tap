@@ -12,4 +12,12 @@ export class MockEmailChannel implements NotificationChannel {
   }
 }
 
+export class MockPushChannel implements NotificationChannel {
+  readonly name = 'push';
+  async send(message: NotificationMessage) {
+    if (process.env.NODE_ENV !== 'production') console.info('notification_push_mock', { to: message.to, subject: message.subject });
+  }
+}
+
 export const emailChannel: NotificationChannel = new MockEmailChannel();
+export const pushChannel: NotificationChannel = new MockPushChannel();

@@ -1,7 +1,7 @@
 import { NotificationType } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
 import { serviceError } from '../../utils/service-error.js';
-import { emailChannel } from './notification-channel.js';
+import { emailChannel, pushChannel } from './notification-channel.js';
 import { progress as goalProgress } from '../goals/goals.service.js';
 
 type Context = { ipAddress?: string; userAgent?: string };
@@ -66,6 +66,10 @@ async function dispatch(user: User, candidate: Candidate, now: Date) {
     await emailChannel.send({ to: user.email, subject: candidate.title, text: candidate.message });
     if (!item) item = await prisma.notification.create({ data: { userId: user.id, type: candidate.type, title: candidate.title, message: candidate.message, relatedEntityType: candidate.relatedEntityType, relatedEntityId: candidate.relatedEntityId, channel: 'email', sentAt: now } });
     else await prisma.notification.update({ where: { id: item.id }, data: { sentAt: now } });
+  }
+  if (user.notificationSetting!.pushEnabled) {
+    await pushChannel.send({ to: user.id, subject: candidate.title, text: candidate.message });
+    if (!item) item = await prisma.notification.create({ data: { userId: user.id, type: candidate.type, title: candidate.title, message: candidate.message, relatedEntityType: candidate.relatedEntityType, relatedEntityId: candidate.relatedEntityId, channel: 'push', sentAt: now } });
   }
   return Boolean(item);
 }

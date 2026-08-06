@@ -135,6 +135,8 @@ function ProfileSettings() {
     handleSubmit,
     reset,
     formState: { errors, isDirty },
+    watch,
+    setValue,
   } = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     mode: "onChange",
@@ -266,12 +268,12 @@ function ProfileSettings() {
           {...register("learningPurpose")}
         />
         <div className="settings-form-grid">
-          <Select label="Phong cách học" {...register("preferredStyle")}>
+          <Select customMenu label="Phong cách học" value={watch("preferredStyle")} onChange={(event) => setValue("preferredStyle", event.target.value as ProfileValues["preferredStyle"], { shouldDirty: true, shouldValidate: true })}>
             <option value="short">Ngắn và đều</option>
             <option value="deep">Tập trung sâu</option>
             <option value="mixed">Kết hợp</option>
           </Select>
-          <Select label="Nhóm tuổi (tùy chọn)" {...register("ageGroup")}>
+          <Select customMenu label="Nhóm tuổi (tùy chọn)" value={watch("ageGroup")} onChange={(event) => setValue("ageGroup", event.target.value as ProfileValues["ageGroup"], { shouldDirty: true, shouldValidate: true })}>
             <option value="child">Trẻ em</option>
             <option value="teen">Thiếu niên</option>
             <option value="adult">Người trưởng thành</option>
@@ -293,11 +295,11 @@ function ProfileSettings() {
           />
         </details>
         <div className="settings-form-grid">
-          <Select label="Ngôn ngữ" {...register("language")}>
+          <Select customMenu label="Ngôn ngữ" value={watch("language")} onChange={(event) => setValue("language", event.target.value as ProfileValues["language"], { shouldDirty: true, shouldValidate: true })}>
             <option value="vi">Tiếng Việt</option>
             <option value="en">English</option>
           </Select>
-          <Select label="Múi giờ" {...register("timezone")}>
+          <Select customMenu label="Múi giờ" value={watch("timezone")} onChange={(event) => setValue("timezone", event.target.value, { shouldDirty: true, shouldValidate: true })}>
             <option value="Asia/Ho_Chi_Minh">UTC+07:00 Hồ Chí Minh</option>
             <option value="Asia/Bangkok">UTC+07:00 Bangkok</option>
             <option value="Asia/Tokyo">UTC+09:00 Tokyo</option>
@@ -417,6 +419,7 @@ function AppearanceSettings() {
           <p className="subtle">Thay đổi ngay, lưu trên thiết bị này.</p>
         </div>
         <Select
+          customMenu
           value={theme}
           onChange={(event) => apply(event.target.value as typeof theme)}
         >
@@ -473,23 +476,28 @@ function NotificationSettings() {
         <Switch
           label="Thông báo trong ứng dụng"
           checked={settings.inAppEnabled}
+          disabled={mutation.isPending}
           onChange={(event) => save({ inAppEnabled: event.target.checked })}
         />
         <Switch
           label="Email nhắc nhở"
           checked={settings.emailEnabled}
+          disabled={mutation.isPending}
           onChange={(event) => save({ emailEnabled: event.target.checked })}
         />
         <Switch
-          label="Push notification"
+          label="Thông báo trình duyệt"
           checked={settings.pushEnabled}
-          onChange={(event) => save({ pushEnabled: event.target.checked })}
+          disabled={mutation.isPending}
+          onChange={async (event) => { if (event.target.checked && 'Notification' in window && Notification.permission === 'default') { const permission = await Notification.requestPermission(); if (permission !== 'granted') { toast.error('Bạn chưa cấp quyền thông báo trình duyệt'); return } } if (event.target.checked && 'Notification' in window && Notification.permission === 'denied') { toast.error('Thông báo trình duyệt đang bị chặn trong cài đặt trình duyệt'); return } save({ pushEnabled: event.target.checked }) }}
         />
       </div>
       <div className="reminder-row">
         <strong>Nhắc trước deadline</strong>
         <Select
+          customMenu
           value={settings.reminderMinutesBefore}
+          disabled={mutation.isPending}
           onChange={(event) =>
             save({ reminderMinutesBefore: Number(event.target.value) })
           }
