@@ -96,8 +96,10 @@
 [data-theme='dark'] .task-toolbar .search-field,
 [data-theme='dark'] .task-toolbar .custom-select-trigger,
 [data-theme='dark'] .task-toolbar input[type='date'] { min-height: 42px; background: #1a2332; border-color: var(--line); border-radius: 7px; }
-[data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.86); }
+[data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); opacity: .92; }
 [data-theme='dark'] input[type='date'] { color-scheme: dark; }
+[data-theme='dark'] .task-toolbar .search-field > svg,
+[data-theme='dark'] .task-toolbar .custom-select-trigger > svg { color: #c8d5eb; stroke: #c8d5eb; }
 
 [data-theme='dark'] .field input[type='date'] { color-scheme: dark; }
 [data-theme='dark'] .field input[type='date']::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.82); }
