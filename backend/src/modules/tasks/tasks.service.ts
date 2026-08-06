@@ -67,9 +67,9 @@ export async function create(userId: string, input: TaskInput, context?: Context
 }
 
 export async function detail(userId: string, id: string) {
-  const task = await prisma.task.findFirst({ where: { id, userId, deletedAt: null }, include: { subTasks: { orderBy: { sortOrder: 'asc' } }, attachments: true } });
+  const task = await prisma.task.findFirst({ where: { id, userId, deletedAt: null }, include: { subTasks: { orderBy: { sortOrder: 'asc' } }, attachments: true, documents: { where: { deletedAt: null }, orderBy: { createdAt: 'desc' } } } });
   if (!task) throw serviceError('Task not found', 404);
-  return task;
+  return { ...task, attachments: [...task.attachments, ...task.documents.map((document) => ({ id: document.id, taskId: document.taskId, fileName: document.title, fileUrl: document.fileUrl, fileType: document.fileType }))] };
 }
 
 export async function update(userId: string, id: string, input: Partial<TaskInput>, context?: Context) {

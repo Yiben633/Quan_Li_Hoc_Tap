@@ -9,6 +9,9 @@ import './styles/dark-mode.css'
 import './styles/dashboard.css'
 import './styles/learning.css'
 import './styles/tasks.css'
+import './styles/task-drawer.css'
+import './styles/dashboard-complete.css'
+import './styles/bulk-controls.css'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } })
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><QueryClientProvider client={queryClient}><RouterProvider router={router} /><Toaster position="top-right" /></QueryClientProvider></React.StrictMode>)

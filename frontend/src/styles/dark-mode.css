@@ -142,6 +142,23 @@ html:not([data-theme='dark']) .topic-detail > .tabs button:not(.active):hover {
   opacity: 1;
 }
 
+[data-theme='dark'] .task-pill-todo,
+[data-theme='dark'] .priority-low { color: #d2dbea; background: #34445e; }
+[data-theme='dark'] .task-pill-todo { border-color: #607396; }
+[data-theme='dark'] .task-pill-in_progress,
+[data-theme='dark'] .priority-medium { color: #a8c4ff; background: #293f75; }
+[data-theme='dark'] .task-pill-waiting,
+[data-theme='dark'] .priority-high,
+[data-theme='dark'] .priority-urgent { color: #ffc46f; background: #60431f; }
+[data-theme='dark'] .task-pill-done { color: #63ddb0; background: #1e574c; }
+[data-theme='dark'] .drawer-description,
+[data-theme='dark'] .drawer-section .subtle { color: #c1cede; }
+[data-theme='dark'] .drawer-section { border-top-color: #46556b; }
+[data-theme='dark'] .drawer-section h3 { color: #f4f7fb; }
+[data-theme='dark'] .drawer-file { color: #a8c4ff; }
+[data-theme='dark'] .drawer-upload { color: #a8c4ff; background: #263f76; border-color: #4d72c4; }
+[data-theme='dark'] .drawer-upload:hover { color: #fff; background: #31528f; border-color: #86aaff; }
+
 [data-theme='dark'] .task-row,
 [data-theme='dark'] .event-row,
 [data-theme='dark'] .notification-item,

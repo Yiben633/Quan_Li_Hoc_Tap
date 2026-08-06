@@ -1,0 +1,14 @@
+.drawer-file {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 12px;
+  color: var(--blue);
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.drawer-file:hover { background: var(--blue-soft); border-color: var(--blue); transform: translateY(-1px); }
+[data-theme='dark'] .drawer-file { color: #b2c8ff; background: #1b2739; border-color: #465a78; }
+[data-theme='dark'] .drawer-file:hover { color: #fff; background: #2a3d62; border-color: #80a5ff; }

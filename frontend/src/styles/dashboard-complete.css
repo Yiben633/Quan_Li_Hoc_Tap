@@ -1,0 +1,13 @@
+.dashboard-complete-upload { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 16px; padding: 12px; color: var(--blue); background: var(--blue-soft); border: 1px dashed rgba(56,103,232,.4); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 700; }
+.dashboard-complete-upload:hover { background: var(--surface); border-color: var(--blue); }
+.dashboard-complete-upload input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+[data-theme='dark'] .dashboard-complete-upload { color: #b2c8ff; background: #263f76; border-color: #6688d2; }
+[data-theme='dark'] .dashboard-complete-upload:hover { color: #fff; background: #31528f; border-color: #9bb8ff; }
+.check-button.is-completed { color: #fff; background: var(--green); border-color: var(--green); }
+.check-button.is-completed:hover { color: #fff; background: #1d875f; border-color: #1d875f; }
+[data-theme='dark'] .check-button.is-completed { color: #eafff6; background: #299b76; border-color: #55c69e; }
+.dashboard-task-attachment { display: inline-flex; align-items: center; gap: 4px; color: var(--blue) !important; font-size: 11px !important; font-weight: 600; }
+[data-theme='dark'] .dashboard-task-attachment { color: #b2c8ff !important; }
+.dashboard-selected-file { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 11px 12px; color: var(--blue); background: var(--blue-soft); border: 1px solid rgba(56,103,232,.3); border-radius: 8px; }
+.dashboard-selected-file > span { display: grid; flex: 1; gap: 3px; min-width: 0; }.dashboard-selected-file strong { overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }.dashboard-selected-file small { color: var(--muted); font-size: 10px; }.dashboard-selected-file > button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; color: var(--muted); background: transparent; border: 0; border-radius: 5px; }.dashboard-selected-file > button:hover { color: #d9545d; background: rgba(217,84,93,.1); }
+[data-theme='dark'] .dashboard-selected-file { color: #b2c8ff; background: #263f76; border-color: #6688d2; }.dashboard-selected-file > button:hover { color: #ff9da5; }
