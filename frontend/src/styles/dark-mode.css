@@ -84,6 +84,9 @@
 [data-theme='dark'] .topic-filters .search-field { background: #1a2332; }
 
 [data-theme='dark'] .topbar .dropdown-trigger { color: var(--ink); background: transparent; border-color: transparent; }
+[data-theme='dark'] .topbar .dropdown-trigger { min-height: 40px; padding: 0 8px; border-radius: 8px; transition: background .18s ease, border-color .18s ease; }
+[data-theme='dark'] .topbar-actions > .dropdown:first-of-type .dropdown-trigger { min-width: 48px; justify-content: center; }
+[data-theme='dark'] .topbar-actions > .dropdown:last-child .dropdown-trigger { gap: 8px; }
 [data-theme='dark'] .topbar .dropdown-trigger:hover,
 [data-theme='dark'] .topbar .dropdown-trigger[aria-expanded='true'] { background: #293548; border-color: var(--line); }
 [data-theme='dark'] .topbar .notification-button { color: #b7c3d6; background: transparent; }
