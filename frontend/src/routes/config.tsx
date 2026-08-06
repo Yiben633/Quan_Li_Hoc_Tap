@@ -6,11 +6,12 @@ import { LoginPage } from '../pages/LoginPage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
 import { ModulePlaceholderPage } from '../pages/ModulePlaceholderPage'
+import { AuthLayout } from '../layouts/AuthLayout'
 
 export const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
-  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
+  { path: '/register', element: <AuthLayout><RegisterPage /></AuthLayout> },
+  { path: '/forgot-password', element: <AuthLayout><ForgotPasswordPage /></AuthLayout> },
   { element: <ProtectedRoute />, children: [{ element: <AppLayout />, children: [
     { index: true, element: <DashboardPage /> },
     { path: 'tasks', element: <ModulePlaceholderPage title="Công việc" description="Quản lý task, kanban và tiến độ học tập." /> },
