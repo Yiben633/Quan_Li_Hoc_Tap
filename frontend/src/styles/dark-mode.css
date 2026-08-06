@@ -80,7 +80,8 @@
 }
 
 [data-theme='dark'] .learning-page .page-heading-actions .button.secondary,
-[data-theme='dark'] .learning-page .custom-select-trigger { background: #1a2332; }
+[data-theme='dark'] .learning-page .custom-select-trigger,
+[data-theme='dark'] .topic-filters .search-field { background: #1a2332; }
 
 [data-theme='dark'] .field input[type='date'] { color-scheme: dark; }
 [data-theme='dark'] .field input[type='date']::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.82); }
