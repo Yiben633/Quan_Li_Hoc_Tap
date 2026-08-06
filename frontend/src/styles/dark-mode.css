@@ -139,3 +139,19 @@
 [data-theme='dark'] .event-row .subtle {
   color: #c1ccdc;
 }
+
+[data-theme='dark'] .text-link,
+[data-theme='dark'] .panel-icon,
+[data-theme='dark'] .panel-heading > .icon-button {
+  color: #82aaff;
+}
+
+[data-theme='dark'] .text-link:hover,
+[data-theme='dark'] .panel-heading > .icon-button:hover {
+  color: #b2c8ff;
+}
+
+[data-theme='dark'] .panel-heading > .icon-button:hover {
+  background: #2b3d62;
+  border-color: #506b9f;
+}
