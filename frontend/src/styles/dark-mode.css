@@ -105,7 +105,7 @@
 [data-theme='dark'] .task-toolbar input[type='date'],
 [data-theme='dark'] .modal-form input[type='date'] { padding-right: 38px; background-image: none; }
 [data-theme='dark'] .task-toolbar input[type='date']::-webkit-calendar-picker-indicator,
-[data-theme='dark'] .modal-form input[type='date']::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); opacity: 1; cursor: pointer; }
+[data-theme='dark'] .modal-form input[type='date']::-webkit-calendar-picker-indicator { opacity: 0; width: 0; cursor: default; }
 [data-theme='dark'] .task-toolbar .search-field > svg,
 [data-theme='dark'] .task-toolbar .custom-select-trigger > svg { color: #c8d5eb; stroke: #c8d5eb; }
 
