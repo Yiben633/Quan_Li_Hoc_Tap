@@ -1,6 +1,6 @@
 # PROMPT VIBECODE - FRONTEND LAYER
 
-Hệ thống: **Quản lý và lập kế hoạch học tập cho mọi người ở mọi độ tuổi**  
+Hệ thống: **Quản lý và lập kế hoạch học tập cho mọi người ở mọi độ tuổi**
 Stack: React, Vite, TypeScript, TailwindCSS, React Query, Zustand, Docker.
 
 Ghi chú deploy: Docker/Nginx dùng cho local hoặc self-host. Với production trên Vercel, Vite React có thể deploy trực tiếp bằng build command `npm run build`, output `dist`, và biến môi trường public phải có prefix `VITE_`.
