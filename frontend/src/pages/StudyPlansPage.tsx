@@ -2,11 +2,12 @@ import { CalendarDays, Check, ChevronLeft, ChevronRight, Edit3, Filter, Plus, Ta
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Button, ConfirmDialog, EmptyState, Input, Modal, Select, Skeleton } from '../components/ui'
+import { PLAN_STATUS_LABELS, PRIORITY_LABELS } from '../features/tasks/task.constants'
 import type { StudyPlan, StudyPlanInput } from '../features/tasks/tasks.api'
 import { usePlanCreateMutation, usePlanDeleteMutation, usePlanUpdateMutation, usePlansQuery } from '../features/tasks/tasks.hooks'
 
-const labels: Record<string, string> = { not_started: 'Chưa bắt đầu', in_progress: 'Đang thực hiện', paused: 'Tạm dừng', completed: 'Hoàn thành', overdue: 'Quá hạn' }
-const priorities = { low: 'Thấp', medium: 'Vừa', high: 'Cao', urgent: 'Khẩn cấp' }
+const labels = PLAN_STATUS_LABELS
+const priorities = PRIORITY_LABELS
 const weekdays = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
 function dayKey(date: Date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` }

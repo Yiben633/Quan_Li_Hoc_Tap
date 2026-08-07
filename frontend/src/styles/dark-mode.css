@@ -99,7 +99,11 @@
 [data-theme='dark'] input[type='date']::-webkit-calendar-picker-indicator { filter: brightness(0) invert(1); opacity: .92; }
 [data-theme='dark'] input[type='date'] { color-scheme: dark; }
 [data-theme='dark'] .date-input-control { position: relative; display: block; }
-[data-theme='dark'] .date-input-control input { padding-right: 42px; }
+[data-theme='dark'] .date-picker-trigger, [data-theme='dark'] .date-picker-popover { background: #1a2332; border-color: var(--line); }
+[data-theme='dark'] .date-picker-popover { box-shadow: 0 16px 36px rgba(0,0,0,.36); }
+[data-theme='dark'] .date-picker-trigger svg { color: #c8d5eb; }
+[data-theme='dark'] .date-picker-days button:hover, [data-theme='dark'] .date-picker-actions button { background: #2a3954; }
+[data-theme='dark'] .date-picker-actions button:hover { background: #293548; }
 [data-theme='dark'] .date-picker-button { position: absolute; top: 0; right: 0; display: grid; place-items: center; width: 40px; height: 100%; padding: 0; color: #c8d5eb; background: transparent; border: 0; cursor: pointer; }
 [data-theme='dark'] .date-picker-button:hover { color: #fff; background: #293548; border-radius: 6px; }
 [data-theme='dark'] .topic-detail > .tabs {

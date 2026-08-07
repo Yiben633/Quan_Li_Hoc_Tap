@@ -6,7 +6,25 @@ type Context = { ipAddress?: string; userAgent?: string };
 type TaskInput = { studyPlanId?: string | null; subjectId?: string | null; title: string; description?: string | null; startDate?: Date | null; dueDate?: Date | null; estimatedMinutes?: number | null; difficulty?: number | null; priority?: Priority; status?: TaskStatus; sortOrder?: number };
 
 function output(task: { [key: string]: unknown }) { return task; }
+const taskListInclude = {
+  subject: { select: { id: true, code: true, name: true, colorHex: true } },
+  studyPlan: { select: { id: true, title: true } },
+  _count: { select: { subTasks: true } },
+  subTasks: { where: { isDone: true }, select: { id: true } },
+  attachments: { select: { id: true } },
+  documents: { where: { deletedAt: null }, select: { id: true } },
+} satisfies Prisma.TaskInclude;
+type TaskListItem = Prisma.TaskGetPayload<{ include: typeof taskListInclude }>;
+
+function listOutput(task: TaskListItem) {
+  const { _count, subTasks, attachments, documents, ...item } = task;
+  return { ...item, attachmentCount: attachments.length + documents.length, subTaskProgress: { total: _count.subTasks, done: subTasks.length } };
+}
 function dayRange(date: Date) { const start = new Date(date); start.setUTCHours(0, 0, 0, 0); const end = new Date(start); end.setUTCDate(end.getUTCDate() + 1); return { gte: start, lt: end }; }
+function dueRange(from?: Date, to?: Date) {
+  if (!from && !to) return undefined;
+  return { ...(from ? { gte: dayRange(from).gte } : {}), ...(to ? { lt: dayRange(to).lt } : {}) };
+}
 
 async function owned(userId: string, id: string) {
   const task = await prisma.task.findFirst({ where: { id, userId, deletedAt: null } });
@@ -39,21 +57,24 @@ async function syncProgress(userId: string, studyPlanId: string, client: Prisma.
   return progressPercent;
 }
 
-export async function list(userId: string, query: { studyPlanId?: string; subjectId?: string; status?: TaskStatus; priority?: Priority; dueDate?: Date; search?: string; page: number; limit: number; sort: 'title' | 'dueDate' | 'priority' | 'sortOrder' | 'createdAt'; order: 'asc' | 'desc' }) {
-  const where = { userId, deletedAt: null, ...(query.studyPlanId ? { studyPlanId: query.studyPlanId } : {}), ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.status ? { status: query.status } : {}), ...(query.priority ? { priority: query.priority } : {}), ...(query.dueDate ? { dueDate: dayRange(query.dueDate) } : {}), ...(query.search ? { OR: [{ title: { contains: query.search, mode: 'insensitive' as const } }, { description: { contains: query.search, mode: 'insensitive' as const } }] } : {}) };
+export async function list(userId: string, query: { studyPlanId?: string; subjectId?: string; status?: TaskStatus; priority?: Priority; difficulty?: number; dueDate?: Date; dueFrom?: Date; dueTo?: Date; search?: string; page: number; limit: number; sort: 'title' | 'dueDate' | 'priority' | 'sortOrder' | 'createdAt'; order: 'asc' | 'desc' }) {
+  const dueDateFilter = query.dueDate ? dayRange(query.dueDate) : dueRange(query.dueFrom, query.dueTo);
+  const where = { userId, deletedAt: null, ...(query.studyPlanId ? { studyPlanId: query.studyPlanId } : {}), ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.status ? { status: query.status } : {}), ...(query.priority ? { priority: query.priority } : {}), ...(query.difficulty ? { difficulty: query.difficulty } : {}), ...(dueDateFilter ? { dueDate: dueDateFilter } : {}), ...(query.search ? { OR: [{ title: { contains: query.search, mode: 'insensitive' as const } }, { description: { contains: query.search, mode: 'insensitive' as const } }] } : {}) };
   const [items, total] = await Promise.all([
-    prisma.task.findMany({ where, orderBy: { [query.sort]: query.order }, skip: (query.page - 1) * query.limit, take: query.limit }),
+    prisma.task.findMany({ where, include: taskListInclude, orderBy: { [query.sort]: query.order }, skip: (query.page - 1) * query.limit, take: query.limit }),
     prisma.task.count({ where }),
   ]);
-  return { items: items.map(output), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+  return { items: items.map(listOutput), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
 }
 
 export async function today(userId: string) {
-  return prisma.task.findMany({ where: { userId, deletedAt: null, dueDate: dayRange(new Date()) }, orderBy: [{ sortOrder: 'asc' }, { dueDate: 'asc' }] });
+  const items = await prisma.task.findMany({ where: { userId, deletedAt: null, dueDate: dayRange(new Date()) }, include: taskListInclude, orderBy: [{ sortOrder: 'asc' }, { dueDate: 'asc' }] });
+  return items.map(listOutput);
 }
 
 export async function overdue(userId: string) {
-  return prisma.task.findMany({ where: { userId, deletedAt: null, status: { not: 'done' }, dueDate: { lt: new Date() } }, orderBy: { dueDate: 'asc' } });
+  const items = await prisma.task.findMany({ where: { userId, deletedAt: null, status: { not: 'done' }, dueDate: { lt: new Date() } }, include: taskListInclude, orderBy: { dueDate: 'asc' } });
+  return items.map(listOutput);
 }
 
 export async function create(userId: string, input: TaskInput, context?: Context) {
@@ -67,7 +88,7 @@ export async function create(userId: string, input: TaskInput, context?: Context
 }
 
 export async function detail(userId: string, id: string) {
-  const task = await prisma.task.findFirst({ where: { id, userId, deletedAt: null }, include: { subTasks: { orderBy: { sortOrder: 'asc' } }, attachments: true, documents: { where: { deletedAt: null }, orderBy: { createdAt: 'desc' } } } });
+  const task = await prisma.task.findFirst({ where: { id, userId, deletedAt: null }, include: { subject: { select: { id: true, code: true, name: true, colorHex: true } }, studyPlan: { select: { id: true, title: true } }, subTasks: { orderBy: { sortOrder: 'asc' } }, attachments: true, documents: { where: { deletedAt: null }, orderBy: { createdAt: 'desc' } } } });
   if (!task) throw serviceError('Task not found', 404);
   return { ...task, attachments: [...task.attachments, ...task.documents.map((document) => ({ id: document.id, taskId: document.taskId, fileName: document.title, fileUrl: document.fileUrl, fileType: document.fileType }))] };
 }
