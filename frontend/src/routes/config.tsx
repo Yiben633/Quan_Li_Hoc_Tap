@@ -13,6 +13,7 @@ import { TopicsPage } from '../pages/TopicsPage'
 import { TopicDetailPage } from '../pages/TopicDetailPage'
 import { TasksPage } from '../pages/TasksPage'
 import { StudyPlansPage } from '../pages/StudyPlansPage'
+import { StudyPlanDetailPage } from '../pages/StudyPlanDetailPage'
 import { KanbanPage } from '../pages/KanbanPage'
 import { CalendarPage } from '../pages/CalendarPage'
 
@@ -26,6 +27,7 @@ export const router = createBrowserRouter([
     { path: 'tasks/kanban', element: <KanbanPage /> },
     { path: 'kanban', element: <Navigate to="/tasks/kanban" replace /> },
     { path: 'study-plans', element: <StudyPlansPage /> },
+    { path: 'study-plans/:id', element: <StudyPlanDetailPage /> },
     { path: 'goals', element: <ModulePlaceholderPage title="Mục tiêu" description="Theo dõi những điều bạn muốn hoàn thành." /> },
     { path: 'calendar', element: <CalendarPage /> },
     { path: 'subjects', element: <LearningSpacesPage /> },

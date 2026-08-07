@@ -22,7 +22,7 @@ export async function summary(userId: string) {
   ]);
   const scheduleItems = upcomingSchedules.map((item) => ({ ...item, type: 'schedule' }));
   const taskItems = upcomingTasks.map((task) => ({ id: task.id, title: task.title, type: 'task_due', startDate: task.dueDate, startTime: task.dueDate?.toISOString().slice(11, 16) ?? '', endTime: null }));
-  const upcomingItems = [...scheduleItems, ...taskItems].sort((a, b) => { const aDate = new Date(a.startDate).getTime(); const bDate = new Date(b.startDate).getTime(); return aDate - bDate || a.startTime.localeCompare(b.startTime) }).slice(0, 10);
+  const upcomingItems = [...scheduleItems, ...taskItems].sort((a, b) => { const aDate = a.startDate?.getTime() ?? Number.MAX_SAFE_INTEGER; const bDate = b.startDate?.getTime() ?? Number.MAX_SAFE_INTEGER; return aDate - bDate || a.startTime.localeCompare(b.startTime) }).slice(0, 10);
   return { tasksToday, taskDone, taskOverdue, studyMinutesThisWeek: studyTime._sum.totalMinutes ?? 0, studyHoursThisWeek: Math.round(((studyTime._sum.totalMinutes ?? 0) / 60) * 100) / 100, activeSubjects, upcomingSchedules: upcomingItems, activeGoals };
 }
 

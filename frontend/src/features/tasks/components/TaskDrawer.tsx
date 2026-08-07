@@ -34,7 +34,7 @@ export function TaskDrawer({ id, onClose, onDelete }: { id: string; onClose: () 
     <div className="drawer-task-status"><span className={`status-label task-pill-${task.status}`}>{TASK_STATUS_LABELS[task.status]}</span><span className={`priority priority-${task.priority}`}>{PRIORITY_LABELS[task.priority]}</span></div>
     <section className="drawer-metadata" aria-label="Thông tin công việc">
       {task.subject && <div><span>Môn học</span><Link to={`/topics/${task.subject.id}`} onClick={onClose}>{task.subject.code ? `${task.subject.code} · ${task.subject.name}` : task.subject.name}</Link></div>}
-      {task.studyPlan && <div><span>Kế hoạch</span><Link to="/study-plans" onClick={onClose}>{task.studyPlan.title}</Link></div>}
+      {task.studyPlan && <div><span>Kế hoạch</span><Link to={`/study-plans/${task.studyPlan.id}`} onClick={onClose}>{task.studyPlan.title}</Link></div>}
       <div><span>Ngày bắt đầu</span><strong><CalendarDays size={14} /> {formatTaskDate(task.startDate)}</strong></div>
       <div><span>Deadline</span><strong><CalendarDays size={14} /> {formatTaskDeadline(task.dueDate)}</strong></div>
       {task.estimatedMinutes !== null && task.estimatedMinutes !== undefined && <div><span>Thời gian dự kiến</span><strong><Clock3 size={14} /> {task.estimatedMinutes} phút</strong></div>}

@@ -19,6 +19,7 @@ export const studyPlanListSchema = z.object({
   subjectId: z.string().uuid().optional(),
   status: z.enum(['not_started', 'in_progress', 'paused', 'completed', 'overdue']).optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+  search: z.string().trim().max(120).optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   page: z.coerce.number().int().min(1).default(1),

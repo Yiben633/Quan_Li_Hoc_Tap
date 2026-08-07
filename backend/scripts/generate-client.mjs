@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +15,7 @@ const generatedSource = generatedSources.find((candidate) => existsSync(candidat
 if (!generatedSource) throw new Error(`Prisma client output not found: ${generatedSources.join(', ')}`);
 if (generatedSource !== generatedTarget) {
   mkdirSync(join(backendRoot, 'node_modules/.prisma'), { recursive: true });
-  rmSync(generatedTarget, { recursive: true, force: true });
-  cpSync(generatedSource, generatedTarget, { recursive: true });
+  // The native engine is locked while the Windows dev server is running. Merge the
+  // generated client without replacing that binary so type generation stays safe.
+  cpSync(generatedSource, generatedTarget, { recursive: true, force: true, filter: (sourcePath) => !sourcePath.endsWith('.dll.node') });
 }

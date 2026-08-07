@@ -24,13 +24,27 @@ async function log(userId: string, action: string, entityId: string, context?: C
   await prisma.activityLog.create({ data: { userId, action, entityType: 'study_plan', entityId, ipAddress: context?.ipAddress, userAgent: context?.userAgent } });
 }
 
-export async function list(userId: string, query: { subjectId?: string; status?: StudyPlanStatus; priority?: Priority; startDate?: Date; endDate?: Date; page: number; limit: number; sort: 'title' | 'startDate' | 'endDate' | 'priority' | 'createdAt'; order: 'asc' | 'desc' }) {
-  const where = { userId, deletedAt: null, ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.status ? { status: query.status } : {}), ...(query.priority ? { priority: query.priority } : {}), ...(query.startDate ? { startDate: { gte: query.startDate } } : {}), ...(query.endDate ? { endDate: { lte: query.endDate } } : {}) };
+async function taskCountsByPlan(userId: string, planIds: string[]) {
+  const counts = planIds.length ? await prisma.task.groupBy({ by: ['studyPlanId', 'status'], where: { userId, deletedAt: null, studyPlanId: { in: planIds } }, _count: { _all: true } }) : [];
+  const result = new Map<string, { total: number; done: number }>();
+  for (const item of counts) {
+    if (!item.studyPlanId) continue;
+    const current = result.get(item.studyPlanId) ?? { total: 0, done: 0 };
+    current.total += item._count._all;
+    if (item.status === 'done') current.done += item._count._all;
+    result.set(item.studyPlanId, current);
+  }
+  return result;
+}
+
+export async function list(userId: string, query: { subjectId?: string; status?: StudyPlanStatus; priority?: Priority; search?: string; startDate?: Date; endDate?: Date; page: number; limit: number; sort: 'title' | 'startDate' | 'endDate' | 'priority' | 'createdAt'; order: 'asc' | 'desc' }) {
+  const where: Prisma.StudyPlanWhereInput = { userId, deletedAt: null, ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.status ? { status: query.status } : {}), ...(query.priority ? { priority: query.priority } : {}), ...(query.search ? { OR: [{ title: { contains: query.search, mode: 'insensitive' } }, { description: { contains: query.search, mode: 'insensitive' } }, { targetGoal: { contains: query.search, mode: 'insensitive' } }] } : {}), ...(query.startDate ? { startDate: { gte: query.startDate } } : {}), ...(query.endDate ? { endDate: { lte: query.endDate } } : {}) };
   const [items, total] = await Promise.all([
-    prisma.studyPlan.findMany({ where, orderBy: { [query.sort]: query.order }, skip: (query.page - 1) * query.limit, take: query.limit }),
+    prisma.studyPlan.findMany({ where, include: { subject: { select: { id: true, code: true, name: true, colorHex: true } } }, orderBy: { [query.sort]: query.order }, skip: (query.page - 1) * query.limit, take: query.limit }),
     prisma.studyPlan.count({ where }),
   ]);
-  return { items: items.map(output), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+  const counts = await taskCountsByPlan(userId, items.map((plan) => plan.id));
+  return { items: items.map((plan) => { const taskCounts = counts.get(plan.id) ?? { total: 0, done: 0 }; return output({ ...plan, taskTotal: taskCounts.total, taskDone: taskCounts.done }); }), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
 }
 
 export async function summary(userId: string) {
@@ -59,8 +73,16 @@ export async function create(userId: string, input: PlanInput, context?: Context
 }
 
 export async function detail(userId: string, id: string) {
-  const plan = await owned(userId, id);
-  return output(plan);
+  const [plan, counts] = await Promise.all([
+    prisma.studyPlan.findFirst({
+      where: { id, userId, deletedAt: null },
+      include: { subject: { select: { id: true, code: true, name: true, colorHex: true } } },
+    }),
+    taskCountsByPlan(userId, [id]),
+  ]);
+  if (!plan) throw serviceError('Study plan not found', 404);
+  const taskCounts = counts.get(id) ?? { total: 0, done: 0 };
+  return output({ ...plan, taskTotal: taskCounts.total, taskDone: taskCounts.done });
 }
 
 export async function update(userId: string, id: string, input: Partial<PlanInput>, context?: Context) {

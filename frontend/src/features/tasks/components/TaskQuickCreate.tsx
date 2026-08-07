@@ -1,5 +1,5 @@
 import { ChevronDown, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Button, Input, Select } from '../../../components/ui'
 import type { Priority, StudyPlan, Task } from '../tasks.api'
@@ -15,11 +15,12 @@ type TaskQuickCreateProps = {
   onCreated?: (task: Task) => void
   topics?: TopicOption[]
   plans?: StudyPlan[]
+  focusKey?: number
 }
 
 const estimatedMinuteOptions = [15, 25, 30, 45, 60, 90]
 
-export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'medium', onCreated, topics = [], plans = [] }: TaskQuickCreateProps) {
+export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'medium', onCreated, topics = [], plans = [], focusKey = 0 }: TaskQuickCreateProps) {
   const [title, setTitle] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -30,7 +31,14 @@ export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'med
   const [estimatedMinutes, setEstimatedMinutes] = useState('30')
   const [difficulty, setDifficulty] = useState('')
   const [description, setDescription] = useState('')
+  const titleInputRef = useRef<HTMLInputElement>(null)
   const createMutation = useTaskCreateMutation()
+
+  useEffect(() => {
+    if (!focusKey) return
+    setExpanded(true)
+    titleInputRef.current?.focus()
+  }, [focusKey])
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -64,7 +72,7 @@ export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'med
 
   return <section className={`task-quick-create panel${expanded ? ' is-expanded' : ''}`}>
     <form onSubmit={submit}>
-      <div className="task-quick-primary"><Plus size={18} /><input value={title} onFocus={() => setExpanded(true)} onChange={(event) => setTitle(event.target.value)} placeholder="Thêm công việc nhanh..." aria-label="Tên công việc nhanh" /><Button type="submit" disabled={!title.trim()} loading={createMutation.isPending}>Thêm</Button></div>
+      <div className="task-quick-primary"><Plus size={18} /><input ref={titleInputRef} value={title} onFocus={() => setExpanded(true)} onChange={(event) => setTitle(event.target.value)} placeholder="Thêm công việc nhanh..." aria-label="Tên công việc nhanh" /><Button type="submit" disabled={!title.trim()} loading={createMutation.isPending}>Thêm</Button></div>
       {expanded && <div className="task-quick-options">
         {!subjectId && <Select customMenu value={selectedSubjectId} onChange={(event) => setSelectedSubjectId(event.target.value)} aria-label="Chọn chủ đề"><option value="">Môn học</option>{topics.map((topic) => <option key={topic.id} value={topic.id}>{topic.code ? `${topic.code} · ${topic.name}` : topic.name}</option>)}</Select>}
         <Input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} aria-label="Deadline" />
