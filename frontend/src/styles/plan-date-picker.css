@@ -1,0 +1,32 @@
+.plan-date-picker { position: relative; }
+.plan-date-trigger { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 9px 12px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-weight: 600; text-align: left; }
+.plan-date-trigger:hover, .plan-date-trigger[aria-expanded='true'] { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+.plan-date-trigger svg { color: var(--muted); }
+.plan-date-popover { position: absolute; z-index: 60; top: calc(100% + 6px); left: 0; width: 296px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 16px 36px rgba(20,31,56,.18); }
+.plan-date-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.plan-date-head strong { color: var(--ink); font-size: 13px; text-transform: capitalize; }
+.plan-date-head .icon-button { width: 30px; height: 30px; }
+.plan-date-weekdays, .plan-date-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+.plan-date-weekdays { margin-bottom: 5px; color: var(--muted); font-size: 10px; font-weight: 700; }
+.plan-date-days button { height: 31px; padding: 0; color: var(--ink); background: transparent; border: 0; border-radius: 6px; font-size: 12px; }
+.plan-date-days button:hover { background: var(--blue-soft); }
+.plan-date-days button.is-muted { color: var(--muted); opacity: .55; }
+.plan-date-days button.is-selected { color: #fff; background: var(--blue); }
+.plan-date-today { width: 100%; min-height: 32px; margin-top: 10px; color: var(--blue); background: var(--blue-soft); border: 0; border-radius: 6px; font-size: 12px; font-weight: 700; }
+[data-theme='dark'] .plan-date-trigger, [data-theme='dark'] .plan-date-popover { background: #1a2332; border-color: var(--line); }
+[data-theme='dark'] .plan-date-popover { box-shadow: 0 16px 36px rgba(0,0,0,.36); }
+[data-theme='dark'] .plan-date-days button:hover, [data-theme='dark'] .plan-date-today { background: #2a3954; }
+
+/* The plan form fits desktop viewports without an unnecessary inner scrollbar. */
+.modal:has(#study-plan-form) { width: min(100%, 650px); max-height: calc(100vh - 32px); overflow: visible; }
+.modal:has(#study-plan-form) .modal-body { padding: 18px 26px; overflow: visible; }
+.modal:has(#study-plan-form) .modal-form { gap: 12px; }
+.modal:has(#study-plan-form) .field { gap: 5px; }
+.modal:has(#study-plan-form) .modal-foot { padding: 12px 26px; }
+.overlay:has(#study-plan-form) { overflow: hidden; }
+
+@media (max-height: 680px), (max-width: 560px) {
+  .modal:has(#study-plan-form) { max-height: calc(100vh - 24px); overflow: auto; }
+  .modal:has(#study-plan-form) .modal-body { overflow: auto; }
+  .plan-date-popover { position: fixed; top: 50%; left: 50%; width: min(296px, calc(100vw - 32px)); transform: translate(-50%, -50%); }
+}

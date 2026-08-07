@@ -245,173 +245,190 @@ Yêu cầu:
 - Calendar trên mobile phải dễ đọc, không vỡ layout.
 ```
 
-## PROMPT 9 - Goals Và Notifications
+## PROMPT 9 - Mục Tiêu Và Thông Báo
 
 ```text
+Xây dựng module mục tiêu và thông báo dựa trên backend contract hiện có.
+
+Goals:
+- GoalListPage gọi API goals thật, có filter status/type, loading, empty, error
+  và retry.
+- Form tạo/sửa mục tiêu: type, targetValue, deadline; subject/topic chỉ là tùy
+  chọn. Không yêu cầu academic context.
+- Card hiển thị current/target, tiến độ do backend trả về, deadline và trạng
+  thái. Không tự tính sai khác với backend.
+
+Notifications:
+- Topbar chỉ hiển thị notification thật từ `GET /api/notifications`.
+- Không hard-code badge, số lượng hay nội dung mẫu.
+- NotificationPage có phân trang, filter chưa đọc, đánh dấu một/tất cả đã đọc
+  qua `PATCH /api/notifications/:id/read` và `/read-all`.
+- Chỉ điều hướng đến entity nếu route của entity đó đã tồn tại; nếu chưa có,
+  mở nội dung notification và không tạo link giả.
+- Đồng bộ NotificationSettings trong SettingsPage với API hiện có; push chỉ bật
+  sau khi người dùng cấp quyền trình duyệt.
+
+Yêu cầu:
+- React Query invalidate/sửa cache sau thao tác đọc hoặc cập nhật mục tiêu.
+- Mọi empty/error state dùng ngôn ngữ trung tính, dễ hiểu.
+- Không render link hoặc CTA dẫn vào ModulePlaceholderPage.
+```
+
+## PROMPT 10 - Đánh Giá Tiến Bộ Học Thuật (Tùy Chọn)
+
+```text
+Chỉ triển khai sau khi user chủ động bật academic context. Với người dùng tự
+học hoặc học kỹ năng, module phải ẩn hoàn toàn thay vì hiện trạng thái thiếu dữ
+liệu.
+
 Xây dựng:
-- GoalListPage: card mục tiêu, progress bar, target/current, deadline countdown, filter status/type.
-- Goal form: type, subject optional, targetValue, deadline.
-- NotificationDropdown trong topbar.
-- NotificationPage: list phân trang, filter unread, mark read, mark all read.
-- Notification settings trong SettingsPage.
+- AcademicSettings toggle có mô tả ngắn, có thể tắt mà không xóa các phần khác.
+- GradeComponent table và GradeSummary theo API `/api/subjects/:subjectId` và
+  `/api/grade-components` hiện có.
+- GradeOverviewPage và GPA theo learning space khi có dữ liệu học thuật.
 
-Yêu cầu:
-- Click notification điều hướng đến entity liên quan nếu có.
-- Empty state thân thiện.
+UI và logic:
+- Validate điểm từ 0 đến maxScore; biểu diễn tổng weight khác 100% rõ ràng.
+- Current average, required final score và tính khả thi lấy từ backend; frontend
+  chỉ định dạng số và diễn giải.
+- Tab Điểm số trong TopicDetailPage chỉ render khi academic context bật và API
+  đã sẵn sàng. Không để tab “đang chuẩn bị”.
+- Có loading, empty, error, success; mutation có toast tiếng Việt.
 ```
 
-## PROMPT 10 - Đánh Giá Tiến Bộ (Tùy Chọn)
+## PROMPT 11 - Phiên Tập Trung Và Pomodoro
 
 ```text
-Xây dựng module đánh giá tiến bộ như một tính năng tùy chọn, không xuất hiện
-như lỗi thiếu dữ liệu với người dùng tự học:
-- EvaluationPage trong TopicDetailPage khi academic context được bật.
-- GradeOverviewPage tổng hợp các topic có grade component.
-- GpaOverviewPage theo learning space chỉ dành cho người dùng muốn theo dõi
-  GPA.
-
-UI:
-- Bảng GradeComponent: tên, trọng số, max score, điểm hiện tại, ngày thi.
-- Cảnh báo nếu tổng trọng số khác 100%.
-- Summary card: điểm hiện tại, điểm mục tiêu, điểm cần đạt, trạng thái khả thi.
-- Recharts LineChart cho điểm/GPA qua các learning space khi có dữ liệu.
-
-Yêu cầu:
-- Input điểm validate trong khoảng 0 đến maxScore; không bắt buộc nhập điểm để
-  sử dụng các phần còn lại của ứng dụng.
-- Auto-save hoặc nút Lưu rõ ràng.
-```
-
-## PROMPT 11 - Study Timer Và Pomodoro
-
-```text
-Xây dựng StudyTimerWidget đặt trong AppLayout.
+Triển khai StudyTimerWidget chỉ khi các endpoint study-session đã chạy được.
+Không đưa nút “Bắt đầu học” vào dashboard/sidebar nếu luồng chưa hoàn chỉnh.
 
 Tính năng:
-- Chọn chủ đề nếu có, ghi chú, bắt đầu/tạm dừng/tiếp tục/kết thúc. Người dùng
-  vẫn có thể bắt đầu phiên học mà không cần chọn chủ đề.
-- Pomodoro 25/5, nghỉ dài sau 4 phiên, tùy chỉnh phút.
-- Thông báo trình duyệt hoặc âm thanh khi hết phiên.
-- Persist trạng thái timer bằng Zustand persist/localStorage.
-- Đồng bộ server định kỳ và khi kết thúc phiên.
+- Start/pause/resume/end dùng `/api/study-sessions`; chọn chủ đề là tùy chọn.
+- Pomodoro mặc định 25/5, nghỉ dài sau 4 focus sessions; cho phép cấu hình thời
+  lượng với giới hạn hợp lý.
+- Zustand persist/localStorage chỉ lưu trạng thái giao diện để phục hồi sau
+  refresh; Postgres/Redis vẫn là nguồn trạng thái phiên chạy.
+- Khi app mở lại, kiểm tra phiên active từ backend trước khi tiếp tục đếm.
+- Browser notification/âm thanh là opt-in và luôn có fallback im lặng.
 
-Xây dựng StudyTimeStatsPage:
-- Biểu đồ thời gian học theo ngày/tuần/tháng.
-- Thời gian theo môn.
-- Số phiên Pomodoro hoàn thành.
+StudyTimeStatsPage:
+- Gọi `/api/statistics/study-time`, filter day/week/month và topic tùy chọn.
+- Chart không tự tạo data mẫu; hiển thị empty state khi chưa có phiên học.
 ```
 
 ## PROMPT 12 - Tài Liệu Và Ghi Chú
 
 ```text
+Triển khai theo đúng API Documents/Notes hiện có, không tạo endpoint mới nếu
+chưa có backend contract.
+
 Documents:
-- DocumentLibraryPage và tab Document trong SubjectDetailPage.
-- Drag-drop upload bằng react-dropzone.
-- Progress bar upload.
-- Grid/list toggle.
-- Filter learning space/chủ đề nếu có, tag, type; search.
-- Preview PDF/ảnh, download, rename, retag, delete.
+- DocumentLibraryPage có search, filter learning space/topic/task/tag/type,
+  phân trang và grid/list toggle.
+- Upload dùng giới hạn MIME/dung lượng từ backend/env; có progress, cancel/error
+  và rollback UI khi upload lỗi.
+- Preview chỉ cho loại browser hỗ trợ (PDF/ảnh); download, đổi tên, tag, liên
+  kết chủ đề/task và xóa đều có ownership/error state rõ ràng.
 
 Notes:
-- NoteListPage dạng lưới.
-- NoteEditorPage dùng TipTap.
-- Hỗ trợ heading, bold, italic, list, link, image.
-- Pin note, tag, gắn learning space/chủ đề/task nếu có.
-- Auto-save debounce 1-2 giây, hiển thị trạng thái đã lưu.
+- NoteListPage, editor rich text và pin/tag/liên kết topic/task tùy chọn.
+- Sanitize preview trước khi render; autosave debounce chỉ chạy sau khi người
+  dùng thay đổi và phải hiển thị “Đang lưu/Đã lưu/Lỗi lưu”.
+- Chỉ thêm tab Tài liệu/Ghi chú vào TopicDetailPage khi tab có nội dung thật.
 ```
 
-## PROMPT 13 - Statistics Và Export Report
+## PROMPT 13 - Thống Kê Và Xuất Báo Cáo
 
 ```text
-Xây dựng StatisticsPage.
+Xây dựng StatisticsPage sau khi dữ liệu task, session và goals đã ổn định.
 
-Biểu đồ:
-- Tiến độ học tập theo tuần.
-- Tỷ lệ hoàn thành task.
-- Thời gian học theo môn.
-- Task hoàn thành vs quá hạn.
-- Điểm số theo chủ đề nếu user có bật academic context.
-- Tiến độ mục tiêu.
-- GPA theo learning space nếu user có sử dụng tính năng GPA.
-
-Tính năng:
-- Filter khoảng thời gian: tuần, tháng, learning space, chủ đề.
-- Export report modal: weekly, monthly, learning space, by topic; PDF hoặc
-  Excel. Các bộ lọc điểm/GPA là tùy chọn.
-- Gọi API export và tự tải file về hoặc mở tab mới.
+- Gọi các endpoint statistics/reports thật; kiểm tra response trước khi vẽ chart.
+- Filter range, learning space và topic là tùy chọn, có query key ổn định và
+  timezone `Asia/Ho_Chi_Minh` cho nhãn ngày.
+- Hiển thị task hoàn thành/quá hạn, thời gian tập trung, tiến độ mục tiêu; số
+  liệu điểm/GPA chỉ xuất hiện khi academic context bật.
+- Export modal chỉ hiển thị format backend hỗ trợ; trạng thái đang tạo file,
+  download thành công và lỗi cần rõ ràng.
+- Không dùng dữ liệu mock hoặc biểu đồ trống nhưng vẫn có legend/số liệu giả.
 ```
 
-## PROMPT 14 - AI Schedule, Assistant, Flashcard
+## PROMPT 14 - AI Lập Kế Hoạch, Trợ Lý Và Flashcard
 
 ```text
-SmartScheduleSuggestionPage:
-- Form chọn task/chủ đề tùy chọn/hạn hoàn thành/độ khó/khung giờ rảnh.
-- Gọi /api/ai/suggest-schedule.
-- Hiển thị timeline theo ngày.
-- Cho phép kéo chỉnh rồi áp dụng vào lịch.
-- Warning khi lịch quá tải và đề xuất chia nhỏ phiên học phù hợp với thời gian
-  tập trung của người dùng.
+Đây là module opt-in. Chỉ render navigation khi provider AI và các endpoint
+backend tương ứng được cấu hình.
 
-AiAssistantPage:
-- UI chat, quick prompts, typing indicator, streaming nếu backend hỗ trợ.
-- Gợi ý: tạo kế hoạch học một kỹ năng, tóm tắt tài liệu, tạo flashcard, chia
-  mục tiêu thành các bước nhỏ. “Ôn thi” chỉ là một ví dụ tùy chọn.
+Smart schedule:
+- Gọi `/api/ai/suggest-schedule` và `/api/ai/reschedule` với task/chủ đề tùy
+  chọn, hạn và khung giờ rảnh.
+- Hiển thị cảnh báo quá tải từ response; người dùng phải xem và xác nhận trước
+  khi áp dụng thay đổi vào Calendar.
+
+AI assistant:
+- Chat có trạng thái gửi/stream/lỗi/rate-limit và nút dừng nếu backend hỗ trợ.
+- Không gửi tài liệu hoặc thông tin nhạy cảm nếu chưa có consent rõ ràng.
+- Nhắc hành động theo ngôn ngữ trung tính: lập kế hoạch kỹ năng, tóm tắt tài
+  liệu, chia mục tiêu, tạo thẻ; “ôn thi” chỉ là một ví dụ.
 
 Flashcard:
-- FlashcardSetListPage CRUD bộ thẻ.
-- FlashcardStudyPage flip card, đúng/sai, số thẻ cần ôn.
-- Modal tạo flashcard bằng AI từ note/document.
+- CRUD bộ thẻ, review đúng/sai, due queue và optimistic update có rollback.
+- Tạo từ AI chỉ là một tùy chọn; luôn có form tạo thủ công.
 ```
 
-## PROMPT 15 - Study Group Và Admin
+## PROMPT 15 - Nhóm Chia Sẻ Và Quản Trị
 
 ```text
-StudyGroupPage:
-- Danh sách nhóm đã tham gia/tạo, với lựa chọn nhóm học riêng tư hoặc chia sẻ.
-- Tạo nhóm, mời thành viên bằng email.
-- StudyGroupDetailPage có tabs: task nhóm, tài liệu, lịch họp, thảo luận, tiến độ.
-- Không hiển thị công khai email, tuổi hoặc thông tin trường của thành viên.
-  Nếu hỗ trợ người dùng nhỏ tuổi, cần trạng thái riêng tư mặc định và cơ chế
-  mời an toàn.
-- Group task có Kanban nhỏ và avatar người được giao.
+StudyGroup:
+- Nhóm mặc định riêng tư; mời thành viên bằng email qua flow xác nhận an toàn.
+- Không hiển thị công khai email, nhóm tuổi, trường hoặc dữ liệu nhạy cảm.
+- Group detail chỉ có tab nào đã có API và dữ liệu thật: task nhóm, lịch họp,
+  tài liệu, thảo luận hoặc tiến độ.
+- Kanban nhóm chỉ thao tác trên dữ liệu group có ownership/membership check.
 
 Admin:
-- AdminDashboardPage: thống kê user, plan, task, document.
-- AdminUserListPage: search, filter role/status, lock/unlock, reset password, role management.
-- AdminSubjectTemplatePage: CRUD và import Excel có preview lỗi từng dòng; đổi
-  tên hiển thị thành TopicTemplate nếu sản phẩm không dùng academic context.
-- AdminContentPage: FAQ, guide, sample documents, system notification.
-- AdminFeedbackPage: trả lời feedback, đổi trạng thái.
-- AdminActivityLogPage: filter user/action/date.
+- Tất cả route, link sidebar và API mutation phải được bọc AdminRoute/
+  `authorize(['admin'])`; người dùng thường không thấy mục Quản trị.
+- Các trang user/template/content/feedback/activity log phải có pagination,
+  search, confirm destructive action và audit feedback.
+- Đổi nhãn SubjectTemplate thành TopicTemplate trong UI khi academic context
+  không được dùng; không đổi backend contract trong prompt này.
 ```
 
-## PROMPT 16 - Responsive, PWA Và Polish
+## PROMPT 16 - Chất Lượng, Responsive, PWA Và Kiểm Thử
 
 ```text
-Rà soát toàn bộ frontend.
+Rà soát toàn bộ frontend sau khi các module cốt lõi đã hoạt động.
 
-Yêu cầu:
-- Responsive mobile/tablet/desktop.
-- Sidebar mobile thành drawer hoặc bottom nav.
-- Table thành card list trên mobile.
-- Kanban scroll ngang.
-- Calendar có mobile view dễ dùng.
-- Thêm 404, ErrorBoundary, offline/network error page.
-- Thêm vite-plugin-pwa, manifest, service worker cơ bản.
-- Web Notification API cho notification mới nếu user cho phép.
-- Tất cả destructive actions có confirm.
-- Tất cả form có thông báo lỗi tiếng Việt rõ ràng.
-- Rà soát toàn bộ copy: không mặc định user là sinh viên, không gọi mọi mục
-  tiêu là ôn thi, và không ép tạo học kỳ/môn học/điểm số.
-- Kiểm tra các luồng cho ba persona tối thiểu: trẻ tự học có người hỗ trợ,
-  người trưởng thành học kỹ năng, và người dùng academic muốn theo dõi GPA.
-- Không thu thập hoặc hiển thị dữ liệu trẻ em quá mức cần thiết; thêm privacy
-  note và trạng thái lỗi thân thiện nếu một tính năng cần quyền người giám hộ.
-- README hướng dẫn chạy frontend và toàn bộ stack.
-- README có thêm hướng dẫn deploy Vercel: import GitHub repo, chọn root directory frontend nếu tách project, khai báo env và kiểm tra preview URL.
+Chất lượng UX:
+- Responsive mobile/tablet/desktop; sidebar mobile là drawer/bottom navigation,
+  list/table chuyển card, Kanban scroll ngang và Calendar có view dễ đọc.
+- Mọi destructive action có ConfirmDialog trong app, không dùng `window.confirm`.
+- Mọi form có validation tiếng Việt, loading, disabled, success và error state.
+- Không có navigation/link/button giả: route chưa triển khai thì không render
+  CTA. Không để tab “đang chuẩn bị” trong luồng chính.
+- Dùng semantic CSS variables `--canvas`, `--surface`, `--ink`, `--muted`,
+  `--line`, `--blue`, `--success`, `--warning`, `--danger`; kiểm tra contrast
+  cả light/dark thay vì phủ lớp màu từng component.
+- Thêm ErrorBoundary/errorElement và trang offline/network error thân thiện.
+
+PWA và quyền:
+- Chỉ thêm `vite-plugin-pwa`, manifest và service worker sau khi cache strategy
+  được xác định; không cache response cá nhân nhạy cảm bừa bãi.
+- Web Notification API là opt-in và phải đồng bộ với notification settings.
+
+Kiểm thử:
+- Thêm Vitest, React Testing Library và jsdom, scripts `test`/`test:watch`.
+- Có test tối thiểu cho route guard, greeting theo giờ Việt Nam, task form
+  validation và helper timezone Calendar.
+- Kiểm tra thủ công ba persona: trẻ tự học có người hỗ trợ, người trưởng thành
+  học kỹ năng, và người dùng academic theo dõi GPA.
+
+Tài liệu:
+- README hướng dẫn chạy frontend/toàn stack và Vercel (root directory, env,
+  preview URL). Không thu thập hoặc hiển thị dữ liệu trẻ em quá mức cần thiết.
 
 Checklist:
-- `npm run build` pass.
-- Không có text tràn khỏi button/card ở mobile.
-- Loading, empty, error, success state đầy đủ.
+- `npm run lint`, `npm run test` và `npm run build` pass.
+- Không có text tràn button/card trên mobile.
+- Loading, empty, error, success state đầy đủ ở các route đã công bố.
 ```

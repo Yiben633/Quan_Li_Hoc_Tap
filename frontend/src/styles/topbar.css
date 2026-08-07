@@ -1,0 +1,8 @@
+.topbar-spacer { flex: 1; }
+.notification-list { max-height: 280px; overflow-y: auto; }
+.notification-item { width: 100%; color: var(--ink); background: transparent; border-right: 0; border-left: 0; text-align: left; }
+.notification-item:hover { background: var(--blue-soft); }
+.notification-item small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
+.notification-empty { padding: 14px 10px; margin: 0; color: var(--muted); font-size: 12px; }
+
+[data-theme='dark'] .notification-item:hover { background: #2a3954; }

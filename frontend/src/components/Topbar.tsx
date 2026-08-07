@@ -1,5 +1,22 @@
-import { Bell, LogOut, Menu, Search, Settings, UserRound } from 'lucide-react'
+import { Bell, LogOut, Menu, Settings, UserRound } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationsQuery } from '../features/notifications/notifications.hooks'
 import { useAuthStore } from '../stores/authStore'
-import { Avatar, Dropdown, IconButton } from './ui'
+import { Avatar, Dropdown } from './ui'
 import { ThemeToggle } from './ThemeToggle'
-export function Topbar({ onMenu }: { onMenu: () => void }) { const user = useAuthStore((state) => state.user); const clearSession = useAuthStore((state) => state.clearSession); const avatarSrc = user?.avatarUrl ?? undefined; return <header className="topbar"><button className="icon-button mobile-only" onClick={onMenu} aria-label="Mở menu"><Menu size={20} /></button><div className="topbar-search"><Search size={17} /><input placeholder="Tìm kiếm trong StudyFlow" aria-label="Tìm kiếm" /></div><div className="topbar-actions"><ThemeToggle /><Dropdown label={<span className="notification-button"><Bell size={18} /><span className="notification-dot" /></span>}><div className="dropdown-header"><strong>Thông báo</strong><span className="badge blue">2 mới</span></div><div className="notification-item"><span className="notification-mark blue" /><div><strong>Bài tập sắp đến hạn</strong><p>Hạn nộp trong 2 giờ</p></div></div><div className="notification-item"><span className="notification-mark green" /><div><strong>Mục tiêu đã cập nhật</strong><p>Bạn đạt 72% tiến độ</p></div></div><button className="dropdown-link">Xem tất cả thông báo</button></Dropdown><Dropdown label={<><Avatar name={user?.fullName ?? 'Bạn học'} src={avatarSrc} size="sm" /><span className="user-name">{user?.fullName ?? 'Bạn học'}</span></>}><div className="user-menu-head"><Avatar name={user?.fullName ?? 'Bạn học'} src={avatarSrc} /><div><strong>{user?.fullName ?? 'Bạn học'}</strong><p>{user?.email ?? 'user@example.com'}</p></div></div><a className="menu-item" href="/settings"><UserRound size={16} /> Hồ sơ cá nhân</a><a className="menu-item" href="/settings"><Settings size={16} /> Cài đặt</a><button className="menu-item danger-text" onClick={clearSession}><LogOut size={16} /> Đăng xuất</button></Dropdown></div></header> }
+
+function formatNotificationTime(value: string) {
+  return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(value))
+}
+
+export function Topbar({ onMenu }: { onMenu: () => void }) {
+  const user = useAuthStore((state) => state.user)
+  const clearSession = useAuthStore((state) => state.clearSession)
+  const avatarSrc = user?.avatarUrl ?? undefined
+  const notifications = useNotificationsQuery({ isRead: false, page: 1, limit: 5 })
+  const markRead = useMarkNotificationReadMutation()
+  const markAllRead = useMarkAllNotificationsReadMutation()
+  const unread = notifications.data?.pagination.total ?? 0
+
+  return <header className="topbar"><button className="icon-button mobile-only" onClick={onMenu} aria-label="Mở menu"><Menu size={20} /></button><div className="topbar-spacer" /><div className="topbar-actions"><ThemeToggle /><Dropdown label={<span className="notification-button"><Bell size={18} />{unread > 0 && <span className="notification-dot" />}</span>}><div className="dropdown-header"><strong>Thông báo</strong>{unread > 0 && <span className="badge blue">{unread} mới</span>}</div>{notifications.isLoading ? <p className="notification-empty">Đang tải thông báo...</p> : notifications.isError ? <p className="notification-empty">Không thể tải thông báo.</p> : notifications.data?.items.length ? <div className="notification-list">{notifications.data.items.map((item) => <button className="notification-item" key={item.id} onClick={() => markRead.mutate(item.id)}><span className="notification-mark blue" /><span><strong>{item.title}</strong><p>{item.message}</p><small>{formatNotificationTime(item.createdAt)}</small></span></button>)}</div> : <p className="notification-empty">Bạn chưa có thông báo mới.</p>}{unread > 0 && <button className="dropdown-link" onClick={() => markAllRead.mutate()}>Đánh dấu tất cả đã đọc</button>}</Dropdown><Dropdown label={<><Avatar name={user?.fullName ?? 'Bạn'} src={avatarSrc} size="sm" /><span className="user-name">{user?.fullName ?? 'Bạn'}</span></>}><div className="user-menu-head"><Avatar name={user?.fullName ?? 'Bạn'} src={avatarSrc} /><div><strong>{user?.fullName ?? 'Bạn'}</strong><p>{user?.email ?? ''}</p></div></div><Link className="menu-item" to="/settings"><UserRound size={16} /> Hồ sơ cá nhân</Link><Link className="menu-item" to="/settings"><Settings size={16} /> Cài đặt</Link><button className="menu-item danger-text" onClick={clearSession}><LogOut size={16} /> Đăng xuất</button></Dropdown></div></header>
+}

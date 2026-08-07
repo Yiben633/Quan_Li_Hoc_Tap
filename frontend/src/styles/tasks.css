@@ -32,3 +32,19 @@
 [data-theme='dark'] .drawer-task-status .task-pill-in_progress { border-color: #5578c6; }
 [data-theme='dark'] .drawer-task-status .task-pill-waiting { border-color: #9a6b32; }
 [data-theme='dark'] .drawer-task-status .task-pill-done { border-color: #3e9a7c; }
+
+.task-module-tabs { display: flex; gap: 4px; width: fit-content; padding: 4px; background: var(--blue-soft); border: 1px solid var(--line); border-radius: 8px; }
+.task-module-tab { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; padding: 0 12px; color: var(--muted); border-radius: 6px; font-size: 12px; font-weight: 700; }
+.task-module-tab:hover { color: var(--ink); background: var(--surface); }
+.task-module-tab.active { color: var(--ink); background: var(--surface); box-shadow: 0 1px 3px rgba(20,31,56,.12); }
+.plan-card-actions { display: flex; gap: 4px; }
+.plan-card-actions .icon-button { width: 30px; height: 30px; }
+.topic-task-panel { margin-top: 18px; }
+.topic-task-list { display: grid; margin-top: 14px; border-top: 1px solid var(--line); }
+.topic-task-row { display: flex; align-items: center; gap: 10px; min-height: 58px; padding: 10px 0; border-bottom: 1px solid var(--line); color: var(--ink); }
+.topic-task-row input { width: 16px; height: 16px; accent-color: var(--blue); }
+.topic-task-row span { display: grid; gap: 4px; }
+.topic-task-row strong { font-size: 13px; }
+.topic-task-row small { color: var(--muted); font-size: 11px; }
+[data-theme='dark'] .task-module-tabs { background: #1a2332; border-color: var(--line); }
+[data-theme='dark'] .task-module-tab:hover, [data-theme='dark'] .task-module-tab.active { color: var(--ink); background: #2a3954; }

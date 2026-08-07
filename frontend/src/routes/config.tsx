@@ -23,11 +23,10 @@ export const router = createBrowserRouter([
   { element: <ProtectedRoute />, children: [{ element: <AppLayout />, children: [
     { index: true, element: <DashboardPage /> },
     { path: 'tasks', element: <TasksPage /> },
-    { path: 'kanban', element: <KanbanPage /> },
+    { path: 'tasks/kanban', element: <KanbanPage /> },
+    { path: 'kanban', element: <Navigate to="/tasks/kanban" replace /> },
     { path: 'study-plans', element: <StudyPlansPage /> },
-    { path: 'tasks', element: <ModulePlaceholderPage title="Công việc" description="Quản lý task, kanban và tiến độ học tập." /> },
     { path: 'goals', element: <ModulePlaceholderPage title="Mục tiêu" description="Theo dõi những điều bạn muốn hoàn thành." /> },
-    { path: 'study-plans', element: <ModulePlaceholderPage title="Kế hoạch học" description="Chia mục tiêu thành những bước nhỏ, rõ ràng." /> },
     { path: 'calendar', element: <CalendarPage /> },
     { path: 'subjects', element: <LearningSpacesPage /> },
     { path: 'topics', element: <TopicsPage /> },

@@ -9,6 +9,7 @@ export type TaskDetail = Task & { subTasks: Subtask[]; attachments: Array<{ id: 
 export type Page<T> = { items: T[]; pagination: { page: number; limit: number; total: number; totalPages: number } }
 export type TaskFilters = { subjectId?: string; status?: string; priority?: string; dueDate?: string; search?: string; page?: number; limit?: number; sort?: string; order?: string }
 export type StudyPlan = { id: string; title: string; description?: string | null; subjectId?: string | null; status: string; priority: Priority; progressPercent: number; startDate?: string | null; endDate?: string | null; estimatedHours?: number | null; targetGoal?: string | null }
+export type StudyPlanInput = { title: string; description?: string | null; subjectId?: string | null; startDate?: string | null; endDate?: string | null; targetGoal?: string | null; estimatedHours?: number | null; priority?: Priority; status?: 'not_started' | 'in_progress' | 'paused' | 'completed' | 'overdue' }
 
 export async function listTasks(params: TaskFilters = {}) { const cleanParams = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== '' && value !== undefined && value !== null)); return (await apiClient.get<ApiResponse<Page<Task>>>('/tasks', { params: cleanParams })).data.data }
 export async function createTask(input: { title: string; description?: string | null; dueDate?: string | null; priority?: Priority; estimatedMinutes?: number | null; status?: TaskStatus; subjectId?: string | null; studyPlanId?: string | null }) { return (await apiClient.post<ApiResponse<Task>>('/tasks', input)).data.data }
@@ -21,3 +22,7 @@ export async function deleteTask(id: string) { return (await apiClient.delete<Ap
 export async function duplicateTask(id: string) { return (await apiClient.post<ApiResponse<Task>>(`/tasks/${id}/duplicate`)).data.data }
 export async function updateSubtask(taskId: string, subtaskId: string, isDone: boolean) { return (await apiClient.patch<ApiResponse<Subtask>>(`/tasks/${taskId}/subtasks/${subtaskId}`, { isDone })).data.data }
 export async function listPlans(params: Record<string, string> = {}) { return (await apiClient.get<ApiResponse<Page<StudyPlan>>>('/study-plans', { params })).data.data }
+export async function getPlan(id: string) { return (await apiClient.get<ApiResponse<StudyPlan>>(`/study-plans/${id}`)).data.data }
+export async function createPlan(input: StudyPlanInput) { return (await apiClient.post<ApiResponse<StudyPlan>>('/study-plans', input)).data.data }
+export async function updatePlan(id: string, input: Partial<StudyPlanInput>) { return (await apiClient.patch<ApiResponse<StudyPlan>>(`/study-plans/${id}`, input)).data.data }
+export async function deletePlan(id: string) { return (await apiClient.delete<ApiResponse<StudyPlan>>(`/study-plans/${id}`)).data.data }

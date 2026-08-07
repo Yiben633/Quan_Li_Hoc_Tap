@@ -15,6 +15,10 @@ import './styles/bulk-controls.css'
 import './styles/kanban.css'
 import './styles/kanban-overrides.css'
 import './styles/calendar.css'
+import './styles/topbar.css'
+import './styles/dashboard-upcoming.css'
+import './styles/sidebar-tip.css'
+import './styles/plan-date-picker.css'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } })
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><QueryClientProvider client={queryClient}><RouterProvider router={router} /><Toaster position="top-right" /></QueryClientProvider></React.StrictMode>)

@@ -1,0 +1,5 @@
+.study-tip { align-items: flex-start; gap: 11px; padding: 15px 10px 14px; }
+.tip-dot { margin-top: 7px; }
+.study-tip > div { min-width: 0; }
+.study-tip strong { display: block; line-height: 1.35; }
+.study-tip p { max-width: 175px; }
