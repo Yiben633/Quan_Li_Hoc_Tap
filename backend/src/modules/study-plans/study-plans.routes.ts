@@ -8,6 +8,7 @@ import { studyPlanCreateSchema, studyPlanListSchema, studyPlanUpdateSchema } fro
 export const studyPlansRouter = Router();
 studyPlansRouter.use(authenticate);
 studyPlansRouter.get('/', validateQuery(studyPlanListSchema), asyncHandler(controller.list));
+studyPlansRouter.get('/summary', asyncHandler(controller.summary));
 studyPlansRouter.post('/', validateBody(studyPlanCreateSchema), asyncHandler(controller.create));
 studyPlansRouter.get('/:id', asyncHandler(controller.detail));
 studyPlansRouter.patch('/:id', validateBody(studyPlanUpdateSchema), asyncHandler(controller.update));

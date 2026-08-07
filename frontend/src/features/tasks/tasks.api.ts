@@ -12,6 +12,7 @@ export type Page<T> = { items: T[]; pagination: { page: number; limit: number; t
 export type TaskFilters = { subjectId?: string; studyPlanId?: string; status?: string; priority?: string; difficulty?: string; dueDate?: string; dueFrom?: string; dueTo?: string; search?: string; page?: number; limit?: number; sort?: string; order?: string }
 export type StudyPlan = { id: string; title: string; description?: string | null; subjectId?: string | null; status: StudyPlanStatus; priority: Priority; progressPercent: number; startDate?: string | null; endDate?: string | null; estimatedHours?: number | null; targetGoal?: string | null }
 export type StudyPlanInput = { title: string; description?: string | null; subjectId?: string | null; startDate?: string | null; endDate?: string | null; targetGoal?: string | null; estimatedHours?: number | null; priority?: Priority; status?: StudyPlanStatus }
+export type StudyPlanSummary = { active: number; dueSoon: number; completed: number; overdue: number }
 
 export async function listTasks(params: TaskFilters = {}) { const cleanParams = Object.fromEntries(Object.entries(params).filter(([, value]) => value !== '' && value !== undefined && value !== null)); return (await apiClient.get<ApiResponse<Page<Task>>>('/tasks', { params: cleanParams })).data.data }
 export async function listTodayTasks() { return (await apiClient.get<ApiResponse<Task[]>>('/tasks/today')).data.data }
@@ -26,7 +27,9 @@ export async function deleteTask(id: string) { return (await apiClient.delete<Ap
 export async function duplicateTask(id: string) { return (await apiClient.post<ApiResponse<Task>>(`/tasks/${id}/duplicate`)).data.data }
 export async function updateSubtask(taskId: string, subtaskId: string, isDone: boolean) { return (await apiClient.patch<ApiResponse<Subtask>>(`/tasks/${taskId}/subtasks/${subtaskId}`, { isDone })).data.data }
 export async function createSubtask(taskId: string, title: string) { return (await apiClient.post<ApiResponse<Subtask>>(`/tasks/${taskId}/subtasks`, { title })).data.data }
+export async function deleteSubtask(taskId: string, subtaskId: string) { await apiClient.delete<ApiResponse<null>>(`/tasks/${taskId}/subtasks/${subtaskId}`) }
 export async function listPlans(params: Record<string, string> = {}) { return (await apiClient.get<ApiResponse<Page<StudyPlan>>>('/study-plans', { params })).data.data }
+export async function getPlanSummary() { return (await apiClient.get<ApiResponse<StudyPlanSummary>>('/study-plans/summary')).data.data }
 export async function getPlan(id: string) { return (await apiClient.get<ApiResponse<StudyPlan>>(`/study-plans/${id}`)).data.data }
 export async function createPlan(input: StudyPlanInput) { return (await apiClient.post<ApiResponse<StudyPlan>>('/study-plans', input)).data.data }
 export async function updatePlan(id: string, input: Partial<StudyPlanInput>) { return (await apiClient.patch<ApiResponse<StudyPlan>>(`/study-plans/${id}`, input)).data.data }

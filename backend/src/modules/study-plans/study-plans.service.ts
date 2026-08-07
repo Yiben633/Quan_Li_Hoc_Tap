@@ -33,6 +33,24 @@ export async function list(userId: string, query: { subjectId?: string; status?:
   return { items: items.map(output), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
 }
 
+export async function summary(userId: string) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dueSoonEnd = new Date(today);
+  dueSoonEnd.setDate(dueSoonEnd.getDate() + 7);
+  dueSoonEnd.setHours(23, 59, 59, 999);
+  const baseWhere = { userId, deletedAt: null };
+
+  const [active, dueSoon, completed, overdue] = await Promise.all([
+    prisma.studyPlan.count({ where: { ...baseWhere, status: StudyPlanStatus.in_progress } }),
+    prisma.studyPlan.count({ where: { ...baseWhere, status: { notIn: [StudyPlanStatus.completed, StudyPlanStatus.overdue] }, endDate: { gte: today, lte: dueSoonEnd } } }),
+    prisma.studyPlan.count({ where: { ...baseWhere, status: StudyPlanStatus.completed } }),
+    prisma.studyPlan.count({ where: { ...baseWhere, status: { not: StudyPlanStatus.completed }, OR: [{ status: StudyPlanStatus.overdue }, { endDate: { lt: today } }] } }),
+  ]);
+
+  return { active, dueSoon, completed, overdue };
+}
+
 export async function create(userId: string, input: PlanInput, context?: Context) {
   if (input.subjectId) await subjectOwner(userId, input.subjectId);
   const plan = await prisma.studyPlan.create({ data: { ...input, userId } });
