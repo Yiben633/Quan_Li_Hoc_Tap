@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, ListTodo, MoreHorizontal, Pause, Play, Plus, Target, Trash2 } from 'lucide-react'
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, ListPlus, ListTodo, MoreHorizontal, Pause, Play, Plus, Target, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { PLAN_STATUS_LABELS, PRIORITY_LABELS } from '../features/tasks/task.cons
 import { TaskDrawer } from '../features/tasks/components/TaskDrawer'
 import { TaskList } from '../features/tasks/components/TaskList'
 import { TaskQuickCreate } from '../features/tasks/components/TaskQuickCreate'
+import { PlanBreakdownModal } from '../features/tasks/components/PlanBreakdownModal'
 import type { Task } from '../features/tasks/tasks.api'
 import { usePlanDeleteMutation, usePlanQuery, usePlanUpdateMutation, useTaskDeleteMutation, useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
 import { formatTaskDate, formatTaskDeadline } from '../utils/taskDate'
@@ -31,6 +32,7 @@ export function StudyPlanDetailPage() {
   const [drawerId, setDrawerId] = useState('')
   const [taskToDelete, setTaskToDelete] = useState('')
   const [planDeleteOpen, setPlanDeleteOpen] = useState(false)
+  const [breakdownOpen, setBreakdownOpen] = useState(false)
   const [quickCreateFocusKey, setQuickCreateFocusKey] = useState(0)
   const planQuery = usePlanQuery(id)
   const tasksQuery = useTasksQuery({ studyPlanId: id, sort: 'dueDate', order: 'asc', limit: 100 })
@@ -75,6 +77,7 @@ export function StudyPlanDetailPage() {
         <div className="plan-detail-badges"><span className={`plan-status plan-${plan.status}`}>{statusLabel}</span><span className={`priority priority-${plan.priority}`}>{priorityLabel}</span></div>
       </div>
       <div className="plan-detail-actions">
+        <Button variant="secondary" onClick={() => setBreakdownOpen(true)}><ListPlus size={16} /> Chia nhỏ kế hoạch</Button>
         <Button onClick={openQuickCreate}><Plus size={16} /> Thêm công việc</Button>
         <Dropdown label={<><MoreHorizontal size={18} /><span className="sr-only">Thao tác với {plan.title}</span></>} showChevron={false}>
           {canPause && <button type="button" className="menu-item" onClick={() => changePlanStatus('paused')}><Pause size={15} /> Tạm dừng</button>}
@@ -89,11 +92,12 @@ export function StudyPlanDetailPage() {
     <Tabs items={[{ value: 'overview', label: 'Tổng quan' }, { value: 'tasks', label: `Công việc${taskTotal ? ` (${taskTotal})` : ''}` }]} value={tab} onChange={setTab} />
 
     {tab === 'overview' ? <section className="plan-overview-grid">
-      <article className="panel plan-overview-card"><h2>Tổng quan</h2>{plan.description ? <p>{plan.description}</p> : <p className="subtle">Chưa có mô tả cho kế hoạch này.</p>}<dl className="plan-overview-details">{plan.targetGoal && <div><dt>Mục tiêu</dt><dd>{plan.targetGoal}</dd></div>}{plan.subject && <div><dt>Chủ đề</dt><dd><Link to={`/topics/${plan.subject.id}`}>{plan.subject.code ? `${plan.subject.code} · ${plan.subject.name}` : plan.subject.name}</Link></dd></div>}<div><dt>Thời gian</dt><dd>{dateRange(plan.startDate, plan.endDate)}</dd></div>{plan.estimatedHours !== null && plan.estimatedHours !== undefined && <div><dt>Thời gian dự kiến</dt><dd>{plan.estimatedHours} giờ</dd></div>}<div><dt>Tiến độ</dt><dd>{progressPercent}% · {taskSummary(taskDone, taskTotal)}</dd></div></dl></article>
-      <article className="panel plan-next-tasks"><div className="plan-section-heading"><div><h2>Việc tiếp theo</h2><p className="subtle">Ba bước gần nhất của kế hoạch.</p></div><button type="button" onClick={() => setTab('tasks')}>Xem tất cả</button></div>{tasksQuery.isLoading ? <Skeleton height={150} /> : nextTasks.length ? <div>{nextTasks.map((task) => <NextTask key={task.id} task={task} onOpen={() => setDrawerId(task.id)} />)}</div> : <EmptyState icon={<ListTodo size={20} />} title="Chưa có việc tiếp theo" description="Thêm một công việc nhỏ để kế hoạch bắt đầu chuyển động." action={<Button variant="secondary" onClick={openQuickCreate}><Plus size={15} /> Thêm công việc</Button>} />}</article>
-    </section> : <section className="plan-tasks-section"><TaskQuickCreate subjectId={plan.subjectId ?? undefined} studyPlanId={plan.id} focusKey={quickCreateFocusKey} onCreated={() => setTab('tasks')} />{tasksQuery.isLoading ? <div className="task-list-page">{[1, 2, 3].map((item) => <Skeleton key={item} height={116} />)}</div> : tasksQuery.isError ? <EmptyState title="Không thể tải công việc" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => void tasksQuery.refetch()}>Thử lại</Button>} /> : tasks.length ? <TaskList tasks={tasks} onOpen={setDrawerId} onStatusChange={(taskId, status) => updateTaskStatus.mutate({ id: taskId, status })} onDelete={setTaskToDelete} /> : <EmptyState icon={<ListTodo size={24} />} title="Chưa có công việc" description="Bắt đầu bằng một việc nhỏ, rõ ràng và có thể hoàn thành." />}</section>}
+      <article className="panel plan-overview-card"><h2>Tổng quan</h2>{plan.description ? <p>{plan.description}</p> : <p className="subtle">Chưa có mô tả cho kế hoạch này.</p>}<dl className="plan-overview-details">{plan.targetGoal && <div><dt>Mục tiêu</dt><dd>{plan.targetGoal}</dd></div>}{plan.subject && <div><dt>Môn học</dt><dd><Link to={`/topics/${plan.subject.id}`}>{plan.subject.code ? `${plan.subject.code} · ${plan.subject.name}` : plan.subject.name}</Link></dd></div>}<div><dt>Thời gian</dt><dd>{dateRange(plan.startDate, plan.endDate)}</dd></div>{plan.estimatedHours !== null && plan.estimatedHours !== undefined && <div><dt>Thời gian dự kiến</dt><dd>{plan.estimatedHours} giờ</dd></div>}<div><dt>Tiến độ</dt><dd>{progressPercent}% · {taskSummary(taskDone, taskTotal)}</dd></div></dl></article>
+      <article className="panel plan-next-tasks"><div className="plan-section-heading"><div><h2>Việc tiếp theo</h2><p className="subtle">Ba bước gần nhất của kế hoạch.</p></div><button type="button" onClick={() => setTab('tasks')}>Xem tất cả</button></div>{tasksQuery.isLoading ? <Skeleton height={150} /> : nextTasks.length ? <div>{nextTasks.map((task) => <NextTask key={task.id} task={task} onOpen={() => setDrawerId(task.id)} />)}</div> : <EmptyState icon={<ListTodo size={20} />} title="Kế hoạch chưa có công việc." description="Bắt đầu bằng một việc nhỏ, rõ ràng và có thể hoàn thành." action={<Button variant="secondary" onClick={openQuickCreate}><Plus size={15} /> Thêm công việc đầu tiên</Button>} />}</article>
+    </section> : <section className="plan-tasks-section"><TaskQuickCreate subjectId={plan.subjectId ?? undefined} studyPlanId={plan.id} focusKey={quickCreateFocusKey} onCreated={() => setTab('tasks')} />{tasksQuery.isLoading ? <div className="task-list-page">{[1, 2, 3].map((item) => <Skeleton key={item} height={116} />)}</div> : tasksQuery.isError ? <EmptyState title="Không thể tải công việc" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => void tasksQuery.refetch()}>Thử lại</Button>} /> : tasks.length ? <TaskList tasks={tasks} onOpen={setDrawerId} onStatusChange={(taskId, status) => updateTaskStatus.mutate({ id: taskId, status })} onDelete={setTaskToDelete} /> : <EmptyState icon={<ListTodo size={24} />} title="Kế hoạch chưa có công việc." description="Bắt đầu bằng một việc nhỏ, rõ ràng và có thể hoàn thành." action={<Button variant="secondary" onClick={openQuickCreate}><Plus size={15} /> Thêm công việc đầu tiên</Button>} />}</section>}
 
     <TaskDrawer id={drawerId} onClose={() => setDrawerId('')} onDelete={setTaskToDelete} />
+    <PlanBreakdownModal open={breakdownOpen} plan={plan} onClose={() => setBreakdownOpen(false)} />
     <ConfirmDialog open={Boolean(taskToDelete)} title="Xóa công việc?" description="Công việc sẽ được ẩn khỏi kế hoạch này." onCancel={() => setTaskToDelete('')} onConfirm={() => deleteTask.mutate(taskToDelete, { onSuccess: () => { setTaskToDelete(''); toast.success('Đã xóa công việc') }, onError: () => toast.error('Không thể xóa công việc') })} loading={deleteTask.isPending} />
     <ConfirmDialog open={planDeleteOpen} title="Xóa kế hoạch?" description="Kế hoạch sẽ được ẩn khỏi danh sách, các công việc vẫn được giữ lại." onCancel={() => setPlanDeleteOpen(false)} onConfirm={() => deletePlan.mutate(plan.id, { onSuccess: () => { toast.success('Đã xóa kế hoạch'); navigate('/study-plans') }, onError: () => toast.error('Không thể xóa kế hoạch') })} loading={deletePlan.isPending} />
   </div>

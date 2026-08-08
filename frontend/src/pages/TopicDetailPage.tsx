@@ -1,32 +1,152 @@
-import { ArrowLeft, BookOpen, CheckSquare, Clock3, Gauge, NotebookPen } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, Gauge, NotebookPen, Play, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
-import { EmptyState, Skeleton, Tabs } from '../components/ui'
+import { Button, EmptyState, Skeleton, Tabs } from '../components/ui'
 import { useTopicQuery } from '../features/learning/learning.hooks'
 import { TaskList } from '../features/tasks/components/TaskList'
 import { TaskQuickCreate } from '../features/tasks/components/TaskQuickCreate'
+import type { Priority, Task, TaskStatus } from '../features/tasks/tasks.api'
 import { usePlansQuery, useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
+import { formatTaskDeadline } from '../utils/taskDate'
 
 type DetailTab = 'overview' | 'tasks'
-const tabs: Array<{ value: DetailTab; label: React.ReactNode }> = [{ value: 'overview', label: 'Tổng quan' }, { value: 'tasks', label: <><CheckSquare size={14} /> Công việc</> }]
+
+const tabs: Array<{ value: DetailTab; label: React.ReactNode }> = [
+  { value: 'overview', label: 'Tổng quan' },
+  { value: 'tasks', label: <><CheckSquare size={14} /> Công việc</> },
+]
+
+const priorityWeight: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+const dayMilliseconds = 86_400_000
+
+function localDay(value?: string | null) {
+  if (!value) return null
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
+  const date = match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : new Date(value)
+  return Number.isNaN(date.getTime()) ? null : new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function taskUrgency(task: Task, today: Date) {
+  const dueDate = localDay(task.dueDate)
+  if (dueDate) {
+    const difference = Math.round((dueDate.getTime() - today.getTime()) / dayMilliseconds)
+    if (difference < 0) return 0
+    if (difference === 0) return 1
+    if (difference <= 7) return 2
+  }
+  if (task.priority === 'urgent' || task.priority === 'high') return 3
+  if (task.status === 'in_progress') return 4
+  return 5
+}
+
+function priorityTasks(tasks: Task[]) {
+  const today = localDay(new Date().toISOString()) ?? new Date()
+  return tasks
+    .filter((task) => task.status !== 'done')
+    .sort((left, right) => {
+      const urgency = taskUrgency(left, today) - taskUrgency(right, today)
+      if (urgency !== 0) return urgency
+      const priority = priorityWeight[left.priority] - priorityWeight[right.priority]
+      if (priority !== 0) return priority
+      const leftDue = localDay(left.dueDate)?.getTime() ?? Number.MAX_SAFE_INTEGER
+      const rightDue = localDay(right.dueDate)?.getTime() ?? Number.MAX_SAFE_INTEGER
+      return leftDue - rightDue
+    })
+    .slice(0, 5)
+}
 
 export function TopicDetailPage() {
   const { id = '' } = useParams()
   const [tab, setTab] = useState<DetailTab>('overview')
+  const [quickCreateFocusKey, setQuickCreateFocusKey] = useState(0)
   const statusTask = useTaskStatusMutation()
   const client = useQueryClient()
   const query = useTopicQuery(id)
-  const tasks = useTasksQuery({ subjectId: id, page: 1, limit: 50, sort: 'sortOrder', order: 'asc' })
+  const tasks = useTasksQuery({ subjectId: id, page: 1, limit: 100, sort: 'sortOrder', order: 'asc' })
   const plans = usePlansQuery({ subjectId: id, limit: '100' })
 
   if (query.isLoading) return <div className="topic-detail"><Skeleton height={260} /></div>
-  if (query.isError || !query.data) return <EmptyState title="Không thể tải chủ đề" description="Chủ đề có thể đã bị xóa hoặc bạn không có quyền truy cập." action={<Link className="button secondary" to="/topics">Quay lại chủ đề</Link>} />
+  if (query.isError || !query.data) return <EmptyState title="Không thể tải môn học" description="Môn học có thể đã bị xóa hoặc bạn không có quyền truy cập." action={<Link className="button secondary" to="/topics">Quay lại môn học</Link>} />
 
   const topic = query.data
-  const taskList = tasks.isLoading ? <Skeleton height={120} /> : tasks.isError ? <EmptyState title="Không thể tải công việc" description="Hãy thử lại sau." /> : tasks.data?.items.length ? <TaskList tasks={tasks.data.items} mode="compact" onStatusChange={(taskId, status) => statusTask.mutate({ id: taskId, status })} /> : <EmptyState title="Chưa có công việc" description="Thêm việc đầu tiên cho chủ đề này." />
+  const taskItems = tasks.data?.items ?? []
+  const totalTasks = topic.statistics.taskTotal
+  const completedTasks = topic.statistics.taskDone
+  const remainingTasks = Math.max(totalTasks - completedTasks, 0)
+  const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+  const topTasks = priorityTasks(taskItems)
+  const openTaskCreate = () => { setTab('tasks'); setQuickCreateFocusKey((current) => current + 1) }
+  const statusLabel = topic.status === 'completed' ? 'Hoàn thành' : topic.status === 'dropped' ? 'Tạm dừng' : topic.status === 'archived' ? 'Đã lưu trữ' : 'Đang học'
+  const updateStatus = (taskId: string, status: TaskStatus) => statusTask.mutate({ id: taskId, status }, { onSuccess: () => { client.invalidateQueries({ queryKey: ['subject', id] }) } })
+  const taskList = tasks.isLoading
+    ? <Skeleton height={120} />
+    : tasks.isError
+      ? <EmptyState title="Không thể tải công việc" description="Hãy thử lại sau." />
+      : taskItems.length
+        ? <TaskList tasks={taskItems} mode="compact" onStatusChange={updateStatus} />
+        : <EmptyState title="Chưa có công việc" description="Thêm công việc đầu tiên cho môn học này." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />
 
-  return <div className="topic-detail"><Link className="back-link" to="/topics"><ArrowLeft size={15} /> Quay lại chủ đề</Link><header className="topic-detail-head" style={{ borderLeftColor: topic.colorHex }}><div><p className="eyebrow">{topic.code}</p><h1>{topic.name}</h1><p className="subtle">{topic.credits} đơn vị theo dõi · {topic.status === 'completed' ? 'Đã hoàn thành' : 'Đang theo dõi'}</p></div><span className="topic-detail-mark" style={{ background: topic.colorHex }}><BookOpen size={22} /></span></header><Tabs value={tab} onChange={setTab} items={tabs} />{tab === 'overview' ? <><TaskQuickCreate subjectId={id} plans={plans.data?.items ?? []} onCreated={() => { client.invalidateQueries({ queryKey: ['subject', id] }) }} /><section className="topic-stats"><Stat label="Việc đã tạo" value={topic.statistics.taskTotal} icon={<CheckSquare size={18} />} /><Stat label="Việc hoàn thành" value={topic.statistics.taskDone} icon={<Gauge size={18} />} /><Stat label="Thời gian học" value={`${topic.statistics.totalStudyMinutes} phút`} icon={<Clock3 size={18} />} /><Stat label="Điểm hiện tại" value={topic.statistics.currentAverage ?? '—'} icon={<NotebookPen size={18} />} /></section><section className="panel topic-task-panel"><div className="panel-heading"><div><h2>Công việc gần đây</h2><p className="subtle">Các việc đang theo dõi trong chủ đề này.</p></div></div>{taskList}</section></> : <section className="panel topic-task-panel"><div className="panel-heading"><div><h2>Công việc</h2><p className="subtle">Cập nhật ngay trong chủ đề.</p></div></div><TaskQuickCreate subjectId={id} plans={plans.data?.items ?? []} onCreated={() => { client.invalidateQueries({ queryKey: ['subject', id] }) }} />{taskList}</section>}</div>
+  return <div className="topic-detail">
+    <Link className="back-link" to="/topics"><ArrowLeft size={15} /> Quay lại môn học</Link>
+
+    <header className="topic-detail-head" style={{ borderLeftColor: topic.colorHex }}>
+      <div>
+        <p className="eyebrow">{topic.code}</p>
+        <h1>{topic.name}</h1>
+        <p className="subtle">{topic.credits > 0 && `${topic.credits} tín chỉ`}{topic.credits > 0 && statusLabel && ' · '}{statusLabel}</p>
+        {topic.lecturer && <p className="topic-detail-field">Giảng viên: <strong>{topic.lecturer}</strong></p>}
+        {topic.targetGrade !== null && topic.targetGrade !== undefined && <p className="topic-detail-field">Mục tiêu: <strong>{Number(topic.targetGrade).toFixed(1)}</strong></p>}
+      </div>
+      <div className="topic-detail-header-actions">
+        <Link className="button secondary" to="/study"><Play size={16} /> Bắt đầu học</Link>
+        <Button onClick={openTaskCreate}><Plus size={16} /> Công việc</Button>
+      </div>
+      <span className="topic-detail-mark" style={{ background: topic.colorHex }}><BookOpen size={22} /></span>
+    </header>
+
+    <Tabs value={tab} onChange={setTab} items={tabs} />
+
+    {tab === 'overview'
+      ? <>
+        <section className="panel topic-overview-progress">
+          <div><p className="eyebrow">TIẾN ĐỘ MÔN HỌC</p><h2>{progressPercent}% hoàn thành</h2><p className="subtle">Tiến độ được tính từ các công việc trong môn học.</p></div>
+          <div className="topic-progress-value"><div className="topic-progress-track"><i style={{ width: `${progressPercent}%`, background: topic.colorHex }} /></div><strong>{completedTasks}/{totalTasks}</strong></div>
+        </section>
+        <section className="topic-stats">
+          <Stat label="Việc còn lại" value={remainingTasks} icon={<CheckSquare size={18} />} />
+          <Stat label="Hoàn thành" value={completedTasks} icon={<Gauge size={18} />} />
+          <Stat label="Giờ học" value={`${topic.statistics.totalStudyMinutes} phút`} icon={<Clock3 size={18} />} />
+          <Stat label="Điểm" value={topic.statistics.currentAverage ?? '—'} icon={<NotebookPen size={18} />} />
+        </section>
+        <section className="panel topic-priority-panel">
+          <div className="topic-priority-heading"><div><p className="eyebrow">VIỆC CẦN ƯU TIÊN</p><h2>Bước tiếp theo</h2></div><span>{topTasks.length} việc</span></div>
+          {tasks.isLoading
+            ? <Skeleton height={120} />
+            : tasks.isError
+              ? <p className="subtle">Chưa thể tải các công việc ưu tiên.</p>
+              : topTasks.length
+                ? <div className="topic-priority-list">{topTasks.map((task) => <PriorityTask key={task.id} task={task} onComplete={() => updateStatus(task.id, 'done')} />)}</div>
+                : <EmptyState title="Môn học chưa có việc cần làm" description="Tạo một công việc để bắt đầu theo dõi tiến độ." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />}
+          {taskItems.length > 0 && <button type="button" className="topic-view-all-tasks" onClick={() => setTab('tasks')}>Xem tất cả công việc <ArrowRight size={15} /></button>}
+        </section>
+      </>
+      : <section className="panel topic-task-panel">
+        <div className="panel-heading"><div><h2>Công việc</h2><p className="subtle">Cập nhật ngay trong môn học.</p></div></div>
+        <TaskQuickCreate subjectId={id} plans={plans.data?.items ?? []} focusKey={quickCreateFocusKey} onCreated={() => { client.invalidateQueries({ queryKey: ['subject', id] }) }} />
+        {taskList}
+      </section>}
+  </div>
 }
 
-function Stat({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) { return <div className="stat-card topic-stat"><span className="stat-icon blue">{icon}</span><span className="stat-label">{label}</span><strong className="stat-value">{value}</strong></div> }
+function PriorityTask({ task, onComplete }: { task: Task; onComplete: () => void }) {
+  return <div className="topic-priority-task">
+    <button type="button" className="topic-priority-complete" onClick={onComplete} aria-label={`Đánh dấu hoàn thành ${task.title}`}><Check size={13} /></button>
+    <div><strong>{task.title}</strong>{task.subject?.name && <small>{task.subject.name}</small>}</div>
+    <span>{formatTaskDeadline(task.dueDate)}</span>
+  </div>
+}
+
+function Stat({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {
+  return <div className="stat-card topic-stat"><span className="stat-icon blue">{icon}</span><span className="stat-label">{label}</span><strong className="stat-value">{value}</strong></div>
+}

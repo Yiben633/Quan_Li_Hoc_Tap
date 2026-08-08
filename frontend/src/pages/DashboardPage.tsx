@@ -41,7 +41,7 @@ export function DashboardPage() {
         <Link className="button primary" to="/tasks"><Plus size={17} /> Tạo công việc</Link>
       </div>
 
-      {!hasData && <section className="panel dashboard-welcome"><EmptyState icon={<Target size={24} />} title="Bắt đầu xây dựng nhịp của bạn" description="Tạo một việc hoặc một kế hoạch nhỏ. Bạn luôn có thể thêm chủ đề sau." action={<div className="quick-actions"><Link className="button primary" to="/tasks"><Plus size={16} /> Tạo việc đầu tiên</Link><Link className="button secondary" to="/study-plans"><Plus size={16} /> Tạo kế hoạch</Link></div>} /></section>}
+      {!hasData && <section className="panel dashboard-welcome"><EmptyState icon={<Target size={24} />} title="Bắt đầu xây dựng nhịp của bạn" description="Tạo một việc hoặc một kế hoạch nhỏ. Bạn luôn có thể thêm môn học sau." action={<div className="quick-actions"><Link className="button primary" to="/tasks"><Plus size={16} /> Tạo việc đầu tiên</Link><Link className="button secondary" to="/study-plans"><Plus size={16} /> Tạo kế hoạch</Link></div>} /></section>}
 
       <section className="stat-grid">
         <Stat icon={<Check />} label="Việc hôm nay" value={String(data.tasksToday.length)} change="Đến hạn hôm nay" tone="green" />

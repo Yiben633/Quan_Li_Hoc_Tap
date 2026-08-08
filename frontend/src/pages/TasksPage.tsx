@@ -94,7 +94,7 @@ export function TasksPage() {
   const activeFilters = [
     filters.status && { key: 'status' as const, label: TASK_STATUS_LABELS[filters.status as TaskStatus] },
     filters.priority && { key: 'priority' as const, label: PRIORITY_LABELS[filters.priority as keyof typeof PRIORITY_LABELS] },
-    filters.subjectId && { key: 'subjectId' as const, label: topics.data?.items.find((topic) => topic.id === filters.subjectId)?.name ?? 'Chủ đề đã chọn' },
+    filters.subjectId && { key: 'subjectId' as const, label: topics.data?.items.find((topic) => topic.id === filters.subjectId)?.name ?? 'Môn học đã chọn' },
     filters.studyPlanId && { key: 'studyPlanId' as const, label: plans.data?.items.find((plan) => plan.id === filters.studyPlanId)?.title ?? 'Kế hoạch đã chọn' },
     filters.dueDate && { key: 'dueDate' as const, label: `Hạn ${formatDateChip(filters.dueDate)}` },
     filters.difficulty && { key: 'difficulty' as const, label: DIFFICULTY_LABELS[Number(filters.difficulty) as keyof typeof DIFFICULTY_LABELS] },
@@ -143,7 +143,7 @@ export function TasksPage() {
       await Promise.all(selected.map((id) => updateMutation.mutateAsync({ id, input })))
       setSelected([])
       setBulkMoveKind(null)
-      toast.success(bulkMoveKind === 'subject' ? 'Đã chuyển chủ đề cho các công việc' : 'Đã chuyển kế hoạch cho các công việc')
+      toast.success(bulkMoveKind === 'subject' ? 'Đã chuyển môn học cho các công việc' : 'Đã chuyển kế hoạch cho các công việc')
     } catch {
       toast.error('Không thể chuyển tất cả công việc')
     } finally {
@@ -189,7 +189,7 @@ export function TasksPage() {
       {filterOpen && <section className="panel task-filter-panel">
         <Select label="Trạng thái" customMenu value={filters.status} onChange={(event) => updateFilter('status', event.target.value)}><option value="">Tất cả trạng thái</option>{Object.entries(TASK_STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
         <Select label="Ưu tiên" customMenu value={filters.priority} onChange={(event) => updateFilter('priority', event.target.value)}><option value="">Mọi ưu tiên</option>{Object.entries(PRIORITY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
-        <Select label="Chủ đề" customMenu value={filters.subjectId} onChange={(event) => updateFilter('subjectId', event.target.value)}><option value="">Tất cả chủ đề</option>{topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select>
+        <Select label="Môn học" customMenu value={filters.subjectId} onChange={(event) => updateFilter('subjectId', event.target.value)}><option value="">Tất cả môn học</option>{topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select>
         <Select label="Kế hoạch" customMenu value={filters.studyPlanId} onChange={(event) => updateFilter('studyPlanId', event.target.value)}><option value="">Tất cả kế hoạch</option>{plans.data?.items.map((plan) => <option key={plan.id} value={plan.id}>{plan.title}</option>)}</Select>
         <Input label="Hạn hoàn thành" type="date" value={filters.dueDate} onChange={(event) => updateFilter('dueDate', event.target.value)} />
         <Select label="Độ khó" customMenu value={filters.difficulty} onChange={(event) => updateFilter('difficulty', event.target.value)}><option value="">Mọi độ khó</option>{Object.entries(DIFFICULTY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
@@ -202,7 +202,7 @@ export function TasksPage() {
       <strong>{selected.length > 0 ? `${selected.length} việc đã chọn` : 'Chọn các công việc cần thao tác'}</strong>
       <Button variant="secondary" disabled={selected.length === 0} onClick={() => void bulkStatus('done')}><Check size={15} /> Hoàn thành</Button>
       <Button variant="secondary" disabled={selected.length === 0} onClick={() => void bulkStatus('in_progress')}>Đang làm</Button>
-      <Button variant="secondary" disabled={selected.length === 0} onClick={() => openBulkMove('subject')}>Chuyển chủ đề</Button>
+      <Button variant="secondary" disabled={selected.length === 0} onClick={() => openBulkMove('subject')}>Chuyển môn học</Button>
       <Button variant="secondary" disabled={selected.length === 0} onClick={() => openBulkMove('plan')}>Chuyển kế hoạch</Button>
       <Button variant="danger" disabled={selected.length === 0} onClick={() => setBulkRemoveOpen(true)}><Trash2 size={15} /> Xóa</Button>
       <button type="button" className="bulk-exit-selection" onClick={exitSelectionMode} aria-label="Thoát chế độ chọn nhiều"><X size={16} /> Thoát chọn</button>
@@ -214,9 +214,9 @@ export function TasksPage() {
     <TaskDrawer id={drawerId} onClose={() => setDrawerId('')} onDelete={(id) => { setDrawerId(''); setRemoveId(id) }} />
     <ConfirmDialog open={Boolean(removeId)} title="Xóa công việc?" description="Công việc sẽ được ẩn khỏi danh sách." onCancel={() => setRemoveId('')} onConfirm={() => deleteMutation.mutate(removeId, { onSuccess: () => { setRemoveId(''); toast.success('Đã xóa công việc') }, onError: () => toast.error('Không thể xóa công việc') })} loading={deleteMutation.isPending} />
     <ConfirmDialog open={bulkRemoveOpen} title={`Xóa ${selected.length} công việc?`} description={`${selected.length} công việc được chọn sẽ bị xóa.`} onCancel={() => setBulkRemoveOpen(false)} onConfirm={bulkDelete} loading={bulkDeleting} />
-    <Modal open={bulkMoveKind !== null} title={bulkMoveKind === 'subject' ? 'Chuyển chủ đề cho công việc' : 'Chuyển kế hoạch cho công việc'} onClose={() => setBulkMoveKind(null)} footer={<><Button variant="secondary" onClick={() => setBulkMoveKind(null)}>Hủy</Button><Button disabled={!bulkTargetId} loading={bulkMoving} onClick={() => void bulkMove()}>Xác nhận chuyển</Button></>}>
+    <Modal open={bulkMoveKind !== null} title={bulkMoveKind === 'subject' ? 'Chuyển môn học cho công việc' : 'Chuyển kế hoạch cho công việc'} onClose={() => setBulkMoveKind(null)} footer={<><Button variant="secondary" onClick={() => setBulkMoveKind(null)}>Hủy</Button><Button disabled={!bulkTargetId} loading={bulkMoving} onClick={() => void bulkMove()}>Xác nhận chuyển</Button></>}>
       <p className="subtle">Áp dụng thay đổi cho {selected.length} công việc đã chọn.</p>
-      {bulkMoveKind === 'subject' ? <Select label="Chủ đề mới" customMenu value={bulkTargetId} onChange={(event) => setBulkTargetId(event.target.value)}><option value="">Chọn chủ đề</option>{topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select> : <Select label="Kế hoạch mới" customMenu value={bulkTargetId} onChange={(event) => setBulkTargetId(event.target.value)}><option value="">Chọn kế hoạch</option>{plans.data?.items.map((plan) => <option key={plan.id} value={plan.id}>{plan.title}</option>)}</Select>}
+      {bulkMoveKind === 'subject' ? <Select label="Môn học mới" customMenu value={bulkTargetId} onChange={(event) => setBulkTargetId(event.target.value)}><option value="">Chọn môn học</option>{topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select> : <Select label="Kế hoạch mới" customMenu value={bulkTargetId} onChange={(event) => setBulkTargetId(event.target.value)}><option value="">Chọn kế hoạch</option>{plans.data?.items.map((plan) => <option key={plan.id} value={plan.id}>{plan.title}</option>)}</Select>}
     </Modal>
   </div>
 }
