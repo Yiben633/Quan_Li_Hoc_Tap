@@ -31,7 +31,7 @@ export async function getReport(filters: ReportFilters) {
 }
 
 export async function exportReport(input: ReportFilters & { format: ExportFormat }) {
-  const response = await apiClient.post<Blob>('/reports/export', null, { params: { type: input.range, format: input.format, ...scopeParams(input) }, responseType: 'blob' })
+  const response = await apiClient.post<Blob>('/reports/export', {}, { params: { type: input.range, format: input.format, ...scopeParams(input) }, responseType: 'blob' })
   const header = String(response.headers['content-disposition'] ?? '')
   const fileName = /filename="?([^";]+)"?/i.exec(header)?.[1] ?? `studyflow-${input.range}.${input.format === 'excel' ? 'xlsx' : 'pdf'}`
   return { blob: response.data, fileName }
