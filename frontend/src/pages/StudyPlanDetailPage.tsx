@@ -2,7 +2,7 @@ import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, ListPlus, ListTodo, More
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Button, ConfirmDialog, Dropdown, EmptyState, Skeleton, Tabs } from '../components/ui'
+import { Button, ConfirmDialog, Dropdown, EmptyState, Skeleton, Tabs, Tooltip } from '../components/ui'
 import { PLAN_STATUS_LABELS, PRIORITY_LABELS } from '../features/tasks/task.constants'
 import { TaskDrawer } from '../features/tasks/components/TaskDrawer'
 import { TaskList } from '../features/tasks/components/TaskList'
@@ -11,6 +11,7 @@ import { PlanBreakdownModal } from '../features/tasks/components/PlanBreakdownMo
 import type { Task } from '../features/tasks/tasks.api'
 import { usePlanDeleteMutation, usePlanQuery, usePlanUpdateMutation, useTaskDeleteMutation, useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
 import { formatTaskDate, formatTaskDeadline } from '../utils/taskDate'
+import { getPlanHealth } from '../utils/planHealth'
 
 type PlanTab = 'overview' | 'tasks'
 
@@ -59,6 +60,7 @@ export function StudyPlanDetailPage() {
   const priorityLabel = PRIORITY_LABELS[plan.priority]
   const canPause = plan.status === 'in_progress'
   const canResume = plan.status === 'paused'
+  const health = getPlanHealth(plan.startDate, plan.endDate, progressPercent)
 
   const changePlanStatus = (status: 'paused' | 'in_progress') => {
     updatePlan.mutate({ id: plan.id, input: { status } }, {
@@ -74,12 +76,12 @@ export function StudyPlanDetailPage() {
         <p className="eyebrow">KẾ HOẠCH CỦA BẠN</p>
         <h1>{plan.title}</h1>
         {plan.subject && <Link className="plan-detail-subject" to={`/topics/${plan.subject.id}`}>{plan.subject.code ? `${plan.subject.code} · ${plan.subject.name}` : plan.subject.name}</Link>}
-        <div className="plan-detail-badges"><span className={`plan-status plan-${plan.status}`}>{statusLabel}</span><span className={`priority priority-${plan.priority}`}>{priorityLabel}</span></div>
+        <div className="plan-detail-badges"><span className={`plan-status plan-${plan.status}`} aria-label={`Trạng thái: ${statusLabel}`}>{statusLabel}</span><span className={`priority priority-${plan.priority}`} aria-label={`Ưu tiên: ${priorityLabel}`}>{priorityLabel}</span>{health && <Tooltip label="Đánh giá dựa trên thời gian đã trôi qua và tiến độ công việc."><span className={`plan-health plan-health-${health.status}`}>{health.label}</span></Tooltip>}</div>
       </div>
       <div className="plan-detail-actions">
         <Button variant="secondary" onClick={() => setBreakdownOpen(true)}><ListPlus size={16} /> Chia nhỏ kế hoạch</Button>
         <Button onClick={openQuickCreate}><Plus size={16} /> Thêm công việc</Button>
-        <Dropdown label={<><MoreHorizontal size={18} /><span className="sr-only">Thao tác với {plan.title}</span></>} showChevron={false}>
+        <Dropdown ariaLabel={`Thao tác với ${plan.title}`} label={<><MoreHorizontal size={18} /><span className="sr-only">Thao tác với {plan.title}</span></>} showChevron={false}>
           {canPause && <button type="button" className="menu-item" onClick={() => changePlanStatus('paused')}><Pause size={15} /> Tạm dừng</button>}
           {canResume && <button type="button" className="menu-item" onClick={() => changePlanStatus('in_progress')}><Play size={15} /> Tiếp tục</button>}
           <button type="button" className="menu-item danger-text" onClick={() => setPlanDeleteOpen(true)}><Trash2 size={15} /> Xóa</button>

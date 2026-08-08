@@ -33,10 +33,16 @@ describe('study plans, tasks and kanban', () => {
   });
 
   it('creates and filters a study plan and tasks', async () => {
-    const plan = await request(app).post('/api/study-plans').set('Authorization', `Bearer ${accessToken}`).send({ subjectId, title: 'Master backend', priority: 'high', startDate: '2026-01-01', endDate: '2026-12-31' });
+    const plan = await request(app).post('/api/study-plans').set('Authorization', `Bearer ${accessToken}`).send({ subjectId, title: 'Master backend', description: 'Practice integration coverage', targetGoal: 'Ship reliable API', priority: 'high', startDate: '2026-01-01', endDate: '2026-12-31' });
     expect(plan.status).toBe(201);
     planId = plan.body.data.id;
-    expect(plan.body.data.progressPercent).toBe(0);
+    expect(plan.body.data).toMatchObject({ progressPercent: 0, taskTotal: 0, taskDone: 0 });
+
+    for (const search of ['MASTER', 'INTEGRATION', 'RELIABLE']) {
+      const searchedPlans = await request(app).get(`/api/study-plans?search=${search}`).set('Authorization', `Bearer ${accessToken}`);
+      expect(searchedPlans.status).toBe(200);
+      expect(searchedPlans.body.data.items.map((item: { id: string }) => item.id)).toContain(planId);
+    }
 
     const first = await request(app).post('/api/tasks').set('Authorization', `Bearer ${accessToken}`).send({ studyPlanId: planId, subjectId, title: 'Build API', priority: 'high', dueDate: new Date().toISOString() });
     const second = await request(app).post('/api/tasks').set('Authorization', `Bearer ${accessToken}`).send({ studyPlanId: planId, subjectId, title: 'Write tests', priority: 'medium', dueDate: new Date(Date.now() - 86400000).toISOString() });
@@ -48,6 +54,21 @@ describe('study plans, tasks and kanban', () => {
     const list = await request(app).get(`/api/tasks?studyPlanId=${planId}&status=todo&search=api`).set('Authorization', `Bearer ${accessToken}`);
     expect(list.status).toBe(200);
     expect(list.body.data.items).toHaveLength(1);
+
+    const todayDate = new Date().toISOString().slice(0, 10);
+    const yesterdayDate = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const range = await request(app).get(`/api/tasks?studyPlanId=${planId}&dueFrom=${yesterdayDate}&dueTo=${todayDate}`).set('Authorization', `Bearer ${accessToken}`);
+    expect(range.status).toBe(200);
+    expect(range.body.data.items.map((task: { id: string }) => task.id)).toEqual(expect.arrayContaining([taskA, taskB]));
+
+    const exactDate = await request(app).get(`/api/tasks?studyPlanId=${planId}&dueDate=${todayDate}&dueFrom=${yesterdayDate}&dueTo=${todayDate}`).set('Authorization', `Bearer ${accessToken}`);
+    expect(exactDate.status).toBe(200);
+    expect(exactDate.body.data.items.map((task: { id: string }) => task.id)).toEqual([taskA]);
+
+    const plans = await request(app).get('/api/study-plans').set('Authorization', `Bearer ${accessToken}`);
+    expect(plans.status).toBe(200);
+    const listedPlan = plans.body.data.items.find((item: { id: string }) => item.id === planId);
+    expect(listedPlan).toMatchObject({ id: planId, taskTotal: 2, taskDone: 0 });
 
     const overdue = await request(app).get('/api/tasks/overdue').set('Authorization', `Bearer ${accessToken}`);
     expect(overdue.status).toBe(200);
@@ -64,7 +85,7 @@ describe('study plans, tasks and kanban', () => {
     expect(completed.status).toBe(200);
     const plan = await request(app).get(`/api/study-plans/${planId}`).set('Authorization', `Bearer ${accessToken}`);
     expect(plan.status).toBe(200);
-    expect(plan.body.data.progressPercent).toBe(50);
+    expect(plan.body.data).toMatchObject({ progressPercent: 50, taskTotal: 2, taskDone: 1 });
 
     const subtasks = await request(app).get(`/api/tasks/${taskA}/subtasks`).set('Authorization', `Bearer ${accessToken}`);
     expect(subtasks.body.data[0].isDone).toBe(true);

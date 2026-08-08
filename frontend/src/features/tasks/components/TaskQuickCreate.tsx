@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { Button, Input, Select } from '../../../components/ui'
 import type { Priority, StudyPlan, Task } from '../tasks.api'
 import { DIFFICULTY_LABELS, PRIORITY_LABELS } from '../task.constants'
-import { useTaskCreateMutation } from '../tasks.hooks'
+import { usePlansQuery, useTaskCreateMutation } from '../tasks.hooks'
 
 type TopicOption = { id: string; code: string; name: string }
 
@@ -16,11 +16,12 @@ type TaskQuickCreateProps = {
   topics?: TopicOption[]
   plans?: StudyPlan[]
   focusKey?: number
+  placeholder?: string
 }
 
 const estimatedMinuteOptions = [15, 25, 30, 45, 60, 90]
 
-export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'medium', onCreated, topics = [], plans = [], focusKey = 0 }: TaskQuickCreateProps) {
+export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'medium', onCreated, topics = [], plans = [], focusKey = 0, placeholder = 'Thêm công việc nhanh...' }: TaskQuickCreateProps) {
   const [title, setTitle] = useState('')
   const [expanded, setExpanded] = useState(false)
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -33,6 +34,8 @@ export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'med
   const [description, setDescription] = useState('')
   const titleInputRef = useRef<HTMLInputElement>(null)
   const createMutation = useTaskCreateMutation()
+  const subjectPlans = usePlansQuery({ subjectId: subjectId ?? '', limit: '100' }, { enabled: Boolean(subjectId) })
+  const availablePlans = subjectId ? (subjectPlans.data?.items ?? plans) : plans
 
   useEffect(() => {
     if (!focusKey) return
@@ -45,10 +48,12 @@ export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'med
     const normalizedTitle = title.trim()
     if (!normalizedTitle) return
 
+    const selectedPlan = studyPlanId ?? (availablePlans.some((plan) => plan.id === selectedPlanId) ? selectedPlanId : null)
+
     createMutation.mutate({
       title: normalizedTitle,
       subjectId: subjectId ?? (selectedSubjectId || null),
-      studyPlanId: studyPlanId ?? (selectedPlanId || null),
+      studyPlanId: selectedPlan,
       dueDate: dueDate || null,
       priority,
       estimatedMinutes: estimatedMinutes ? Number(estimatedMinutes) : null,
@@ -72,7 +77,7 @@ export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'med
 
   return <section className={`task-quick-create panel${expanded ? ' is-expanded' : ''}`}>
     <form onSubmit={submit}>
-      <div className="task-quick-primary"><Plus size={18} /><input ref={titleInputRef} value={title} onFocus={() => setExpanded(true)} onChange={(event) => setTitle(event.target.value)} placeholder="Thêm công việc nhanh..." aria-label="Tên công việc nhanh" /><Button type="submit" disabled={!title.trim()} loading={createMutation.isPending}>Thêm</Button></div>
+      <div className="task-quick-primary"><Plus size={18} /><input ref={titleInputRef} value={title} onFocus={() => setExpanded(true)} onChange={(event) => setTitle(event.target.value)} placeholder={placeholder} aria-label="Tên công việc nhanh" /><Button type="submit" disabled={!title.trim()} loading={createMutation.isPending}>Thêm</Button></div>
       {expanded && <div className="task-quick-options">
         {!subjectId && <Select customMenu value={selectedSubjectId} onChange={(event) => setSelectedSubjectId(event.target.value)} aria-label="Chọn môn học"><option value="">Môn học</option>{topics.map((topic) => <option key={topic.id} value={topic.id}>{topic.code ? `${topic.code} · ${topic.name}` : topic.name}</option>)}</Select>}
         <Input type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} aria-label="Deadline" />
@@ -81,7 +86,7 @@ export function TaskQuickCreate({ subjectId, studyPlanId, defaultPriority = 'med
         <button type="button" className="task-quick-advanced-toggle" onClick={() => setAdvancedOpen((current) => !current)} aria-expanded={advancedOpen}>Thêm chi tiết <ChevronDown size={14} /></button>
       </div>}
       {expanded && advancedOpen && <div className="task-quick-advanced">
-        {!studyPlanId && <Select label="Kế hoạch (tùy chọn)" customMenu value={selectedPlanId} onChange={(event) => setSelectedPlanId(event.target.value)}><option value="">Không gắn kế hoạch</option>{plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.title}</option>)}</Select>}
+        {!studyPlanId && <Select label="Kế hoạch (tùy chọn)" customMenu value={selectedPlanId} onChange={(event) => setSelectedPlanId(event.target.value)} disabled={Boolean(subjectId) && subjectPlans.isLoading}><option value="">Không gắn kế hoạch</option>{availablePlans.map((plan) => <option key={plan.id} value={plan.id}>{plan.title}</option>)}</Select>}
         <Select label="Độ khó" customMenu value={difficulty} onChange={(event) => setDifficulty(event.target.value)}><option value="">Chưa chọn độ khó</option>{Object.entries(DIFFICULTY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
         <Input label="Mô tả" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Ghi chú ngắn cho công việc" />
       </div>}

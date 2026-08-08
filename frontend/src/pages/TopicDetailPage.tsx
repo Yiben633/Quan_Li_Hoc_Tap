@@ -1,16 +1,17 @@
 import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, Gauge, NotebookPen, Play, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { Button, EmptyState, Skeleton, Tabs } from '../components/ui'
 import { useTopicQuery } from '../features/learning/learning.hooks'
 import { TaskList } from '../features/tasks/components/TaskList'
 import { TaskQuickCreate } from '../features/tasks/components/TaskQuickCreate'
+import { StartStudyButton } from '../features/study-sessions/StartStudyButton'
 import type { Priority, Task, TaskStatus } from '../features/tasks/tasks.api'
-import { usePlansQuery, useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
+import { useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
 import { formatTaskDeadline } from '../utils/taskDate'
 
 type DetailTab = 'overview' | 'tasks'
+type SubjectTaskScope = 'open' | 'in_progress' | 'done' | 'all'
 
 const tabs: Array<{ value: DetailTab; label: React.ReactNode }> = [
   { value: 'overview', label: 'Tổng quan' },
@@ -59,12 +60,11 @@ function priorityTasks(tasks: Task[]) {
 export function TopicDetailPage() {
   const { id = '' } = useParams()
   const [tab, setTab] = useState<DetailTab>('overview')
+  const [taskScope, setTaskScope] = useState<SubjectTaskScope>('open')
   const [quickCreateFocusKey, setQuickCreateFocusKey] = useState(0)
   const statusTask = useTaskStatusMutation()
-  const client = useQueryClient()
   const query = useTopicQuery(id)
   const tasks = useTasksQuery({ subjectId: id, page: 1, limit: 100, sort: 'sortOrder', order: 'asc' })
-  const plans = usePlansQuery({ subjectId: id, limit: '100' })
 
   if (query.isLoading) return <div className="topic-detail"><Skeleton height={260} /></div>
   if (query.isError || !query.data) return <EmptyState title="Không thể tải môn học" description="Môn học có thể đã bị xóa hoặc bạn không có quyền truy cập." action={<Link className="button secondary" to="/topics">Quay lại môn học</Link>} />
@@ -76,15 +76,16 @@ export function TopicDetailPage() {
   const remainingTasks = Math.max(totalTasks - completedTasks, 0)
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
   const topTasks = priorityTasks(taskItems)
+  const visibleTasks = taskItems.filter((task) => taskScope === 'all' || (taskScope === 'open' && task.status !== 'done') || (taskScope === 'in_progress' && task.status === 'in_progress') || (taskScope === 'done' && task.status === 'done'))
   const openTaskCreate = () => { setTab('tasks'); setQuickCreateFocusKey((current) => current + 1) }
   const statusLabel = topic.status === 'completed' ? 'Hoàn thành' : topic.status === 'dropped' ? 'Tạm dừng' : topic.status === 'archived' ? 'Đã lưu trữ' : 'Đang học'
-  const updateStatus = (taskId: string, status: TaskStatus) => statusTask.mutate({ id: taskId, status }, { onSuccess: () => { client.invalidateQueries({ queryKey: ['subject', id] }) } })
+  const updateStatus = (taskId: string, status: TaskStatus) => statusTask.mutate({ id: taskId, status })
   const taskList = tasks.isLoading
     ? <Skeleton height={120} />
     : tasks.isError
       ? <EmptyState title="Không thể tải công việc" description="Hãy thử lại sau." />
-      : taskItems.length
-        ? <TaskList tasks={taskItems} mode="compact" onStatusChange={updateStatus} />
+      : visibleTasks.length
+        ? <TaskList tasks={visibleTasks} mode="compact" onStatusChange={updateStatus} />
         : <EmptyState title="Chưa có công việc" description="Thêm công việc đầu tiên cho môn học này." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />
 
   return <div className="topic-detail">
@@ -99,7 +100,7 @@ export function TopicDetailPage() {
         {topic.targetGrade !== null && topic.targetGrade !== undefined && <p className="topic-detail-field">Mục tiêu: <strong>{Number(topic.targetGrade).toFixed(1)}</strong></p>}
       </div>
       <div className="topic-detail-header-actions">
-        <Link className="button secondary" to="/study"><Play size={16} /> Bắt đầu học</Link>
+        <StartStudyButton subjectId={id} />
         <Button onClick={openTaskCreate}><Plus size={16} /> Công việc</Button>
       </div>
       <span className="topic-detail-mark" style={{ background: topic.colorHex }}><BookOpen size={22} /></span>
@@ -132,8 +133,14 @@ export function TopicDetailPage() {
         </section>
       </>
       : <section className="panel topic-task-panel">
-        <div className="panel-heading"><div><h2>Công việc</h2><p className="subtle">Cập nhật ngay trong môn học.</p></div></div>
-        <TaskQuickCreate subjectId={id} plans={plans.data?.items ?? []} focusKey={quickCreateFocusKey} onCreated={() => { client.invalidateQueries({ queryKey: ['subject', id] }) }} />
+        <div className="panel-heading"><div><h2>Công việc</h2><p className="subtle">Theo dõi các việc trong môn học này.</p></div><Link className="topic-kanban-link" to={`/kanban?subjectId=${id}`}>Xem trong Kanban <ArrowRight size={15} /></Link></div>
+        <div className="topic-task-scopes" role="group" aria-label="Lọc công việc môn học">
+          <button type="button" className={taskScope === 'open' ? 'active' : ''} onClick={() => setTaskScope('open')}>Chưa hoàn thành</button>
+          <button type="button" className={taskScope === 'in_progress' ? 'active' : ''} onClick={() => setTaskScope('in_progress')}>Đang làm</button>
+          <button type="button" className={taskScope === 'done' ? 'active' : ''} onClick={() => setTaskScope('done')}>Hoàn thành</button>
+          <button type="button" className={taskScope === 'all' ? 'active' : ''} onClick={() => setTaskScope('all')}>Tất cả</button>
+        </div>
+        <TaskQuickCreate subjectId={id} focusKey={quickCreateFocusKey} placeholder={`Thêm công việc cho ${topic.name}...`} />
         {taskList}
       </section>}
   </div>

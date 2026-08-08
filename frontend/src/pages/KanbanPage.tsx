@@ -1,11 +1,11 @@
 import { DndContext, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
-import { Check, Clock3, GripVertical, Plus, Search, Target, Trash2 } from 'lucide-react'
+import { Check, Clock3, GripVertical, Plus, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { getApiErrorMessage } from '../features/auth/auth.api'
-import { Button, ConfirmDialog, EmptyState, Input, Select, Skeleton } from '../components/ui'
+import { Button, ConfirmDialog, EmptyState, Select, Skeleton } from '../components/ui'
 import { useTopicsQuery } from '../features/learning/learning.hooks'
 import type { TaskStatus } from '../features/tasks/tasks.api'
 import type { KanbanTask } from '../features/kanban/kanban.api'
@@ -16,6 +16,97 @@ import { TaskModuleTabs } from '../features/tasks/components/TaskModuleTabs'
 
 const columns: Array<{ status: TaskStatus; label: string }> = (Object.keys(TASK_STATUS_LABELS) as TaskStatus[]).map((status) => ({ status, label: TASK_STATUS_LABELS[status] }))
 const priorityLabels = PRIORITY_LABELS
-export function KanbanPage() { const [subjectId, setSubjectId] = useState(''); const [priority, setPriority] = useState(''); const [range, setRange] = useState(''); const [search, setSearch] = useState(''); const topics = useTopicsQuery(); const query = useKanbanBoardQuery({ subjectId: subjectId || undefined, priority: priority || undefined }); const move = useKanbanMoveMutation({ subjectId: subjectId || undefined, priority: priority || undefined }); const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } })); const board = query.data; const filtered = useMemo(() => { if (!board) return null; const now = new Date(); const matches = (task: KanbanTask) => { if (search && !task.title.toLowerCase().includes(search.toLowerCase())) return false; if (!range || !task.dueDate) return !range; const due = new Date(task.dueDate); const days = range === 'week' ? 7 : range === 'month' ? 30 : 1; return due >= now && due <= new Date(now.getTime() + days * 86400000) }; return Object.fromEntries(columns.map(({ status }) => [status, board.columns[status].filter(matches)])) as Record<TaskStatus, KanbanTask[]> }, [board, range, search]); const onDragEnd = (event: DragEndEvent) => { const taskId = String(event.active.id); const toStatus = String(event.over?.id ?? '') as TaskStatus; if (!columns.some((column) => column.status === toStatus)) return; const target = filtered?.[toStatus] ?? []; move.mutate({ taskId, toStatus, newIndex: target.length }, { onError: () => toast.error('Không thể di chuyển công việc') }) }; return <div className="kanban-page"><div className="page-heading"><div><p className="eyebrow">ĐIỀU PHỐI CÔNG VIỆC</p><h1>Kanban</h1><p className="subtle">Kéo công việc qua từng chặng để giữ nhịp tiến độ.</p></div><Button onClick={() => query.refetch()}><Clock3 size={16} /> Đồng bộ</Button></div><TaskModuleTabs /><section className="panel kanban-toolbar"><label className="search-field"><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm công việc..." aria-label="Tìm công việc" /></label><Select customMenu value={subjectId} onChange={(event) => setSubjectId(event.target.value)} aria-label="Lọc môn học"><option value="">Tất cả môn học</option>{[...new Map((topics.data?.items ?? []).map((topic) => [topic.name.trim().toLowerCase(), topic])).values()].map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select><Select customMenu value={priority} onChange={(event) => setPriority(event.target.value)} aria-label="Lọc ưu tiên"><option value="">Mọi ưu tiên</option>{Object.entries(priorityLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select><Select customMenu value={range} onChange={(event) => setRange(event.target.value)} aria-label="Lọc khoảng thời gian"><option value="">Mọi thời hạn</option><option value="today">Hôm nay</option><option value="week">7 ngày tới</option><option value="month">30 ngày tới</option></Select></section>{query.isLoading ? <div className="kanban-board">{columns.map((column) => <Skeleton key={column.status} height={300} />)}</div> : query.isError || !filtered ? <EmptyState title="Không thể tải Kanban" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => query.refetch()}>Thử lại</Button>} /> : <DndContext sensors={sensors} onDragEnd={onDragEnd}><div className="kanban-board">{columns.map((column) => <KanbanColumn key={column.status} column={column} tasks={filtered[column.status]} subjectId={subjectId || undefined} />)}</div></DndContext>}</div> }
-function KanbanColumn({ column, tasks, subjectId }: { column: { status: TaskStatus; label: string }; tasks: KanbanTask[]; subjectId?: string }) { const { setNodeRef, isOver } = useDroppable({ id: column.status }); const [quickAdd, setQuickAdd] = useState(false); const [title, setTitle] = useState(''); const create = useTaskCreateMutation(); const createQuickTask = () => { if (!title.trim() || create.isPending) return; create.mutate({ title: title.trim(), status: column.status, priority: 'medium', subjectId: subjectId ?? null }, { onSuccess: () => { setTitle(''); setQuickAdd(false); toast.success('Đã thêm công việc') }, onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể thêm công việc')) }) }; const submit = (event: React.FormEvent) => { event.preventDefault(); createQuickTask() }; return <section ref={setNodeRef} className={`kanban-column kanban-${column.status}${isOver ? ' is-over' : ''}`}><header><div><span className="kanban-column-dot" /><h2>{column.label}</h2></div><span>{tasks.length}</span></header>{quickAdd ? <form className="kanban-quick-form" onSubmit={submit} onPointerDown={(event) => event.stopPropagation()}><input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên công việc..." aria-label="Tên công việc mới" /><button type="submit" onPointerDown={(event) => event.stopPropagation()} disabled={create.isPending}><Check size={15} /></button><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setQuickAdd(false); setTitle('') }} aria-label="Hủy"><span>×</span></button></form> : <button className="kanban-quick-add" onClick={() => setQuickAdd(true)}><Plus size={15} /> Thêm nhanh</button>}<div className="kanban-cards">{tasks.length ? tasks.map((task) => <KanbanCard key={task.id} task={task} />) : <p className="kanban-empty">Thả task vào đây</p>}</div></section> }
-function KanbanCard({ task }: { task: KanbanTask }) { const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id }); const remove = useTaskDeleteMutation(); const client = useQueryClient(); const [confirmOpen, setConfirmOpen] = useState(false); const deleteTask = () => setConfirmOpen(true); const confirmDelete = () => { remove.mutate(task.id, { onSuccess: () => { setConfirmOpen(false); client.invalidateQueries({ queryKey: ['kanban'] }); toast.success('Đã xóa công việc') }, onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể xóa công việc')) }) }; const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined; const done = task.subTasks?.filter((subtask) => subtask.isDone).length ?? 0; const total = task.subTasks?.length ?? 0; return <><article ref={setNodeRef} style={style} className={`kanban-card${isDragging ? ' is-dragging' : ''}`}><button className="kanban-drag-handle" aria-label={`Kéo ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} /></button><strong>{task.title}</strong><button type="button" className="kanban-delete-task" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); deleteTask() }} disabled={remove.isPending} aria-label={`Xóa ${task.title}`}><Trash2 size={14} /></button>{(task.subject?.name || task.studyPlan?.title) && <span className="kanban-context">{task.subject?.name ?? task.studyPlan?.title}</span>}<div className="kanban-card-meta"><span className={`kanban-priority priority-${task.priority}`}>{priorityLabels[task.priority]}</span>{task.dueDate && <span><Clock3 size={12} /> {new Date(task.dueDate).toLocaleDateString('vi-VN')}</span>}{total > 0 && <span><Check size={12} /> {done}/{total}</span>}</div></article><ConfirmDialog open={confirmOpen} title="Xóa công việc?" description={`Công việc “${task.title}” sẽ được ẩn khỏi bảng Kanban.`} onCancel={() => setConfirmOpen(false)} onConfirm={confirmDelete} loading={remove.isPending} /></> }
+
+export function KanbanPage() {
+  const [searchParams] = useSearchParams()
+  const [subjectId, setSubjectId] = useState(() => searchParams.get('subjectId') ?? '')
+  const [priority, setPriority] = useState('')
+  const [range, setRange] = useState('')
+  const [search, setSearch] = useState('')
+  const topics = useTopicsQuery()
+  const query = useKanbanBoardQuery({ subjectId: subjectId || undefined, priority: priority || undefined })
+  const move = useKanbanMoveMutation({ subjectId: subjectId || undefined, priority: priority || undefined })
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
+  const board = query.data
+  const filtered = useMemo(() => {
+    if (!board) return null
+    const now = new Date()
+    const matches = (task: KanbanTask) => {
+      if (search && !task.title.toLowerCase().includes(search.toLowerCase())) return false
+      if (!range || !task.dueDate) return !range
+      const due = new Date(task.dueDate)
+      const days = range === 'week' ? 7 : range === 'month' ? 30 : 1
+      return due >= now && due <= new Date(now.getTime() + days * 86_400_000)
+    }
+    return Object.fromEntries(columns.map(({ status }) => [status, board.columns[status].filter(matches)])) as Record<TaskStatus, KanbanTask[]>
+  }, [board, range, search])
+
+  const onDragEnd = (event: DragEndEvent) => {
+    const taskId = String(event.active.id)
+    const toStatus = String(event.over?.id ?? '') as TaskStatus
+    if (!columns.some((column) => column.status === toStatus)) return
+    move.mutate({ taskId, toStatus, newIndex: (filtered?.[toStatus] ?? []).length }, { onError: () => toast.error('Không thể di chuyển công việc') })
+  }
+
+  return <div className="kanban-page">
+    <div className="page-heading">
+      <div><p className="eyebrow">ĐIỀU PHỐI CÔNG VIỆC</p><h1>Kanban</h1><p className="subtle">Kéo công việc qua từng chặng để giữ nhịp tiến độ.</p></div>
+      <Button onClick={() => query.refetch()}><Clock3 size={16} /> Đồng bộ</Button>
+    </div>
+    <TaskModuleTabs />
+    <section className="panel kanban-toolbar">
+      <label className="search-field"><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm công việc..." aria-label="Tìm công việc" /></label>
+      <Select customMenu value={subjectId} onChange={(event) => setSubjectId(event.target.value)} aria-label="Lọc môn học"><option value="">Tất cả môn học</option>{[...new Map((topics.data?.items ?? []).map((topic) => [topic.name.trim().toLowerCase(), topic])).values()].map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select>
+      <Select customMenu value={priority} onChange={(event) => setPriority(event.target.value)} aria-label="Lọc ưu tiên"><option value="">Mọi ưu tiên</option>{Object.entries(priorityLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select>
+      <Select customMenu value={range} onChange={(event) => setRange(event.target.value)} aria-label="Lọc khoảng thời gian"><option value="">Mọi thời hạn</option><option value="today">Hôm nay</option><option value="week">7 ngày tới</option><option value="month">30 ngày tới</option></Select>
+    </section>
+    {query.isLoading
+      ? <div className="kanban-board">{columns.map((column) => <Skeleton key={column.status} height={300} />)}</div>
+      : query.isError || !filtered
+        ? <EmptyState title="Không thể tải Kanban" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => query.refetch()}>Thử lại</Button>} />
+        : <DndContext sensors={sensors} onDragEnd={onDragEnd}><div className="kanban-board">{columns.map((column) => <KanbanColumn key={column.status} column={column} tasks={filtered[column.status]} subjectId={subjectId || undefined} />)}</div></DndContext>}
+  </div>
+}
+
+function KanbanColumn({ column, tasks, subjectId }: { column: { status: TaskStatus; label: string }; tasks: KanbanTask[]; subjectId?: string }) {
+  const { setNodeRef, isOver } = useDroppable({ id: column.status })
+  const [quickAdd, setQuickAdd] = useState(false)
+  const [title, setTitle] = useState('')
+  const create = useTaskCreateMutation()
+  const createQuickTask = () => {
+    if (!title.trim() || create.isPending) return
+    create.mutate({ title: title.trim(), status: column.status, priority: 'medium', subjectId: subjectId ?? null }, {
+      onSuccess: () => { setTitle(''); setQuickAdd(false); toast.success('Đã thêm công việc') },
+      onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể thêm công việc')),
+    })
+  }
+
+  return <section ref={setNodeRef} className={`kanban-column kanban-${column.status}${isOver ? ' is-over' : ''}`}>
+    <header><div><span className="kanban-column-dot" /><h2>{column.label}</h2></div><span>{tasks.length}</span></header>
+    {quickAdd
+      ? <form className="kanban-quick-form" onSubmit={(event) => { event.preventDefault(); createQuickTask() }} onPointerDown={(event) => event.stopPropagation()}><input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên công việc..." aria-label="Tên công việc mới" /><button type="submit" onPointerDown={(event) => event.stopPropagation()} disabled={create.isPending}><Check size={15} /></button><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setQuickAdd(false); setTitle('') }} aria-label="Hủy"><span>×</span></button></form>
+      : <button className="kanban-quick-add" onClick={() => setQuickAdd(true)}><Plus size={15} /> Thêm nhanh</button>}
+    <div className="kanban-cards">{tasks.length ? tasks.map((task) => <KanbanCard key={task.id} task={task} />) : <p className="kanban-empty">Thả task vào đây</p>}</div>
+  </section>
+}
+
+function KanbanCard({ task }: { task: KanbanTask }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id })
+  const remove = useTaskDeleteMutation()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined
+  const done = task.subTasks?.filter((subtask) => subtask.isDone).length ?? 0
+  const total = task.subTasks?.length ?? 0
+  const confirmDelete = () => remove.mutate(task.id, {
+    onSuccess: () => { setConfirmOpen(false); toast.success('Đã xóa công việc') },
+    onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể xóa công việc')),
+  })
+
+  return <><article ref={setNodeRef} style={style} className={`kanban-card${isDragging ? ' is-dragging' : ''}`}>
+    <button className="kanban-drag-handle" aria-label={`Kéo ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} /></button>
+    <strong>{task.title}</strong>
+    <button type="button" className="kanban-delete-task" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setConfirmOpen(true) }} disabled={remove.isPending} aria-label={`Xóa ${task.title}`}><Trash2 size={14} /></button>
+    {(task.subject?.name || task.studyPlan?.title) && <span className="kanban-context">{task.subject?.name ?? task.studyPlan?.title}</span>}
+    <div className="kanban-card-meta"><span className={`kanban-priority priority-${task.priority}`}>{priorityLabels[task.priority]}</span>{task.dueDate && <span><Clock3 size={12} /> {new Date(task.dueDate).toLocaleDateString('vi-VN')}</span>}{total > 0 && <span><Check size={12} /> {done}/{total}</span>}</div>
+  </article><ConfirmDialog open={confirmOpen} title="Xóa công việc?" description={`Công việc “${task.title}” sẽ được ẩn khỏi bảng Kanban.`} onCancel={() => setConfirmOpen(false)} onConfirm={confirmDelete} loading={remove.isPending} /></>
+}

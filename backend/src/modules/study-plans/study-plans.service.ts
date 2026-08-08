@@ -37,6 +37,12 @@ async function taskCountsByPlan(userId: string, planIds: string[]) {
   return result;
 }
 
+async function outputWithTaskCounts(userId: string, plan: { id: string; estimatedHours: Prisma.Decimal | null; progressPercent: number; [key: string]: unknown }) {
+  const counts = await taskCountsByPlan(userId, [plan.id]);
+  const taskCounts = counts.get(plan.id) ?? { total: 0, done: 0 };
+  return output({ ...plan, taskTotal: taskCounts.total, taskDone: taskCounts.done });
+}
+
 export async function list(userId: string, query: { subjectId?: string; status?: StudyPlanStatus; priority?: Priority; search?: string; startDate?: Date; endDate?: Date; page: number; limit: number; sort: 'title' | 'startDate' | 'endDate' | 'priority' | 'createdAt'; order: 'asc' | 'desc' }) {
   const where: Prisma.StudyPlanWhereInput = { userId, deletedAt: null, ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.status ? { status: query.status } : {}), ...(query.priority ? { priority: query.priority } : {}), ...(query.search ? { OR: [{ title: { contains: query.search, mode: 'insensitive' } }, { description: { contains: query.search, mode: 'insensitive' } }, { targetGoal: { contains: query.search, mode: 'insensitive' } }] } : {}), ...(query.startDate ? { startDate: { gte: query.startDate } } : {}), ...(query.endDate ? { endDate: { lte: query.endDate } } : {}) };
   const [items, total] = await Promise.all([
@@ -69,7 +75,7 @@ export async function create(userId: string, input: PlanInput, context?: Context
   if (input.subjectId) await subjectOwner(userId, input.subjectId);
   const plan = await prisma.studyPlan.create({ data: { ...input, userId } });
   await log(userId, 'study_plan.created', plan.id, context);
-  return output(plan);
+  return output({ ...plan, taskTotal: 0, taskDone: 0 });
 }
 
 export async function detail(userId: string, id: string) {
@@ -93,12 +99,12 @@ export async function update(userId: string, id: string, input: Partial<PlanInpu
   if (startDate && endDate && endDate < startDate) throw serviceError('endDate must be on or after startDate', 422);
   const plan = await prisma.studyPlan.update({ where: { id }, data: input });
   await log(userId, 'study_plan.updated', id, context);
-  return output(plan);
+  return outputWithTaskCounts(userId, plan);
 }
 
 export async function remove(userId: string, id: string, context?: Context) {
   await owned(userId, id);
   const plan = await prisma.studyPlan.update({ where: { id }, data: { deletedAt: new Date() } });
   await log(userId, 'study_plan.deleted', id, context);
-  return output(plan);
+  return outputWithTaskCounts(userId, plan);
 }

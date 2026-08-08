@@ -16,6 +16,7 @@ import { StudyPlansPage } from '../pages/StudyPlansPage'
 import { StudyPlanDetailPage } from '../pages/StudyPlanDetailPage'
 import { KanbanPage } from '../pages/KanbanPage'
 import { CalendarPage } from '../pages/CalendarPage'
+import { StudyPage } from '../pages/StudyPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
@@ -33,7 +34,7 @@ export const router = createBrowserRouter([
     { path: 'subjects', element: <LearningSpacesPage /> },
     { path: 'topics', element: <TopicsPage /> },
     { path: 'topics/:id', element: <TopicDetailPage /> },
-    { path: 'study', element: <ModulePlaceholderPage title="Tập trung" description="Bắt đầu phiên học và theo dõi Pomodoro." /> },
+    { path: 'study', element: <StudyPage /> },
     { path: 'settings', element: <SettingsPage /> },
     { element: <AdminRoute />, children: [{ path: 'admin', element: <ModulePlaceholderPage title="Quản trị" description="Khu vực quản lý dành cho admin." /> }] },
   ] }] },
