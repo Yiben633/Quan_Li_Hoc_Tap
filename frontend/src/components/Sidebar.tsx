@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { BookOpen, CalendarDays, CheckSquare, LayoutDashboard, ListTodo, Settings, Users, X } from 'lucide-react'
+import { BarChart3, BookOpen, CalendarDays, CheckSquare, FileText, LayoutDashboard, ListTodo, NotebookPen, Settings, Target, Timer, Users, X } from 'lucide-react'
 import { Logo } from './Logo'
 import { useAuthStore } from '../stores/authStore'
 
@@ -9,6 +9,11 @@ const links = [
   { to: '/tasks', label: 'Công việc', icon: CheckSquare },
   { to: '/calendar', label: 'Lịch', icon: CalendarDays },
   { to: '/subjects', label: 'Không gian học', icon: BookOpen },
+  { to: '/goals', label: 'Mục tiêu', icon: Target },
+  { to: '/documents', label: 'Tài liệu', icon: FileText },
+  { to: '/notes', label: 'Ghi chú', icon: NotebookPen },
+  { to: '/study', label: 'Tập trung', icon: Timer },
+  { to: '/statistics', label: 'Thống kê', icon: BarChart3 },
 ]
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const roles = useAuthStore((state) => state.roles)

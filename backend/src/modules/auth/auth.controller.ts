@@ -12,7 +12,8 @@ const cookieOptions = {
   path: '/api/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
-const csrfCookieOptions = { ...cookieOptions, httpOnly: false };
+const csrfCookieOptions = { ...cookieOptions, httpOnly: false, path: '/' };
+const legacyCsrfCookieOptions = { ...cookieOptions, httpOnly: false, path: '/api/auth' };
 
 function context(req: Request) {
   return { ipAddress: req.ip, userAgent: req.get('user-agent') };
@@ -24,6 +25,7 @@ function getRefreshToken(req: Request, bodyToken?: string) {
 
 function setAuthCookies(res: Response, refreshToken: string) {
   res.cookie(COOKIE_NAME, refreshToken, cookieOptions);
+  res.clearCookie(CSRF_COOKIE_NAME, legacyCsrfCookieOptions);
   res.cookie(CSRF_COOKIE_NAME, randomBytes(32).toString('hex'), csrfCookieOptions);
 }
 

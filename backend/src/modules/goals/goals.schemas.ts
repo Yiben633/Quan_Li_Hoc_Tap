@@ -10,4 +10,7 @@ const fields = z.object({
 });
 export const goalCreateSchema = fields;
 export const goalUpdateSchema = fields.partial().refine((value) => Object.keys(value).length > 0, { message: 'At least one goal field is required' });
-export const goalListSchema = z.object({ status: z.enum(['in_progress', 'achieved', 'failed', 'archived']).optional() });
+export const goalListSchema = z.object({
+  status: z.enum(['in_progress', 'achieved', 'failed', 'archived']).optional(),
+  type: z.enum(['score', 'study_time', 'task_count', 'course_completion', 'gpa']).optional(),
+});

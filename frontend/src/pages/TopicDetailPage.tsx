@@ -1,5 +1,5 @@
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, Gauge, NotebookPen, Play, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, FileText, Gauge, NotebookPen, Play, Plus } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Button, EmptyState, Skeleton, Tabs } from '../components/ui'
 import { useTopicQuery } from '../features/learning/learning.hooks'
@@ -9,14 +9,12 @@ import { StartStudyButton } from '../features/study-sessions/StartStudyButton'
 import type { Priority, Task, TaskStatus } from '../features/tasks/tasks.api'
 import { useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
 import { formatTaskDeadline } from '../utils/taskDate'
+import { useDocumentsQuery } from '../features/documents/documents.hooks'
+import { useNotesQuery } from '../features/notes/notes.hooks'
+import { sanitizeNoteHtml } from '../utils/sanitizeNoteHtml'
 
-type DetailTab = 'overview' | 'tasks'
+type DetailTab = 'overview' | 'tasks' | 'documents' | 'notes'
 type SubjectTaskScope = 'open' | 'in_progress' | 'done' | 'all'
-
-const tabs: Array<{ value: DetailTab; label: React.ReactNode }> = [
-  { value: 'overview', label: 'Tổng quan' },
-  { value: 'tasks', label: <><CheckSquare size={14} /> Công việc</> },
-]
 
 const priorityWeight: Record<Priority, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 const dayMilliseconds = 86_400_000
@@ -65,6 +63,13 @@ export function TopicDetailPage() {
   const statusTask = useTaskStatusMutation()
   const query = useTopicQuery(id)
   const tasks = useTasksQuery({ subjectId: id, page: 1, limit: 100, sort: 'sortOrder', order: 'asc' })
+  const documents = useDocumentsQuery({ subjectId: id, page: 1, limit: 5 })
+  const notes = useNotesQuery({ subjectId: id, page: 1, limit: 5 })
+
+  useEffect(() => {
+    if (tab === 'documents' && documents.data?.pagination.total === 0) setTab('overview')
+    if (tab === 'notes' && notes.data?.pagination.total === 0) setTab('overview')
+  }, [documents.data?.pagination.total, notes.data?.pagination.total, tab])
 
   if (query.isLoading) return <div className="topic-detail"><Skeleton height={260} /></div>
   if (query.isError || !query.data) return <EmptyState title="Không thể tải môn học" description="Môn học có thể đã bị xóa hoặc bạn không có quyền truy cập." action={<Link className="button secondary" to="/topics">Quay lại môn học</Link>} />
@@ -80,6 +85,12 @@ export function TopicDetailPage() {
   const openTaskCreate = () => { setTab('tasks'); setQuickCreateFocusKey((current) => current + 1) }
   const statusLabel = topic.status === 'completed' ? 'Hoàn thành' : topic.status === 'dropped' ? 'Tạm dừng' : topic.status === 'archived' ? 'Đã lưu trữ' : 'Đang học'
   const updateStatus = (taskId: string, status: TaskStatus) => statusTask.mutate({ id: taskId, status })
+  const tabs: Array<{ value: DetailTab; label: React.ReactNode }> = [
+    { value: 'overview', label: 'Tổng quan' },
+    { value: 'tasks', label: <><CheckSquare size={14} /> Công việc</> },
+    ...(documents.data?.pagination.total ? [{ value: 'documents' as const, label: <><FileText size={14} /> Tài liệu</> }] : []),
+    ...(notes.data?.pagination.total ? [{ value: 'notes' as const, label: <><NotebookPen size={14} /> Ghi chú</> }] : []),
+  ]
   const taskList = tasks.isLoading
     ? <Skeleton height={120} />
     : tasks.isError
@@ -132,7 +143,7 @@ export function TopicDetailPage() {
           {taskItems.length > 0 && <button type="button" className="topic-view-all-tasks" onClick={() => setTab('tasks')}>Xem tất cả công việc <ArrowRight size={15} /></button>}
         </section>
       </>
-      : <section className="panel topic-task-panel">
+      : tab === 'tasks' ? <section className="panel topic-task-panel">
         <div className="panel-heading"><div><h2>Công việc</h2><p className="subtle">Theo dõi các việc trong môn học này.</p></div><Link className="topic-kanban-link" to={`/kanban?subjectId=${id}`}>Xem trong Kanban <ArrowRight size={15} /></Link></div>
         <div className="topic-task-scopes" role="group" aria-label="Lọc công việc môn học">
           <button type="button" className={taskScope === 'open' ? 'active' : ''} onClick={() => setTaskScope('open')}>Chưa hoàn thành</button>
@@ -142,7 +153,9 @@ export function TopicDetailPage() {
         </div>
         <TaskQuickCreate subjectId={id} focusKey={quickCreateFocusKey} placeholder={`Thêm công việc cho ${topic.name}...`} />
         {taskList}
-      </section>}
+      </section>
+      : tab === 'documents' ? <section className="panel topic-resource-panel"><div className="panel-heading"><div><h2>Tài liệu môn học</h2><p className="subtle">Các tệp đã được liên kết với môn học này.</p></div><Link className="topic-kanban-link" to={`/documents?subjectId=${id}`}>Mở thư viện <ArrowRight size={15} /></Link></div><div className="topic-resource-list">{documents.data?.items.map((item) => <Link key={item.id} to={`/documents?subjectId=${id}`}><FileText size={16} /><span><strong>{item.title}</strong><small>{item.fileType.toUpperCase()}{item.tags.length ? ` · ${item.tags.join(', ')}` : ''}</small></span></Link>)}</div></section>
+      : <section className="panel topic-resource-panel"><div className="panel-heading"><div><h2>Ghi chú môn học</h2><p className="subtle">Những ghi chú có liên kết với môn học này.</p></div><Link className="topic-kanban-link" to={`/notes?subjectId=${id}`}>Mở ghi chú <ArrowRight size={15} /></Link></div><div className="topic-resource-list">{notes.data?.items.map((item) => <Link key={item.id} to={`/notes?subjectId=${id}`}><NotebookPen size={16} /><span><strong>{item.title}</strong><small dangerouslySetInnerHTML={{ __html: sanitizeNoteHtml(item.contentRichText) }} /></span></Link>)}</div></section>}
   </div>
 }
 

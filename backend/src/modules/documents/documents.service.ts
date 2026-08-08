@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { DocumentFileType, Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
 import { storageProvider } from '../users/storage/local.storage.js';
 import { serviceError } from '../../utils/service-error.js';
@@ -25,8 +25,8 @@ export async function upload(userId: string, file: Express.Multer.File, input: {
     throw error;
   }
 }
-export async function list(userId: string, query: { subjectId?: string; taskId?: string; tag?: string; search?: string; page: number; limit: number }) {
-  const where: Prisma.DocumentWhereInput = { userId, deletedAt: null, ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.taskId ? { taskId: query.taskId } : {}), ...(query.tag ? { tags: { has: query.tag } } : {}), ...(query.search ? { title: { contains: query.search, mode: 'insensitive' } } : {}) };
+export async function list(userId: string, query: { semesterId?: string; subjectId?: string; taskId?: string; tag?: string; fileType?: DocumentFileType; search?: string; page: number; limit: number }) {
+  const where: Prisma.DocumentWhereInput = { userId, deletedAt: null, ...(query.semesterId ? { subject: { semesterId: query.semesterId } } : {}), ...(query.subjectId ? { subjectId: query.subjectId } : {}), ...(query.taskId ? { taskId: query.taskId } : {}), ...(query.tag ? { tags: { has: query.tag } } : {}), ...(query.fileType ? { fileType: query.fileType } : {}), ...(query.search ? { title: { contains: query.search, mode: 'insensitive' } } : {}) };
   const [items, total] = await Promise.all([prisma.document.findMany({ where, orderBy: { createdAt: 'desc' }, skip: (query.page - 1) * query.limit, take: query.limit }), prisma.document.count({ where })]);
   return { items, pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
 }

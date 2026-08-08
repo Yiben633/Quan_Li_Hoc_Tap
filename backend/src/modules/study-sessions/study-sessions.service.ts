@@ -52,6 +52,40 @@ export async function start(userId: string, input: { subjectId?: string | null; 
   return { session: item, state: publicState(state) };
 }
 
+export async function active(userId: string) {
+  let state = await read<SessionState>(sessionKey(userId));
+  let session = state ? await prisma.studySession.findFirst({ where: { id: state.sessionId, userId, endedAt: null } }) : null;
+  if (!state) {
+    session = await prisma.studySession.findFirst({ where: { userId, endedAt: null }, orderBy: { startedAt: 'desc' } });
+    if (!session) return null;
+    state = { sessionId: session.id, userId, subjectId: session.subjectId, status: 'running', lastStartedAt: session.startedAt.toISOString(), accumulatedMs: 0 };
+    await write(sessionKey(userId), state);
+  }
+  if (!session) {
+    await remove(sessionKey(userId));
+    return null;
+  }
+  const storedPomodoro = await read<PomodoroState>(pomodoroKey(session.id));
+  const pomodoro = storedPomodoro
+    ? await prisma.pomodoroSession.findFirst({ where: { id: storedPomodoro.pomodoroId, studySessionId: session.id, endedAt: null } })
+    : null;
+  if (storedPomodoro && !pomodoro) {
+    await remove(pomodoroKey(session.id));
+    await remove(pomodoroIdKey(storedPomodoro.pomodoroId));
+  }
+  const [completedFocusCount, lastCompletedPomodoro] = await Promise.all([
+    prisma.pomodoroSession.count({ where: { studySessionId: session.id, sessionType: 'focus', isCompleted: true } }),
+    prisma.pomodoroSession.findFirst({ where: { studySessionId: session.id, isCompleted: true }, orderBy: { endedAt: 'desc' }, select: { sessionType: true } }),
+  ]);
+  return {
+    session,
+    state: publicState(state),
+    pomodoro: pomodoro && storedPomodoro ? { ...pomodoro, state: { ...storedPomodoro, elapsedSeconds: Math.floor(elapsed(storedPomodoro.startedAt) / 1000) } } : null,
+    completedFocusCount,
+    lastCompletedPomodoroType: lastCompletedPomodoro?.sessionType ?? null,
+  };
+}
+
 export async function pause(userId: string, id: string, context?: Context) {
   await ownedSession(userId, id);
   const state = await activeState(userId, id);

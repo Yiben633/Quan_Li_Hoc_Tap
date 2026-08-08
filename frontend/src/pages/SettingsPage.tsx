@@ -489,7 +489,7 @@ function NotificationSettings() {
           label="Thông báo trình duyệt"
           checked={settings.pushEnabled}
           disabled={mutation.isPending}
-          onChange={async (event) => { if (event.target.checked && 'Notification' in window && Notification.permission === 'default') { const permission = await Notification.requestPermission(); if (permission !== 'granted') { toast.error('Bạn chưa cấp quyền thông báo trình duyệt'); return } } if (event.target.checked && 'Notification' in window && Notification.permission === 'denied') { toast.error('Thông báo trình duyệt đang bị chặn trong cài đặt trình duyệt'); return } save({ pushEnabled: event.target.checked }) }}
+          onChange={async (event) => { if (event.target.checked) { if (!('Notification' in window)) { toast.error('Trình duyệt này chưa hỗ trợ thông báo đẩy'); return } const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission; if (permission !== 'granted') { toast.error(permission === 'denied' ? 'Thông báo trình duyệt đang bị chặn trong cài đặt trình duyệt' : 'Bạn chưa cấp quyền thông báo trình duyệt'); return } } save({ pushEnabled: event.target.checked }) }}
         />
       </div>
       <div className="reminder-row">

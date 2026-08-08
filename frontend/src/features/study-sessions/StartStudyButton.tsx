@@ -18,7 +18,15 @@ export function StartStudyButton({ subjectId, taskId, className, label = 'Bắt 
       navigate({ pathname: '/study', search: params.toString() ? `?${params}` : '' }, { state: { activeSession } })
       toast.success('Đã bắt đầu phiên học')
     },
-    onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể bắt đầu phiên học')),
+    onError: (error) => {
+      const status = (error as { response?: { status?: number } }).response?.status
+      if (status === 409) {
+        toast('Bạn đang có một phiên tập trung chưa kết thúc. Đang mở phiên đó…')
+        navigate('/study')
+        return
+      }
+      toast.error(getApiErrorMessage(error, 'Không thể bắt đầu phiên học'))
+    },
   })
 
   return <Button className={className} onClick={begin} loading={start.isPending}><Play size={16} /> {label}</Button>

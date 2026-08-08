@@ -1,0 +1,24 @@
+.goals-page { display: grid; gap: 18px; }
+.goals-heading { margin-bottom: 4px; }
+.goals-toolbar { display: flex; flex-wrap: wrap; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.goals-toolbar .field { width: min(100%, 210px); }
+.goal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 340px)); gap: 16px; }
+.goal-card { display: grid; gap: 14px; min-height: 270px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.goal-card-head, .goal-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.goal-status { display: inline-flex; align-items: center; min-height: 26px; padding: 0 9px; border: 1px solid transparent; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.goal-status.blue { color: var(--blue); background: var(--blue-soft); border-color: rgba(56,103,232,.2); }
+.goal-status.green { color: var(--green); background: var(--green-soft); border-color: rgba(35,155,114,.22); }
+.goal-status.orange { color: var(--orange); background: var(--orange-soft); border-color: rgba(217,130,39,.22); }
+.goal-status.neutral { color: var(--muted); background: var(--canvas); border-color: var(--line); }
+.goal-edit-button, .goal-archive-button { min-height: 32px; padding: 0 8px; }
+.goal-card h2 { margin: 4px 0 0; font: 700 18px 'Plus Jakarta Sans', sans-serif; letter-spacing: 0; }
+.goal-type { margin: 0; color: var(--muted); font-size: 11px; font-weight: 700; }
+.goal-value { display: flex; align-items: baseline; gap: 5px; }
+.goal-value strong { font: 700 22px 'Plus Jakarta Sans', sans-serif; }
+.goal-value span, .goal-card-foot { color: var(--muted); font-size: 12px; }
+.goal-card-foot > span { display: inline-flex; align-items: center; gap: 6px; }
+.goal-archive-button { color: var(--muted); font-size: 11px; }
+.goal-form { display: grid; gap: 16px; }
+.goal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.goal-skeleton { min-height: 270px; align-content: start; }
+@media (max-width: 640px) { .goals-heading .button { width: 100%; }.goals-toolbar .field { width: 100%; }.goal-grid { grid-template-columns: 1fr; }.goal-form-grid { grid-template-columns: 1fr; } }

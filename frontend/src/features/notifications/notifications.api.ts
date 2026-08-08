@@ -8,6 +8,8 @@ export type NotificationItem = {
   title: string
   message: string
   isRead: boolean
+  relatedEntityType?: string | null
+  relatedEntityId?: string | null
   createdAt: string
 }
 
@@ -26,4 +28,9 @@ export async function markNotificationRead(id: string) {
 
 export async function markAllNotificationsRead() {
   return (await apiClient.patch<ApiResponse<{ updated: number }>>('/notifications/read-all')).data.data
+}
+
+export function notificationRoute(item: NotificationItem) {
+  if (item.relatedEntityType === 'study_plan' && item.relatedEntityId) return `/study-plans/${item.relatedEntityId}`
+  return null
 }

@@ -1,0 +1,18 @@
+.notifications-page { display: grid; gap: 18px; }
+.notifications-heading { margin-bottom: 4px; }
+.notifications-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.notification-page-list { display: grid; gap: 9px; }
+.notification-page-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 13px; align-items: start; width: 100%; padding: 16px; color: var(--ink); text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; transition: border-color .18s ease, background .18s ease; }
+.notification-page-item:hover { border-color: rgba(56,103,232,.42); background: var(--blue-soft); }
+.notification-page-item.is-read { opacity: .74; }
+.notification-page-dot { width: 8px; height: 8px; margin-top: 7px; background: var(--blue); border-radius: 50%; }
+.notification-page-item.is-read .notification-page-dot { background: var(--line); }
+.notification-page-copy { display: grid; min-width: 0; gap: 5px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.notification-page-title { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; color: var(--ink); }
+.notification-page-title em { padding: 2px 7px; color: var(--blue); background: var(--blue-soft); border-radius: 999px; font-size: 10px; font-style: normal; font-weight: 800; }
+.notification-page-copy time, .notification-detail time { color: var(--muted); font-size: 11px; }
+.notification-page-route { margin-top: 5px; color: var(--blue); }
+.notification-page-skeleton { display: grid; gap: 10px; min-height: 92px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.notification-detail { display: grid; gap: 14px; min-height: 90px; }
+.notification-detail p { margin: 0; color: var(--ink); line-height: 1.6; }
+@media (max-width: 640px) { .notifications-heading .button { width: 100%; }.notifications-toolbar { align-items: flex-start; flex-direction: column; }.notification-page-item { padding: 14px; } }

@@ -8,6 +8,7 @@ import { pomodoroStartSchema, startSchema, statisticsQuerySchema } from './study
 export const studySessionsRouter = Router();
 studySessionsRouter.use(authenticate);
 studySessionsRouter.post('/study-sessions/start', validateBody(startSchema), asyncHandler(controller.start));
+studySessionsRouter.get('/study-sessions/active', asyncHandler(controller.active));
 studySessionsRouter.post('/study-sessions/:id/pause', asyncHandler(controller.pause));
 studySessionsRouter.post('/study-sessions/:id/resume', asyncHandler(controller.resume));
 studySessionsRouter.post('/study-sessions/:id/end', asyncHandler(controller.end));

@@ -17,6 +17,12 @@ import { StudyPlanDetailPage } from '../pages/StudyPlanDetailPage'
 import { KanbanPage } from '../pages/KanbanPage'
 import { CalendarPage } from '../pages/CalendarPage'
 import { StudyPage } from '../pages/StudyPage'
+import { GoalsPage } from '../pages/GoalsPage'
+import { NotificationsPage } from '../pages/NotificationsPage'
+import { StudyTimeStatsPage } from '../pages/StudyTimeStatsPage'
+import { DocumentLibraryPage } from '../pages/DocumentLibraryPage'
+import { NotesPage } from '../pages/NotesPage'
+import { StatisticsPage } from '../pages/StatisticsPage'
 
 export const router = createBrowserRouter([
   { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
@@ -29,12 +35,17 @@ export const router = createBrowserRouter([
     { path: 'kanban', element: <Navigate to="/tasks/kanban" replace /> },
     { path: 'study-plans', element: <StudyPlansPage /> },
     { path: 'study-plans/:id', element: <StudyPlanDetailPage /> },
-    { path: 'goals', element: <ModulePlaceholderPage title="Mục tiêu" description="Theo dõi những điều bạn muốn hoàn thành." /> },
+    { path: 'goals', element: <GoalsPage /> },
+    { path: 'notifications', element: <NotificationsPage /> },
+    { path: 'documents', element: <DocumentLibraryPage /> },
+    { path: 'notes', element: <NotesPage /> },
+    { path: 'statistics', element: <StatisticsPage /> },
     { path: 'calendar', element: <CalendarPage /> },
     { path: 'subjects', element: <LearningSpacesPage /> },
     { path: 'topics', element: <TopicsPage /> },
     { path: 'topics/:id', element: <TopicDetailPage /> },
     { path: 'study', element: <StudyPage /> },
+    { path: 'study/stats', element: <StudyTimeStatsPage /> },
     { path: 'settings', element: <SettingsPage /> },
     { element: <AdminRoute />, children: [{ path: 'admin', element: <ModulePlaceholderPage title="Quản trị" description="Khu vực quản lý dành cho admin." /> }] },
   ] }] },

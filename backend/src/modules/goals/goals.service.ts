@@ -28,7 +28,7 @@ async function calculate(userId: string, goal: { type: GoalType; targetValue: Pr
 }
 
 export async function progress(userId: string, goal: { id: string; type: GoalType; targetValue: Prisma.Decimal; currentValue: Prisma.Decimal; subjectId: string | null }) { return calculate(userId, goal); }
-export async function list(userId: string, status?: GoalStatus) { const goals = await prisma.goal.findMany({ where: { userId, ...(status ? { status } : {}) }, orderBy: [{ deadline: 'asc' }, { createdAt: 'desc' }] }); return Promise.all(goals.map(async (goal) => ({ ...goal, ...await calculate(userId, goal) }))); }
+export async function list(userId: string, status?: GoalStatus, type?: GoalType) { const goals = await prisma.goal.findMany({ where: { userId, ...(status ? { status } : {}), ...(type ? { type } : {}) }, orderBy: [{ deadline: 'asc' }, { createdAt: 'desc' }] }); return Promise.all(goals.map(async (goal) => ({ ...goal, ...await calculate(userId, goal) }))); }
 export async function create(userId: string, input: GoalInput, context?: Context) { await subject(userId, input.subjectId); const goal = await prisma.goal.create({ data: { ...input, userId } }); await log(userId, 'goal.created', goal.id, context); return { ...goal, ...(await calculate(userId, goal)) }; }
 export async function detail(userId: string, id: string) { const goal = await owned(userId, id); return { ...goal, ...(await calculate(userId, goal)) }; }
 export async function update(userId: string, id: string, input: Partial<GoalInput>, context?: Context) { await owned(userId, id); await subject(userId, input.subjectId); const goal = await prisma.goal.update({ where: { id }, data: input }); await log(userId, 'goal.updated', id, context); return detail(userId, goal.id); }
