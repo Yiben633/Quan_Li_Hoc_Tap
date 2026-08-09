@@ -1,5 +1,57 @@
+import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
+
+const productionConfirmation = 'SEED_STUDYFLOW_PRODUCTION';
+const localDatabaseHosts = new Set([
+  'localhost',
+  '127.0.0.1',
+  '::1',
+  '[::1]',
+  'db',
+  'postgres',
+]);
+
+function assertSeedSafety() {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) throw new Error('DATABASE_URL is required');
+
+  let host: string;
+  try {
+    host = new URL(databaseUrl).hostname.toLowerCase();
+  } catch {
+    throw new Error('DATABASE_URL is not a valid PostgreSQL URL');
+  }
+
+  const target =
+    process.env.SEED_TARGET ??
+    (process.env.NODE_ENV === 'production' ? 'production' : 'development');
+  const isRemote = !localDatabaseHosts.has(host);
+  if (isRemote && target === 'development') {
+    throw new Error(
+      'Remote database seed blocked. Set SEED_TARGET=demo, staging or production explicitly',
+    );
+  }
+  if (isRemote && process.env.ALLOW_REMOTE_SEED !== 'true') {
+    throw new Error(
+      'Remote database seed blocked. Set ALLOW_REMOTE_SEED=true after verifying the target',
+    );
+  }
+  if (target === 'production' || process.env.NODE_ENV === 'production') {
+    if (
+      process.env.ALLOW_PRODUCTION_SEED !== 'true' ||
+      process.env.SEED_CONFIRM !== productionConfirmation
+    ) {
+      throw new Error(
+        `Production seed blocked. Set ALLOW_PRODUCTION_SEED=true and SEED_CONFIRM=${productionConfirmation}`,
+      );
+    }
+  }
+
+  console.log(`Seed safety check passed for ${target} database host: ${host}`);
+}
+
+assertSeedSafety();
 
 const prisma = new PrismaClient();
 
@@ -182,17 +234,24 @@ async function main() {
           title: `${subject.code} - Nhiem vu ${taskIndex + 1}`,
           description: `Task mau trang thai ${status}.`,
           startDate: new Date(`2026-08-${12 + taskIndex}`),
-          dueDate: new Date(`2026-08-${18 + subjectIndex * 2 + taskIndex}T17:00:00.000Z`),
+          dueDate: new Date(
+            `2026-08-${18 + subjectIndex * 2 + taskIndex}T17:00:00.000Z`,
+          ),
           estimatedMinutes: 45 + taskIndex * 15,
           difficulty: Math.min(taskIndex + 2, 5),
           priority: priorities[taskIndex],
           status,
           sortOrder: taskIndex,
-          completedAt: status === 'done' ? new Date('2026-08-19T10:00:00.000Z') : null,
+          completedAt:
+            status === 'done' ? new Date('2026-08-19T10:00:00.000Z') : null,
           subTasks: {
             create: [
               { title: 'Doc yeu cau', sortOrder: 1, isDone: status === 'done' },
-              { title: 'Hoan thanh bai lam', sortOrder: 2, isDone: status === 'done' },
+              {
+                title: 'Hoan thanh bai lam',
+                sortOrder: 2,
+                isDone: status === 'done',
+              },
             ],
           },
         },
@@ -479,4 +538,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

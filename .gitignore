@@ -10,15 +10,15 @@ frontend/vite.config.js
 frontend/vite.config.d.ts
 
 # Environment files
-.env
-.env.*
+.env*
 !.env.example
 !.env.*.example
 
 # Docker/local runtime data
-database/backups/
-database/uploads/
+backups/
 uploads/
+*.dump
+*.backup
 references/
 
 # Vercel

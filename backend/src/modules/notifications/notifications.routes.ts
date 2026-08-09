@@ -6,7 +6,6 @@ import * as controller from './notifications.controller.js';
 import { listSchema, settingsSchema } from './notifications.schemas.js';
 
 export const notificationsRouter = Router();
-notificationsRouter.get('/cron/notifications', asyncHandler(controller.cron));
 notificationsRouter.use(authenticate);
 notificationsRouter.get('/', validateQuery(listSchema), asyncHandler(controller.list));
 notificationsRouter.patch('/read-all', asyncHandler(controller.readAll));

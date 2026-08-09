@@ -2,6 +2,8 @@
 
 Hạ tầng database local cho dự án **StudyFlow - Quản lý học tập**.
 
+Production khuyến nghị dùng **Neon Postgres**. Xem quy trình pooled/direct URL, kiểm tra kết nối, migration CI và seed được bảo vệ tại [PRODUCTION.md](PRODUCTION.md).
+
 ## Thành Phần
 
 - PostgreSQL 16: database chính.
@@ -10,13 +12,14 @@ Hạ tầng database local cho dự án **StudyFlow - Quản lý học tập**.
 
 ## Chuẩn Bị
 
-Tạo file `.env` từ file mẫu:
+Khi chạy Prisma CLI trong `database/`, tạo file môi trường của package:
 
 ```powershell
+cd database
 Copy-Item .env.example .env
 ```
 
-Sau đó chỉnh lại các mật khẩu trong `.env`.
+Khi chạy Docker Compose từ thư mục gốc, tạo thêm `/.env` từ `/.env.example`. Sau đó chỉnh lại toàn bộ mật khẩu và secret placeholder; không commit hai file `.env` thật.
 
 ## Chạy PostgreSQL Và Redis
 
@@ -92,6 +95,7 @@ Chạy generate Prisma Client:
 ```powershell
 cd database
 $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+$env:DIRECT_URL=$env:DATABASE_URL
 npm run db:generate
 ```
 
@@ -100,6 +104,7 @@ Kiểm tra migration:
 ```powershell
 cd database
 $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+$env:DIRECT_URL=$env:DATABASE_URL
 npm exec prisma -- migrate status
 ```
 
@@ -108,6 +113,7 @@ Kiểm tra Prisma Client đọc được các bảng auth:
 ```powershell
 cd database
 $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+$env:DIRECT_URL=$env:DATABASE_URL
 npm run db:check:auth
 ```
 
@@ -118,6 +124,7 @@ Seed tạo roles, tài khoản mẫu, học kỳ, 4 môn học, study plan, task
 ```powershell
 cd database
 $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+$env:DIRECT_URL=$env:DATABASE_URL
 npm run db:seed
 ```
 
@@ -131,10 +138,11 @@ Reset toàn bộ database local, chạy lại migration và seed:
 ```powershell
 cd database
 $env:DATABASE_URL="postgresql://studyflow:change_me_strong_password@localhost:55432/studyflow_dev?schema=public"
+$env:DIRECT_URL=$env:DATABASE_URL
 npm run db:reset
 ```
 
-`db:reset` dùng `prisma migrate reset --force`; Prisma sẽ gọi seed command đã khai báo trong `package.json`.
+`db:reset` dùng `prisma migrate reset --force`; Prisma sẽ gọi seed command đã khai báo trong `prisma.config.ts`. Chỉ dùng reset cho local development.
 
 ## Soft Delete Cho Semester Và Subject
 

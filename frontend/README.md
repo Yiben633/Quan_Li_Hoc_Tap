@@ -52,9 +52,10 @@ Tạo Vercel project cho frontend với:
 - Build Command: `npm run build`
 - Output Directory: `dist`
 - Install Command: `npm install`
-- Environment: `VITE_API_URL=https://api.example.com/api`
+- Preview Environment: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV=preview`
+- Production Environment: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV=production`
 
-Khai báo env riêng cho Preview và Production. `vercel.json` đã rewrite route SPA về `index.html`; không rewrite `/api` nếu API dùng domain riêng.
+Ví dụ `VITE_API_URL=https://api.example.com/api`. Khai báo env riêng cho Preview và Production; build Vercel sẽ dừng với thông báo rõ ràng nếu thiếu `VITE_API_URL`. `vercel.json` đã rewrite route SPA về `index.html`; không rewrite `/api` nếu API dùng domain riêng.
 
 ## Nguyên tắc dữ liệu
 

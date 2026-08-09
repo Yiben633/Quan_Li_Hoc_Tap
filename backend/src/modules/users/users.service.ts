@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../lib/prisma.js';
 import { toSafeUser } from '../auth/auth.service.js';
-import { storageProvider } from './storage/local.storage.js';
+import { storageProvider } from './storage/index.js';
 import { extensionForMimeType } from './avatar.upload.js';
 
 function serviceError(message: string, statusCode: number) {

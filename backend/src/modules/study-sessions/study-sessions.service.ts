@@ -1,5 +1,5 @@
 import { prisma } from '../../lib/prisma.js';
-import { redis } from '../../lib/redis.js';
+import { ensureRedisReady, redis } from '../../lib/redis.js';
 import { serviceError } from '../../utils/service-error.js';
 
 type Context = { ipAddress?: string; userAgent?: string };
@@ -11,10 +11,9 @@ const pomodoroKey = (sessionId: string) => `study:pomodoro:active:${sessionId}`;
 const pomodoroIdKey = (id: string) => `study:pomodoro:${id}`;
 function now() { return new Date(); }
 function elapsed(from: string | null, at = now()) { return from ? Math.max(0, at.getTime() - new Date(from).getTime()) : 0; }
-async function redisReady() { if (redis.status === 'end' || redis.status === 'wait') await redis.connect(); }
-async function read<T>(key: string) { await redisReady(); const value = await redis.get(key); return value ? JSON.parse(value) as T : null; }
-async function write(key: string, value: unknown) { await redisReady(); await redis.set(key, JSON.stringify(value), 'EX', SESSION_TTL); }
-async function remove(key: string) { await redisReady(); await redis.del(key); }
+async function read<T>(key: string) { await ensureRedisReady(); const value = await redis.get(key); return value ? JSON.parse(value) as T : null; }
+async function write(key: string, value: unknown) { await ensureRedisReady(); await redis.set(key, JSON.stringify(value), 'EX', SESSION_TTL); }
+async function remove(key: string) { await ensureRedisReady(); await redis.del(key); }
 async function subject(userId: string, subjectId?: string | null) {
   if (!subjectId) return;
   const item = await prisma.subject.findFirst({ where: { id: subjectId, userId, deletedAt: null, semester: { deletedAt: null } } });
@@ -47,7 +46,7 @@ export async function start(userId: string, input: { subjectId?: string | null; 
   const startedAt = now();
   const item = await prisma.studySession.create({ data: { userId, subjectId: input.subjectId ?? null, note: input.note ?? null, startedAt } });
   const state: SessionState = { sessionId: item.id, userId, subjectId: item.subjectId, status: 'running', lastStartedAt: startedAt.toISOString(), accumulatedMs: 0 };
-  try { await redisReady(); const acquired = await redis.set(sessionKey(userId), JSON.stringify(state), 'EX', SESSION_TTL, 'NX'); if (!acquired) { await prisma.studySession.delete({ where: { id: item.id } }); throw serviceError('You already have an active study session', 409); } } catch (error) { if ((error as { statusCode?: number }).statusCode) throw error; await prisma.studySession.delete({ where: { id: item.id } }); throw error; }
+  try { await ensureRedisReady(); const acquired = await redis.set(sessionKey(userId), JSON.stringify(state), 'EX', SESSION_TTL, 'NX'); if (!acquired) { await prisma.studySession.delete({ where: { id: item.id } }); throw serviceError('You already have an active study session', 409); } } catch (error) { if ((error as { statusCode?: number }).statusCode) throw error; await prisma.studySession.delete({ where: { id: item.id } }); throw error; }
   await log(userId, 'study_session.started', item.id, context);
   return { session: item, state: publicState(state) };
 }
@@ -119,7 +118,7 @@ export async function startPomodoro(userId: string, sessionId: string, input: { 
   const startedAt = now();
   const item = await prisma.pomodoroSession.create({ data: { studySessionId: sessionId, sessionType: input.sessionType, plannedMinutes: input.plannedMinutes, startedAt } });
   const state: PomodoroState = { pomodoroId: item.id, sessionId, startedAt: startedAt.toISOString() };
-  try { await redisReady(); const acquired = await redis.set(pomodoroKey(sessionId), JSON.stringify(state), 'EX', SESSION_TTL, 'NX'); if (!acquired) { await prisma.pomodoroSession.delete({ where: { id: item.id } }); throw serviceError('A pomodoro is already active for this study session', 409); } await redis.set(pomodoroIdKey(item.id), JSON.stringify(state), 'EX', SESSION_TTL); } catch (error) { if ((error as { statusCode?: number }).statusCode) throw error; await prisma.pomodoroSession.delete({ where: { id: item.id } }); throw error; }
+  try { await ensureRedisReady(); const acquired = await redis.set(pomodoroKey(sessionId), JSON.stringify(state), 'EX', SESSION_TTL, 'NX'); if (!acquired) { await prisma.pomodoroSession.delete({ where: { id: item.id } }); throw serviceError('A pomodoro is already active for this study session', 409); } await redis.set(pomodoroIdKey(item.id), JSON.stringify(state), 'EX', SESSION_TTL); } catch (error) { if ((error as { statusCode?: number }).statusCode) throw error; await prisma.pomodoroSession.delete({ where: { id: item.id } }); throw error; }
   await log(userId, 'pomodoro.started', item.id, context);
   return { ...item, state: { ...state, elapsedSeconds: 0 } };
 }

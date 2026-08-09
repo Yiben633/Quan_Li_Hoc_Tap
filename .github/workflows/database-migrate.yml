@@ -1,0 +1,51 @@
+name: Database Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub Environment containing the database secrets
+        required: true
+        type: choice
+        options:
+          - preview
+          - production
+      confirmation:
+        description: Type MIGRATE_PRODUCTION for production; preview may be left blank
+        required: false
+        type: string
+
+jobs:
+  migrate:
+    name: Migrate ${{ inputs.environment }} database
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: database
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Confirm production migration
+        if: inputs.environment == 'production'
+        env:
+          MIGRATION_CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if [ "$MIGRATION_CONFIRMATION" != "MIGRATE_PRODUCTION" ]; then
+            echo "Production migration requires the exact confirmation MIGRATE_PRODUCTION."
+            exit 1
+          fi
+      - name: Validate database secrets
+        run: |
+          test -n "$DATABASE_URL" || (echo "DATABASE_URL secret is missing" && exit 1)
+          test -n "$DIRECT_URL" || (echo "DIRECT_URL secret is missing" && exit 1)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: database/package-lock.json
+      - run: npm ci
+      - run: npm run db:check:connection
+      - run: npm run db:migrate:deploy

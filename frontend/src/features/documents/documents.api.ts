@@ -1,5 +1,5 @@
 import type { AxiosProgressEvent } from 'axios'
-import apiClient from '../../services/apiClient'
+import apiClient, { apiBaseUrl } from '../../services/apiClient'
 
 type ApiResponse<T> = { success: boolean; message: string; data: T }
 
@@ -59,7 +59,6 @@ export function documentDownloadUrl(id: string) {
 
 export function documentAssetUrl(fileUrl: string) {
   if (/^https?:\/\//i.test(fileUrl)) return fileUrl
-  const apiUrl = String(import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
-  if (!apiUrl.startsWith('http')) return fileUrl
-  return `${apiUrl.replace(/\/api$/, '')}${fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`}`
+  if (!apiBaseUrl.startsWith('http')) return fileUrl
+  return `${apiBaseUrl.replace(/\/api$/, '')}${fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`}`
 }

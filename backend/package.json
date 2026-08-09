@@ -3,18 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "npm run prisma:generate && tsc -p tsconfig.json",
     "start": "node dist/src/server.js",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "lint": "eslint .",
     "format": "prettier --write .",
     "prisma:generate": "node scripts/generate-client.mjs",
     "prisma:migrate": "prisma migrate deploy --schema ../database/prisma/schema.prisma"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1106.0",
     "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",

@@ -1,13 +1,69 @@
-name: Backend CI
+name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  backend:
+  frontend:
+    name: Frontend lint, test and build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      VITE_API_URL: /api
+      VITE_APP_NAME: StudyFlow CI
+      VITE_VERCEL_ENV: development
+      VITE_DOCUMENT_MAX_UPLOAD_BYTES: "20971520"
+      VITE_AI_ENABLED: "false"
+      VITE_AI_PROVIDER: mock
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  prisma:
+    name: Prisma validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: database
+    env:
+      DATABASE_URL: "postgresql://studyflow:ci_placeholder@localhost:5432/studyflow_ci?schema=public"
+      DIRECT_URL: "postgresql://studyflow:ci_placeholder@localhost:5432/studyflow_ci?schema=public"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: database/package-lock.json
+      - run: npm ci
+      - run: npm run db:validate
+
+  backend:
+    name: Backend lint, test and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:16-alpine
@@ -28,9 +84,11 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    # Ephemeral CI-only values. Never reuse them outside the hosted runner.
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://studyflow:studyflow_ci_password@localhost:55432/studyflow_ci?schema=public
+      DATABASE_URL: "postgresql://studyflow:studyflow_ci_password@localhost:55432/studyflow_ci?schema=public"
+      DIRECT_URL: "postgresql://studyflow:studyflow_ci_password@localhost:55432/studyflow_ci?schema=public"
       REDIS_URL: redis://localhost:6379
       JWT_ACCESS_SECRET: test-access-secret-long-enough
       JWT_REFRESH_SECRET: test-refresh-secret-long-enough
@@ -47,5 +105,5 @@ jobs:
       - run: npm run prisma:generate
       - run: npx prisma migrate deploy --schema ../database/prisma/schema.prisma
       - run: npm run lint
-      - run: npm test -- --runInBand
+      - run: npm test
       - run: npm run build

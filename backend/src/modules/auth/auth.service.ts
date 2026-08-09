@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { randomInt } from 'node:crypto';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
-import { redis } from '../../lib/redis.js';
+import { ensureRedisReady, redis } from '../../lib/redis.js';
 import { env } from '../../config/env.js';
 import { sendPasswordResetOtp } from './email.adapter.js';
 import {
@@ -216,6 +216,7 @@ function resetKey(email: string) {
 export async function forgotPassword(email: string) {
   const user = await getUserWithRoles(email);
   if (!user) return { email };
+  await ensureRedisReady();
   const otp = randomInt(0, 1_000_000).toString().padStart(6, '0');
   await redis.set(resetKey(email), JSON.stringify({ userId: user.id, otpHash: await bcrypt.hash(otp, 10), verified: false }), 'EX', PASSWORD_RESET_TTL_SECONDS);
   await sendPasswordResetOtp(email, otp);
@@ -223,6 +224,7 @@ export async function forgotPassword(email: string) {
 }
 
 export async function verifyOtp(email: string, otp: string) {
+  await ensureRedisReady();
   const raw = await redis.get(resetKey(email));
   if (!raw) throw Object.assign(new Error('OTP expired or invalid'), { statusCode: 400 });
   const record = JSON.parse(raw) as { userId: string; otpHash: string; verified: boolean };
@@ -231,6 +233,7 @@ export async function verifyOtp(email: string, otp: string) {
 }
 
 export async function resetPassword(email: string, otp: string, newPassword: string, context: { ipAddress?: string; userAgent?: string }) {
+  await ensureRedisReady();
   const raw = await redis.get(resetKey(email));
   if (!raw) throw Object.assign(new Error('OTP expired or invalid'), { statusCode: 400 });
   const record = JSON.parse(raw) as { userId: string; otpHash: string; verified: boolean };

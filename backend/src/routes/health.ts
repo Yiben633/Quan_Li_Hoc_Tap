@@ -1,17 +1,17 @@
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
-import { redis } from '../lib/redis.js';
+import { ensureRedisReady, redis } from '../lib/redis.js';
 import { sendSuccess } from '../utils/http.js';
 
 export const healthRouter = Router();
 
-healthRouter.get('/health', async (_req, res) => {
+healthRouter.get(['/health', '/api/health'], async (_req, res) => {
   const checks: { server: 'ok'; database: 'ok' | 'error'; redis: 'ok' | 'error' } = {
     server: 'ok', database: 'error', redis: 'error',
   };
   try { await prisma.$queryRaw`SELECT 1`; checks.database = 'ok'; } catch { /* reported below */ }
   try {
-    if (redis.status === 'wait') await redis.connect();
+    await ensureRedisReady();
     await redis.ping();
     checks.redis = 'ok';
   } catch { /* reported below */ }

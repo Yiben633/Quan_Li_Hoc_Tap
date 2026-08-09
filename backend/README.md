@@ -142,7 +142,7 @@ GET|PATCH|DELETE /api/notes/:id
 PATCH  /api/notes/:id/pin
 ```
 
-Document upload dùng `StorageProvider` với local adapter hiện tại và contract `local | s3-compatible` để thay thế adapter khi triển khai object storage. Giới hạn file lấy từ `DOCUMENT_MAX_UPLOAD_BYTES`; MIME nguy hiểm bị chặn, file lưu thất bại sẽ rollback file/metadata. Nội dung Note được sanitize server-side bằng `sanitize-html` trước khi ghi database.
+Document upload dùng `StorageProvider` với adapter `local | s3-compatible`. Local lưu trong `uploads/` cho Docker/dev; production Vercel bắt buộc dùng object storage qua các biến `S3_*`. Giới hạn file lấy từ `DOCUMENT_MAX_UPLOAD_BYTES`; MIME nguy hiểm bị chặn, file lưu thất bại sẽ rollback file/metadata. Nội dung Note được sanitize server-side bằng `sanitize-html` trước khi ghi database.
 
 ## Notifications
 
@@ -155,7 +155,16 @@ PATCH /api/notification-settings
 GET   /api/cron/notifications
 ```
 
-Local server chạy notification scan mỗi 5 phút bằng `node-cron`. Vercel dùng `/api/cron/notifications` với `CRON_SECRET`; `backend/vercel.json` đã cấu hình lịch Cron 5 phút. Engine quét task, schedule/exam, study plan và goal, deduplicate theo entity/type/time window, đồng thời tôn trọng in-app/email settings.
+Local server chạy notification scan mỗi 5 phút bằng `node-cron`. Vercel dùng `/api/cron/notifications` với `CRON_SECRET`; `backend/vercel.json` đã cấu hình lịch Cron 5 phút. Logic dùng chung nằm trong `src/jobs/notificationJob.ts`, có distributed lock và dedupe TTL qua Redis cùng lớp kiểm tra database, đồng thời tôn trọng in-app/email/push settings.
+
+Gọi thủ công bằng Bearer token:
+
+```powershell
+$headers = @{ Authorization = "Bearer $env:CRON_SECRET" }
+Invoke-RestMethod http://localhost:4000/api/cron/notifications -Headers $headers
+```
+
+Rate limit global, auth và AI cũng dùng Redis store thay cho bộ nhớ từng process. Production Vercel dùng Upstash TCP/TLS URL dạng `rediss://default:<password>@<database>.upstash.io:6379` trong `REDIS_URL`; không dùng URL Redis local trên Vercel.
 
 ## Reports, AI, Flashcards, Groups và Admin
 
@@ -193,8 +202,10 @@ PATCH  /api/users/me/password
 DELETE /api/users/me
 ```
 
-Avatar hiện dùng `LocalStorageProvider`, lưu vào `backend/uploads/avatars` và giới hạn 2MB với MIME `image/jpeg`, `image/png` hoặc `image/webp`. `StorageProvider` là interface để thay thế bằng S3, Cloudinary hoặc MinIO ở môi trường production; local filesystem trên Vercel chỉ mang tính tạm thời.
+Avatar dùng cùng `StorageProvider` với tài liệu và giới hạn 2MB với MIME `image/jpeg`, `image/png` hoặc `image/webp`. Local lưu vào `backend/uploads/avatars`; Vercel production dùng S3-compatible storage và không ghi filesystem tạm.
 
 ## Vercel
 
-Đặt Vercel Project Root Directory là `backend`. `backend/vercel.json` dùng `api/index.ts` làm Function entrypoint; file này export cùng Express app với server local. Khai báo `DATABASE_URL`, `REDIS_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CLIENT_ORIGIN` trong Vercel Environment Variables. Vercel không chạy process nền dài hạn, nên cron/queue sẽ được triển khai bằng endpoint ở các prompt sau.
+Đặt Vercel Project Root Directory là `backend`. `backend/vercel.json` dùng `api/index.ts` làm Function entrypoint; file này export cùng Express app với server local. Smoke test bằng `GET /api/health`; `/health` vẫn dành cho local/Docker.
+
+Khai báo `DATABASE_URL` là URL pooled runtime, `DIRECT_URL` là URL trực tiếp cho migration, cùng Upstash `REDIS_URL`, JWT secrets, `FRONTEND_URL` và `CRON_SECRET` tối thiểu 16 ký tự. Không chạy migration trong Function. Production Vercel phải dùng `STORAGE_PROVIDER=s3-compatible` cùng các biến `S3_*`; filesystem `uploads/` chỉ dành cho local/Docker. Cron chạy qua `GET /api/cron/notifications`, không khởi động process nền khi import app.

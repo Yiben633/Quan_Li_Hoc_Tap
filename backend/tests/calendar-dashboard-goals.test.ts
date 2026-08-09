@@ -82,7 +82,10 @@ describe('calendar, dashboard and goals', () => {
   });
 
   it('runs daily goal notification cron and supports CRUD cleanup', async () => {
-    const cron = await request(app).post('/api/goals/cron/daily').send({});
+    const cron = await request(app)
+      .post('/api/goals/cron/daily')
+      .set('x-cron-secret', process.env.CRON_SECRET!)
+      .send({});
     expect(cron.status).toBe(200);
     expect(cron.body.data.processed).toBeGreaterThanOrEqual(1);
 

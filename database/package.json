@@ -4,10 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "db:validate": "prisma validate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:init-auth": "prisma migrate dev --name init_auth",
     "db:deploy": "prisma migrate deploy",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:status": "prisma migrate status",
     "db:seed": "tsx seed.ts",
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
@@ -17,14 +20,13 @@
     "db:check:calendar-goal": "node scripts/check-calendar-goal-schema.mjs",
     "db:check:grade": "node scripts/check-grade-schema.mjs",
     "db:check:study-document-note": "node scripts/check-study-document-note-schema.mjs",
-    "db:check:advanced": "node scripts/check-advanced-entities-schema.mjs"
-  },
-  "prisma": {
-    "seed": "tsx seed.ts"
+    "db:check:advanced": "node scripts/check-advanced-entities-schema.mjs",
+    "db:check:connection": "node scripts/check-cloud-connection.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
-    "bcryptjs": "^3.0.3"
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.6.1"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",

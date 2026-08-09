@@ -15,14 +15,17 @@ Yêu cầu Docker Desktop đang chạy.
 
 ```powershell
 Copy-Item .env.example .env
-docker compose up -d --build
+docker compose up -d db redis
+docker compose build backend frontend
+docker compose run --rm backend npm run prisma:migrate
+docker compose up -d backend frontend
 docker compose ps
 ```
 
-- Frontend: `http://localhost:5173`
+- Frontend: `http://localhost:3000`
 - Backend health: `http://localhost:4000/health`
 - PostgreSQL: `localhost:55432`
-- Redis: `localhost:56379`
+- Redis: `localhost:6379`
 
 Chỉ chạy hạ tầng dữ liệu:
 
@@ -65,6 +68,8 @@ npm run build
 
 ## Vercel
 
+Hướng dẫn đầy đủ cho local, Preview, Production, migration và hai phương án backend nằm tại [docs/deployment.md](docs/deployment.md).
+
 Nên tạo hai Vercel project trong cùng repository:
 
 ### Frontend
@@ -82,8 +87,10 @@ Nên tạo hai Vercel project trong cùng repository:
 
 Frontend và backend có thể nằm trên hai domain Vercel khác nhau; `FRONTEND_URL` và CORS backend phải trỏ đúng production/preview domain được phép.
 
+Repository dùng Vercel Git Integration: pull request/branch tạo Preview Deployment, còn merge vào `main` tạo Production Deployment. GitHub Actions tại `.github/workflows/ci.yml` kiểm tra frontend lint/test/build, backend lint/test/build và Prisma schema trước khi merge. Bật branch protection cho `main` và không lưu Vercel/database secret trong workflow CI.
+
 ## Quyền riêng tư
 
 Thông tin trường, chuyên ngành, năm học và nhóm tuổi là tùy chọn. Tính năng cốt lõi không yêu cầu dữ liệu trẻ em quá mức cần thiết; nhóm chia sẻ không công khai email hoặc dữ liệu hồ sơ nhạy cảm.
 
-Xem thêm [frontend/README.md](frontend/README.md), [database/README.md](database/README.md) và [README-security.md](README-security.md).
+Xem thêm [docs/deployment.md](docs/deployment.md), [docs/production-checklist.md](docs/production-checklist.md), [frontend/README.md](frontend/README.md), [database/README.md](database/README.md), [database/PRODUCTION.md](database/PRODUCTION.md) và [README-security.md](README-security.md).

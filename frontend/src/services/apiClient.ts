@@ -1,7 +1,9 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '../stores/authStore'
 
-const apiClient = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api', withCredentials: true, timeout: 10000, headers: { 'Content-Type': 'application/json' } })
+export const apiBaseUrl = (import.meta.env.VITE_API_URL?.trim() || '/api').replace(/\/+$/, '')
+
+const apiClient = axios.create({ baseURL: apiBaseUrl, withCredentials: true, timeout: 10000, headers: { 'Content-Type': 'application/json' } })
 let refreshPromise: Promise<string | null> | null = null
 
 function readCookie(name: string) { return document.cookie.split('; ').find((item) => item.startsWith(`${name}=`))?.split('=').slice(1).join('=') }

@@ -3,7 +3,7 @@
 ## Runtime
 
 - [x] Helmet and credentialed CORS restricted to `FRONTEND_URL`/`CLIENT_ORIGIN`.
-- [x] Global rate limit and stricter auth/AI rate limits.
+- [x] Global rate limit and stricter auth/AI rate limits use a shared Redis store in multi-instance deployments.
 - [x] Refresh cookie is `httpOnly`, `secure` in production, `sameSite=lax`, and protected by a CSRF double-submit token.
 - [x] JSON, URL-encoded, document and avatar upload limits are enforced.
 - [x] Zod validates request bodies and queries; rich text Notes are sanitized server-side.
@@ -18,6 +18,6 @@ Never commit `.env`. Configure `DATABASE_URL`, optional `DIRECT_URL`, `REDIS_URL
 ## Deployment
 
 - Run migrations from GitHub Actions, a release job, or manually with Prisma CLI.
-- Keep Vercel Cron protected with `CRON_SECRET`; local long-running mode uses `node-cron`.
+- Keep Vercel Cron protected with `CRON_SECRET`; local long-running mode uses `node-cron`. Notification jobs use a Redis distributed lock and per-entity dedupe key.
 - Use S3-compatible storage for production uploads. Local filesystem uploads are ephemeral on Vercel.
 - Review dependency audit output and rotate secrets after incidents.

@@ -44,6 +44,17 @@ describe('auth module', () => {
     await redis.quit();
   });
 
+  it('serves both local and Vercel health-check routes', async () => {
+    const [localHealth, vercelHealth] = await Promise.all([
+      request(app).get('/health'),
+      request(app).get('/api/health'),
+    ]);
+
+    expect(localHealth.status).toBe(200);
+    expect(vercelHealth.status).toBe(200);
+    expect(vercelHealth.body.data).toEqual({ server: 'ok', database: 'ok', redis: 'ok' });
+  });
+
   it('registers a student without exposing passwordHash', async () => {
     const response = await request(app).post('/api/auth/register').send({
       fullName: 'Auth Test Student',

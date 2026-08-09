@@ -1,7 +1,12 @@
 import request from 'supertest';
 import { app } from '../src/app.js';
+import { redis } from '../src/lib/redis.js';
 
 describe('backend foundation', () => {
+  afterAll(async () => {
+    if (redis.status !== 'end') await redis.quit();
+  });
+
   it('returns the standard success envelope', async () => {
     const response = await request(app).get('/api');
 

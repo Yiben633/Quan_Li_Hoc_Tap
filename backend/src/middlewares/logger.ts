@@ -13,7 +13,7 @@ export const requestLogger: RequestHandler = (req, res, next) => {
     logger.info('http_request', {
       requestId: res.locals.requestId,
       method: req.method,
-      path: req.originalUrl,
+      path: req.originalUrl.split('?')[0],
       statusCode: res.statusCode,
       durationMs: Date.now() - startedAt,
     });
