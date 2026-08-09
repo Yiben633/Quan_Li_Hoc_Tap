@@ -4,5 +4,5 @@
   "buildCommand": "npm run build",
   "builds": [{ "src": "api/index.ts", "use": "@vercel/node" }],
   "routes": [{ "src": "/(.*)", "dest": "api/index.ts" }],
-  "crons": [{ "path": "/api/cron/notifications", "schedule": "*/5 * * * *" }]
+  "crons": [{ "path": "/api/cron/notifications", "schedule": "0 0 * * *" }]
 }

@@ -134,7 +134,7 @@ Không đặt secret trong query string ở production vì URL có thể xuất 
 
 ## 7. Tách Preview Và Production
 
-- [ ] Hai Vercel project chọn đúng Root Directory: `frontend` và `backend` nếu backend dùng Vercel Functions.
+- [ ] Một project Services dùng repository root và Framework Preset `Services`; hoặc hai project tách chọn đúng Root Directory `frontend` và `backend`.
 - [ ] Vercel Environment Variables được khai báo riêng cho Preview và Production.
 - [ ] Preview có `VITE_VERCEL_ENV=preview`; Production có `VITE_VERCEL_ENV=production`.
 - [ ] Preview không dùng database, Redis, bucket, cron secret hoặc JWT secret production.

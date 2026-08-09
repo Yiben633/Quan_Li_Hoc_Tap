@@ -70,22 +70,21 @@ npm run build
 
 Hướng dẫn đầy đủ cho local, Preview, Production, migration và hai phương án backend nằm tại [docs/deployment.md](docs/deployment.md).
 
-Nên tạo hai Vercel project trong cùng repository:
+### Một project StudyFlow (khuyến nghị)
 
-### Frontend
+- Import repository với Root Directory là repository root.
+- Chọn Framework Preset **Services**.
+- Root [`vercel.json`](vercel.json) build `frontend/` bằng Vite, `backend/` bằng Express, route `/api/*` tới backend và các route còn lại tới SPA.
+- Đặt `VITE_API_URL=/api`; frontend và API sẽ dùng chung deployment domain.
+- Khai báo đầy đủ database, Redis, JWT, cron và S3-compatible storage trong Vercel Environment Variables.
 
-- Root Directory: `frontend`
-- Build Command: `npm run build`
-- Output Directory: `dist`
-- Env: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV`
+### Hai project tách riêng (dự phòng)
 
-### Backend
+- Frontend: Root Directory `frontend`, Framework Vite, output `dist`.
+- Backend: Root Directory `backend`, Framework Express.
+- `VITE_API_URL` và `FRONTEND_URL` phải trỏ đúng hai domain tương ứng.
 
-- Root Directory: `backend`
-- Khai báo `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `FRONTEND_URL`, `CRON_SECRET`.
-- Không chạy migration trong serverless request. Chạy Prisma migration qua GitHub Actions, CLI hoặc migration job riêng trước deployment.
-
-Frontend và backend có thể nằm trên hai domain Vercel khác nhau; `FRONTEND_URL` và CORS backend phải trỏ đúng production/preview domain được phép.
+Không chạy migration trong serverless request. Chạy Prisma migration qua GitHub Actions, CLI hoặc migration job riêng trước deployment.
 
 Repository dùng Vercel Git Integration: pull request/branch tạo Preview Deployment, còn merge vào `main` tạo Production Deployment. GitHub Actions tại `.github/workflows/ci.yml` kiểm tra frontend lint/test/build, backend lint/test/build và Prisma schema trước khi merge. Bật branch protection cho `main` và không lưu Vercel/database secret trong workflow CI.
 

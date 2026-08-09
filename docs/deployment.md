@@ -8,13 +8,13 @@ Trước mỗi lần phát hành production, hoàn thành và lưu bằng chứn
 
 | Thành phần  | Local                      | Preview/Production khuyến nghị                       |
 | ----------- | -------------------------- | ---------------------------------------------------- |
-| `frontend/` | Vite hoặc Docker/Nginx     | Vercel, Root Directory `frontend`                    |
-| `backend/`  | Express trong Docker       | Vercel Functions hoặc dịch vụ Node/Docker riêng      |
+| `frontend/` | Vite hoặc Docker/Nginx     | Vercel Services hoặc project Vite riêng              |
+| `backend/`  | Express trong Docker       | Vercel Services/Functions hoặc dịch vụ Node riêng    |
 | `database/` | PostgreSQL 16 trong Docker | PostgreSQL cloud có pooling                          |
 | Redis       | Redis 7 trong Docker       | Redis cloud, ưu tiên kết nối TLS                     |
 | Upload      | `backend/uploads/`         | Object storage; không dùng filesystem tạm của Vercel |
 
-Mỗi Vercel project chỉ chọn một package làm Root Directory. Không đặt Root Directory là repository root rồi cố build đồng thời frontend và backend.
+Phương án khuyến nghị là một Vercel project dùng preset **Services** và root [`vercel.json`](../vercel.json), để frontend/API có chung domain. Nếu tài khoản chưa dùng Services, tạo hai Vercel project độc lập với Root Directory lần lượt là `frontend` và `backend`.
 
 ## Chạy local bằng Docker Compose
 
@@ -63,7 +63,52 @@ Không dùng `docker compose down -v` trừ khi chủ động muốn xóa dữ l
 
 Chỉ các biến bắt đầu bằng `VITE_` mới được đưa vào bundle trình duyệt. Không đặt password, token, database URL hoặc API key bí mật trong biến `VITE_*`.
 
-## Deploy frontend lên Vercel
+## Deploy một project bằng Vercel Services (khuyến nghị)
+
+Root `vercel.json` định nghĩa hai service độc lập:
+
+- `frontend`: root `frontend/`, framework `vite`;
+- `backend`: root `backend/`, framework `express`, entrypoint `api/index.ts`;
+- `/api/*` được route tới backend, mọi route còn lại tới frontend;
+- cron `/api/cron/notifications` được đăng ký ở cấp project.
+
+Trong Vercel Dashboard:
+
+1. Import repository `Yiben633/Quan_Li_Hoc_Tap` một lần.
+2. Giữ Root Directory là repository root.
+3. Chọn Framework Preset **Services**. Nếu không chọn preset này, Vercel sẽ không build theo khối `services`.
+4. Production Branch là `main` và bật Git Preview Deployment.
+5. Khai báo env riêng cho Preview/Production. Với cùng domain, dùng `VITE_API_URL=/api`.
+6. Chạy migration bằng workflow **Database Migration** trước khi promote backend; không thêm migration vào Build Command.
+
+Biến tối thiểu của project Services:
+
+```text
+VITE_API_URL=/api
+VITE_APP_NAME=StudyFlow
+VITE_VERCEL_ENV=preview hoặc production
+NODE_ENV=production
+DATABASE_URL=<pooled PostgreSQL URL>
+DIRECT_URL=<direct PostgreSQL URL, migration only>
+REDIS_URL=<rediss:// cloud Redis URL>
+JWT_ACCESS_SECRET=<random secret>
+JWT_REFRESH_SECRET=<different random secret>
+FRONTEND_URL=https://<deployment-or-custom-domain>
+TRUST_PROXY=true
+CRON_SECRET=<random secret>
+STORAGE_PROVIDER=s3-compatible
+S3_REGION=<region>
+S3_BUCKET=<bucket>
+S3_ACCESS_KEY_ID=<access key>
+S3_SECRET_ACCESS_KEY=<secret key>
+S3_PUBLIC_BASE_URL=https://<cdn-or-bucket-domain>
+```
+
+`VERCEL=1` do nền tảng tự cung cấp, không khai báo thủ công. Sau deploy, kiểm tra `GET /api/health`, refresh trực tiếp `/dashboard`, login/refresh cookie và cron unauthorized trả `401`.
+
+## Deploy bằng hai Vercel project (phương án dự phòng)
+
+### Frontend
 
 Tạo một Vercel project từ repository và cấu hình:
 
@@ -89,7 +134,7 @@ Khai báo giá trị riêng trong Vercel cho Preview và Production. `VITE_API_U
 
 `vite.config.ts` nạp các biến public bằng `loadEnv` và dùng `VITE_APP_NAME` cho manifest PWA. Trên Vercel Preview/Production, build sẽ thất bại sớm nếu thiếu `VITE_API_URL`, thay vì deploy một SPA gọi nhầm `/api` trên domain frontend.
 
-## Backend lựa chọn A: Vercel Functions
+### Backend Vercel Functions
 
 Tạo Vercel project thứ hai trong cùng repository:
 
@@ -145,15 +190,17 @@ Backend dùng một Redis chung cho OTP, rate limit phân tán, trạng thái st
 3. Khai báo URL đó thành `REDIS_URL` cho Preview và Production. Dùng database riêng cho hai môi trường.
 4. Tạo `CRON_SECRET` ngẫu nhiên tối thiểu 16 ký tự, khuyến nghị 32 ký tự trở lên, rồi khai báo trong Vercel backend project.
 
-`backend/vercel.json` đăng ký:
+Root `vercel.json` và `backend/vercel.json` dùng lịch tương thích Vercel Hobby:
 
 ```json
 {
   "crons": [
-    { "path": "/api/cron/notifications", "schedule": "*/5 * * * *" }
+    { "path": "/api/cron/notifications", "schedule": "0 0 * * *" }
   ]
 }
 ```
+
+Lịch trên chạy một lần mỗi ngày lúc `00:00 UTC` (`07:00 Asia/Ho_Chi_Minh`). Vercel Hobby sẽ từ chối deployment nếu cron chạy nhiều hơn một lần/ngày. Khi project dùng Pro/Enterprise, có thể đổi thành `*/5 * * * *` để quét mỗi 5 phút; scheduler local/Docker vẫn chạy mỗi 5 phút độc lập với cấu hình Vercel.
 
 Vercel tự gửi `Authorization: Bearer <CRON_SECRET>` khi gọi cron. Endpoint cũng nhận `x-cron-secret` và `?secret=` để debug tương thích, nhưng production nên dùng Bearer để secret không xuất hiện trong URL. Request logger chỉ ghi path, không ghi query string chứa secret.
 
@@ -172,7 +219,7 @@ Invoke-RestMethod http://localhost:4000/api/cron/notifications -Headers $headers
 
 Sau khi deploy, mở Vercel Project > Settings > Cron Jobs để xác nhận lịch đã được đăng ký. Log thành công có `notification_job_started` và `notification_job_completed`; request từ Vercel có User-Agent `vercel-cron/1.0` và được ghi nguồn `vercel`. Không log nội dung `CRON_SECRET`.
 
-## Backend lựa chọn B: dịch vụ riêng
+## Backend trên dịch vụ Node/Docker riêng
 
 Deploy `backend/Dockerfile` lên một nền tảng chạy Node/Docker lâu dài. Phương án này phù hợp hơn khi cần worker, job chạy nền, xử lý file lớn hoặc connection lâu.
 
@@ -212,7 +259,7 @@ GitHub repository là nguồn chính. Không chạy `vercel deploy` trong GitHub
 
 ### 1. Kết nối repository
 
-Trong Vercel Dashboard, import cùng repository thành các project độc lập:
+Với Services, import repository một lần, giữ Root Directory ở root và chọn Framework Preset **Services**. Với phương án tách, import cùng repository thành các project độc lập:
 
 | Project | Root Directory | Production Branch | Mục đích |
 | --- | --- | --- | --- |
@@ -225,7 +272,7 @@ Sau khi bật Git Integration:
 
 - push lên branch khác `main` hoặc mở/cập nhật pull request sẽ tạo Preview Deployment;
 - merge/push vào `main` sẽ tạo Production Deployment;
-- mỗi project monorepo phải chọn đúng Root Directory, không đổi Build Command/Output Directory sang đường dẫn tính từ root repository.
+- project Services phải dùng repository root; các project tách phải chọn đúng Root Directory của package.
 
 ### 2. Tách môi trường Preview và Production
 
@@ -263,7 +310,7 @@ Trong GitHub repository Settings > Branches/Rulesets, bảo vệ `main` và yêu
 
 - [ ] Tạo PostgreSQL/Redis staging riêng, không dùng dữ liệu production.
 - [ ] Pull request có đủ ba CI checks và Vercel Preview URL.
-- [ ] Frontend project dùng root `frontend`; backend Vercel project dùng root `backend`.
+- [ ] Project Services dùng repository root và Framework Preset `Services`; hoặc hai project tách dùng root `frontend`/`backend`.
 - [ ] Deploy backend preview và kiểm tra `/api/health` trả `200`.
 - [ ] Chạy migration trên staging đúng một lần.
 - [ ] Khai báo Vercel Preview env, nhất là `VITE_API_URL` và `FRONTEND_URL`.
