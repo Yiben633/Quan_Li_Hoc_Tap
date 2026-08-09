@@ -55,7 +55,7 @@ Tạo Vercel project cho frontend với:
 - Preview Environment: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV=preview`
 - Production Environment: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV=production`
 
-Ví dụ `VITE_API_URL=https://api.example.com/api`. Khai báo env riêng cho Preview và Production; build Vercel sẽ dừng với thông báo rõ ràng nếu thiếu `VITE_API_URL`. `vercel.json` đã rewrite route SPA về `index.html`; không rewrite `/api` nếu API dùng domain riêng.
+Với Vercel Services cùng domain, có thể đặt `VITE_API_URL=/api` hoặc để trống để frontend dùng fallback `/api`. Nếu frontend/backend là hai project khác domain, bắt buộc đặt URL đầy đủ, ví dụ `VITE_API_URL=https://api.example.com/api`, và khai báo giá trị riêng cho Preview/Production. `vercel.json` đã rewrite route SPA về `index.html`.
 
 ## Nguyên tắc dữ liệu
 

@@ -132,7 +132,7 @@ VITE_AI_PROVIDER=disabled
 
 Khai báo giá trị riêng trong Vercel cho Preview và Production. `VITE_API_URL` phải có `/api` và trỏ tới backend tương ứng; không dùng backend production cho preview nếu preview có thể tạo hoặc xóa dữ liệu.
 
-`vite.config.ts` nạp các biến public bằng `loadEnv` và dùng `VITE_APP_NAME` cho manifest PWA. Trên Vercel Preview/Production, build sẽ thất bại sớm nếu thiếu `VITE_API_URL`, thay vì deploy một SPA gọi nhầm `/api` trên domain frontend.
+`vite.config.ts` nạp các biến public bằng `loadEnv` và dùng `VITE_APP_NAME` cho manifest PWA. API client mặc định dùng `/api`, phù hợp project Services cùng domain. Với hai project khác domain, phải khai báo `VITE_API_URL` đầy đủ trong cả Preview và Production.
 
 ### Backend Vercel Functions
 

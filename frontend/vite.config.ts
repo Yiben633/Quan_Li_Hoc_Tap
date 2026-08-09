@@ -5,16 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_')
-  const deploymentEnv = loadEnv(mode, '.', '')
   const appName = env.VITE_APP_NAME?.trim() || 'StudyFlow'
-  const vercelEnvironment = env.VITE_VERCEL_ENV?.trim().toLowerCase()
-  const isVercelDeployment = deploymentEnv.VERCEL === '1'
-    || vercelEnvironment === 'preview'
-    || vercelEnvironment === 'production'
-
-  if (isVercelDeployment && !env.VITE_API_URL?.trim()) {
-    throw new Error('VITE_API_URL is required for Vercel Preview and Production builds.')
-  }
 
   return {
     plugins: [
