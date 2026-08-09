@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="StudyFlow">
+  <rect width="512" height="512" rx="104" fill="#3867e8"/>
+  <path d="M88 204 256 116l168 88-168 88L88 204Zm56 70v74c31 29 69 44 112 44s81-15 112-44v-74l-112 59-112-59Z" fill="#fff"/>
+  <path d="M410 222v112" fill="none" stroke="#b9d9ff" stroke-linecap="round" stroke-width="22"/>
+</svg>

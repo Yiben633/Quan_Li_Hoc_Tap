@@ -1,54 +1,89 @@
-# Quản Lý Học Tập - Vibe Code Pack
+# StudyFlow
 
-Bộ tài liệu này là “bản thiết kế + prompt triển khai” cho một dự án web quản lý học tập dành cho sinh viên.
+StudyFlow là ứng dụng tổ chức việc học và phát triển kỹ năng cho nhiều độ tuổi, không giới hạn ở sinh viên. Dự án gồm React frontend, Express backend, PostgreSQL, Redis và Prisma.
 
-Tên gợi ý: **StudyFlow**
+## Cấu trúc
 
-## Cách Bắt Đầu
+- `frontend/`: React 18, TypeScript, Vite, React Query, PWA.
+- `backend/`: Express, TypeScript, Prisma, Redis và REST API.
+- `database/`: Prisma schema, migrations, seed, backup/restore.
+- `docs/`: blueprint và prompt triển khai từng giai đoạn.
 
-Đọc theo thứ tự:
+## Chạy toàn stack bằng Docker
 
-1. `docs/00-project-blueprint.md` - hiểu mục tiêu, phạm vi, giai đoạn và chuẩn chung.
-2. `docs/01-database-prompts.md` - dựng PostgreSQL, Redis, Prisma schema, seed và backup.
-3. `docs/02-backend-prompts.md` - dựng Express API, auth, CRUD, dashboard, notification, AI, admin.
-4. `docs/03-frontend-prompts.md` - dựng React UI, layout, dashboard, task, calendar, report, PWA.
-5. `docs/04-deployment-vercel-prompts.md` - chuẩn bị deploy Vercel, env, cron, database cloud và CI.
+Yêu cầu Docker Desktop đang chạy.
 
-## Nguyên Tắc Dùng Prompt
+```powershell
+Copy-Item .env.example .env
+docker compose up -d --build
+docker compose ps
+```
 
-- Copy từng prompt một, không chạy nhiều prompt lớn cùng lúc.
-- Sau mỗi prompt phải build/test ngay.
-- Database chạy ổn rồi mới làm backend.
-- Backend endpoint ổn rồi mới nối frontend.
-- Ghi lại lỗi, quyết định kỹ thuật và thay đổi quan trọng vào README tương ứng của từng layer.
+- Frontend: `http://localhost:5173`
+- Backend health: `http://localhost:4000/health`
+- PostgreSQL: `localhost:55432`
+- Redis: `localhost:56379`
 
-## Thứ Tự Triển Khai Đề Xuất
+Chỉ chạy hạ tầng dữ liệu:
 
-MVP đầu tiên:
+```powershell
+docker compose up -d db redis
+```
 
-1. Database prompt 0-5.
-2. Backend prompt 0-5.
-3. Frontend prompt 0-9.
+## Chạy local
 
-Sau khi MVP chạy được:
+Yêu cầu Node.js 20+, PostgreSQL 16 và Redis 7. Tạo `.env` từ các file `.env.example`; không commit secret thật.
 
-1. Database prompt 6-9.
-2. Backend prompt 6-9.
-3. Frontend prompt 10-13.
+```powershell
+cd database
+npm install
+npm run db:migrate
+npm run db:seed
 
-Tính năng xịn:
+cd ..\backend
+npm install
+npm run dev
 
-1. Backend prompt 10-11.
-2. Frontend prompt 14-16.
-3. Deployment prompt 0-6 để đưa web lên Vercel và nối database cloud.
+cd ..\frontend
+npm install
+npm run dev
+```
 
-## Definition Of Done
+## Kiểm tra trước khi bàn giao
 
-Một phần được xem là xong khi:
+```powershell
+cd backend
+npm run lint
+npm test
+npm run build
 
-- Chạy được local.
-- Có dữ liệu mẫu để demo.
-- API hoặc UI có loading, error và success state.
-- Không hardcode secret.
-- Có checklist nghiệm thu rõ ràng.
-- Có hướng dẫn chạy lại từ đầu cho người khác.
+cd ..\frontend
+npm run lint
+npm run test
+npm run build
+```
+
+## Vercel
+
+Nên tạo hai Vercel project trong cùng repository:
+
+### Frontend
+
+- Root Directory: `frontend`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Env: `VITE_API_URL`, `VITE_APP_NAME`, `VITE_VERCEL_ENV`
+
+### Backend
+
+- Root Directory: `backend`
+- Khai báo `DATABASE_URL`, `DIRECT_URL`, `REDIS_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `FRONTEND_URL`, `CRON_SECRET`.
+- Không chạy migration trong serverless request. Chạy Prisma migration qua GitHub Actions, CLI hoặc migration job riêng trước deployment.
+
+Frontend và backend có thể nằm trên hai domain Vercel khác nhau; `FRONTEND_URL` và CORS backend phải trỏ đúng production/preview domain được phép.
+
+## Quyền riêng tư
+
+Thông tin trường, chuyên ngành, năm học và nhóm tuổi là tùy chọn. Tính năng cốt lõi không yêu cầu dữ liệu trẻ em quá mức cần thiết; nhóm chia sẻ không công khai email hoặc dữ liệu hồ sơ nhạy cảm.
+
+Xem thêm [frontend/README.md](frontend/README.md), [database/README.md](database/README.md) và [README-security.md](README-security.md).

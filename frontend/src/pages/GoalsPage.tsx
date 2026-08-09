@@ -43,7 +43,7 @@ function getFormValues(goal?: Goal): GoalFormValues {
   return {
     name: goal?.name ?? '',
     type: goal?.type ?? 'task_count',
-    targetValue: goal ? String(goal.targetValue) : '',
+    targetValue: goal ? String(Math.round(goal.targetValue)) : '',
     subjectId: goal?.subjectId ?? '',
     deadline: goal?.deadline?.slice(0, 10) ?? '',
     status: goal?.status ?? 'in_progress',
@@ -79,8 +79,8 @@ function GoalEditor({ goal, open, onClose }: { goal?: Goal; open: boolean; onClo
       toast.error('Hãy nhập tên mục tiêu')
       return
     }
-    if (!Number.isFinite(targetValue) || targetValue <= 0) {
-      toast.error('Giá trị mục tiêu cần lớn hơn 0')
+    if (!Number.isInteger(targetValue) || targetValue <= 0) {
+      toast.error('Giá trị mục tiêu phải là số nguyên lớn hơn 0')
       return
     }
 
@@ -110,7 +110,18 @@ function GoalEditor({ goal, open, onClose }: { goal?: Goal; open: boolean; onClo
         <Select customMenu label="Loại mục tiêu" value={values.type} onChange={(event) => set('type', event.target.value as GoalType)}>
           {Object.entries(goalTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
         </Select>
-        <Input label="Giá trị mục tiêu" type="number" min="0.01" step="0.01" value={values.targetValue} onChange={(event) => set('targetValue', event.target.value)} />
+        <Input
+          label="Giá trị mục tiêu"
+          type="number"
+          min="1"
+          step="1"
+          inputMode="numeric"
+          value={values.targetValue}
+          onChange={(event) => {
+            const nextValue = event.target.value
+            if (nextValue === '' || /^\d+$/.test(nextValue)) set('targetValue', nextValue)
+          }}
+        />
       </div>
       <div className="goal-form-grid">
         <Select customMenu label="Môn học (tùy chọn)" value={values.subjectId} onChange={(event) => set('subjectId', event.target.value)}>

@@ -1,5 +1,9 @@
 FROM node:22-alpine AS build
 WORKDIR /app
+ARG VITE_AI_ENABLED=false
+ARG VITE_AI_PROVIDER=mock
+ENV VITE_AI_ENABLED=$VITE_AI_ENABLED
+ENV VITE_AI_PROVIDER=$VITE_AI_PROVIDER
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./

@@ -4,24 +4,30 @@ import { prisma } from '../src/lib/prisma.js';
 import { redis } from '../src/lib/redis.js';
 
 const email = `advanced-test-${Date.now()}@example.com`;
+const invitedEmail = `advanced-invited-${Date.now()}@example.com`;
 const password = 'SecurePass123!';
 let token = '';
+let invitedToken = '';
 let userId = '';
 
 describe('advanced reports, AI, flashcards, groups and admin', () => {
   beforeAll(async () => {
     if (redis.status === 'end' || redis.status === 'wait') await redis.connect();
     await request(app).post('/api/auth/register').send({ fullName: 'Advanced Test', email, password });
+    await request(app).post('/api/auth/register').send({ fullName: 'Invited Member', email: invitedEmail, password });
     token = (await request(app).post('/api/auth/login').send({ email, password })).body.data.accessToken;
+    invitedToken = (await request(app).post('/api/auth/login').send({ email: invitedEmail, password })).body.data.accessToken;
     userId = (await prisma.user.findUniqueOrThrow({ where: { email } })).id;
-  });
+  }, 20_000);
 
   afterAll(async () => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (user) { await prisma.activityLog.deleteMany({ where: { userId: user.id } }); await prisma.user.delete({ where: { id: user.id } }); }
+    const invitedUser = await prisma.user.findUnique({ where: { email: invitedEmail } });
+    if (invitedUser) { await prisma.activityLog.deleteMany({ where: { userId: invitedUser.id } }); await prisma.user.delete({ where: { id: invitedUser.id } }); }
     await redis.quit();
     await prisma.$disconnect();
-  });
+  }, 20_000);
 
   it('creates and reviews flashcards with ownership', async () => {
     const set = await request(app).post('/api/flashcard-sets').set('Authorization', `Bearer ${token}`).send({ name: 'Backend Set' });
@@ -60,6 +66,27 @@ describe('advanced reports, AI, flashcards, groups and admin', () => {
   it('creates a study group and calculates progress', async () => {
     const group = await request(app).post('/api/study-groups').set('Authorization', `Bearer ${token}`).send({ name: 'Backend Group' });
     expect(group.status).toBe(201);
+    const invitation = await request(app).post(`/api/study-groups/${group.body.data.id}/members`).set('Authorization', `Bearer ${token}`).send({ email: invitedEmail });
+    expect(invitation.status).toBe(201);
+    expect(invitation.body.data.user).not.toHaveProperty('email');
+    const unreadNotifications = await request(app).get('/api/notifications?isRead=false&page=1&limit=20').set('Authorization', `Bearer ${invitedToken}`);
+    expect(unreadNotifications.status).toBe(200);
+    expect(unreadNotifications.body.data.items).toEqual(expect.arrayContaining([
+      expect.objectContaining({ relatedEntityType: 'study_group_invitation', relatedEntityId: invitation.body.data.id, isRead: false }),
+    ]));
+    const deniedBeforeAccept = await request(app).get(`/api/study-groups/${group.body.data.id}`).set('Authorization', `Bearer ${invitedToken}`);
+    expect(deniedBeforeAccept.status).toBe(404);
+    const pending = await request(app).get('/api/study-groups/invitations').set('Authorization', `Bearer ${invitedToken}`);
+    expect(pending.body.data).toHaveLength(1);
+    const accepted = await request(app).post(`/api/study-groups/${group.body.data.id}/members/${invitation.body.data.id}/accept`).set('Authorization', `Bearer ${invitedToken}`);
+    expect(accepted.status).toBe(200);
+    const notificationsAfterAccept = await request(app).get('/api/notifications?isRead=false&page=1&limit=20').set('Authorization', `Bearer ${invitedToken}`);
+    expect(notificationsAfterAccept.body.data.items).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ relatedEntityType: 'study_group_invitation', relatedEntityId: invitation.body.data.id }),
+    ]));
+    const memberDetail = await request(app).get(`/api/study-groups/${group.body.data.id}`).set('Authorization', `Bearer ${invitedToken}`);
+    expect(memberDetail.status).toBe(200);
+    expect(memberDetail.body.data.members.every((member: { user: object }) => !('email' in member.user))).toBe(true);
     const task = await request(app).post(`/api/study-groups/${group.body.data.id}/tasks`).set('Authorization', `Bearer ${token}`).send({ title: 'Group task', status: 'done' });
     expect(task.status).toBe(201);
     const progress = await request(app).get(`/api/study-groups/${group.body.data.id}/progress`).set('Authorization', `Bearer ${token}`);

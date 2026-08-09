@@ -7,7 +7,7 @@ export const notificationKeys = {
 }
 
 export function useNotificationsQuery(filters: { isRead?: boolean; page?: number; limit?: number }) {
-  return useQuery({ queryKey: notificationKeys.list(filters), queryFn: () => api.listNotifications(filters), refetchInterval: 60_000 })
+  return useQuery({ queryKey: notificationKeys.list(filters), queryFn: () => api.listNotifications(filters), refetchInterval: 15_000, refetchOnWindowFocus: true })
 }
 
 export function useMarkNotificationReadMutation() {

@@ -5,7 +5,6 @@ import { DashboardPage } from '../pages/DashboardPage'
 import { LoginPage } from '../pages/LoginPage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
-import { ModulePlaceholderPage } from '../pages/ModulePlaceholderPage'
 import { AuthLayout } from '../layouts/AuthLayout'
 import { SettingsPage } from '../pages/SettingsPage'
 import { LearningSpacesPage } from '../pages/LearningSpacesPage'
@@ -23,12 +22,23 @@ import { StudyTimeStatsPage } from '../pages/StudyTimeStatsPage'
 import { DocumentLibraryPage } from '../pages/DocumentLibraryPage'
 import { NotesPage } from '../pages/NotesPage'
 import { StatisticsPage } from '../pages/StatisticsPage'
+import { AIWorkspacePage } from '../pages/AIWorkspacePage'
+import { FlashcardsPage } from '../pages/FlashcardsPage'
+import { StudyGroupsPage } from '../pages/StudyGroupsPage'
+import { StudyGroupDetailPage } from '../pages/StudyGroupDetailPage'
+import { AdminPage } from '../pages/AdminPage'
+import { RouteErrorPage } from '../pages/RouteErrorPage'
+import { OfflinePage } from '../pages/OfflinePage'
+import { NotFoundPage } from '../pages/NotFoundPage'
+import { aiFeaturesEnabled } from '../config/features'
 
 export const router = createBrowserRouter([
+  { errorElement: <RouteErrorPage />, children: [
   { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
   { path: '/register', element: <AuthLayout><RegisterPage /></AuthLayout> },
   { path: '/forgot-password', element: <AuthLayout><ForgotPasswordPage /></AuthLayout> },
-  { element: <ProtectedRoute />, children: [{ element: <AppLayout />, children: [
+  { path: '/offline', element: <OfflinePage /> },
+  { element: <ProtectedRoute />, children: [{ element: <AppLayout />, errorElement: <RouteErrorPage />, children: [
     { index: true, element: <DashboardPage /> },
     { path: 'tasks', element: <TasksPage /> },
     { path: 'tasks/kanban', element: <KanbanPage /> },
@@ -40,6 +50,10 @@ export const router = createBrowserRouter([
     { path: 'documents', element: <DocumentLibraryPage /> },
     { path: 'notes', element: <NotesPage /> },
     { path: 'statistics', element: <StatisticsPage /> },
+    { path: 'flashcards', element: <FlashcardsPage /> },
+    { path: 'groups', element: <StudyGroupsPage /> },
+    { path: 'groups/:id', element: <StudyGroupDetailPage /> },
+    ...(aiFeaturesEnabled ? [{ path: 'assistant', element: <AIWorkspacePage /> }] : []),
     { path: 'calendar', element: <CalendarPage /> },
     { path: 'subjects', element: <LearningSpacesPage /> },
     { path: 'topics', element: <TopicsPage /> },
@@ -47,7 +61,8 @@ export const router = createBrowserRouter([
     { path: 'study', element: <StudyPage /> },
     { path: 'study/stats', element: <StudyTimeStatsPage /> },
     { path: 'settings', element: <SettingsPage /> },
-    { element: <AdminRoute />, children: [{ path: 'admin', element: <ModulePlaceholderPage title="Quản trị" description="Khu vực quản lý dành cho admin." /> }] },
+    { element: <AdminRoute />, children: [{ path: 'admin', element: <AdminPage /> }] },
   ] }] },
-  { path: '*', element: <Navigate to="/" replace /> },
+  { path: '*', element: <NotFoundPage /> },
+  ] },
 ])

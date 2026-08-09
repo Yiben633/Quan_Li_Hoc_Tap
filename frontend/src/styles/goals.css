@@ -18,7 +18,11 @@
 .goal-value span, .goal-card-foot { color: var(--muted); font-size: 12px; }
 .goal-card-foot > span { display: inline-flex; align-items: center; gap: 6px; }
 .goal-archive-button { color: var(--muted); font-size: 11px; }
-.goal-form { display: grid; gap: 16px; }
-.goal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.modal:has(#goal-form) { width: min(100%, 650px); max-height: calc(100vh - 32px); overflow: visible; }
+.modal:has(#goal-form) .modal-body { overflow: visible; }
+.overlay:has(#goal-form) { overflow: hidden; }
+.goal-form { display: grid; gap: 16px; min-width: 0; }
+.goal-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; min-width: 0; }
+.goal-form-grid > .field { min-width: 0; }
 .goal-skeleton { min-height: 270px; align-content: start; }
-@media (max-width: 640px) { .goals-heading .button { width: 100%; }.goals-toolbar .field { width: 100%; }.goal-grid { grid-template-columns: 1fr; }.goal-form-grid { grid-template-columns: 1fr; } }
+@media (max-height: 680px), (max-width: 640px) { .modal:has(#goal-form) { max-height: calc(100vh - 24px); overflow-y: auto; overflow-x: hidden; }.modal:has(#goal-form) .modal-body { overflow: visible; }.goals-heading .button { width: 100%; }.goals-toolbar .field { width: 100%; }.goal-grid { grid-template-columns: 1fr; }.goal-form-grid { grid-template-columns: 1fr; } }

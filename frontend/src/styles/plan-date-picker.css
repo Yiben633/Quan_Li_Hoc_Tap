@@ -9,5 +9,5 @@
 @media (max-height: 680px), (max-width: 560px) {
   .modal:has(#study-plan-form) { max-height: calc(100vh - 24px); overflow: auto; }
   .modal:has(#study-plan-form) .modal-body { overflow: auto; }
-  .date-picker-popover { position: fixed; top: 50%; left: 50%; width: min(296px, calc(100vw - 32px)); transform: translate(-50%, -50%); }
+  .date-picker-popover, .date-picker-popover.align-right { position: fixed; top: 50%; right: auto; left: 50%; width: min(296px, calc(100vw - 32px)); transform: translate(-50%, -50%); }
 }

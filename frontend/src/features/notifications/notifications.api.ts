@@ -31,6 +31,7 @@ export async function markAllNotificationsRead() {
 }
 
 export function notificationRoute(item: NotificationItem) {
+  if (item.relatedEntityType === 'study_group_invitation') return '/groups'
   if (item.relatedEntityType === 'study_plan' && item.relatedEntityId) return `/study-plans/${item.relatedEntityId}`
   return null
 }

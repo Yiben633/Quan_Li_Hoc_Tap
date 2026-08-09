@@ -1,5 +1,12 @@
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useId } from 'react'
 import { IconButton } from './IconButton'
-export function Modal({ open, title, children, onClose, footer }: { open: boolean; title: string; children: ReactNode; onClose: () => void; footer?: ReactNode }) { useEffect(() => { if (!open) return; const root = document.documentElement; const previousBodyOverflow = document.body.style.overflow; const previousRootOverflow = root.style.overflow; const scrollbarWidth = window.innerWidth - root.clientWidth; const previousPadding = document.body.style.paddingRight; document.body.style.overflow = 'hidden'; root.style.overflow = 'hidden'; if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`; return () => { document.body.style.overflow = previousBodyOverflow; root.style.overflow = previousRootOverflow; document.body.style.paddingRight = previousPadding } }, [open]); if (!open) return null; return <div className="overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><header className="modal-head"><h2 id="modal-title">{title}</h2><IconButton label="Đóng" onClick={onClose}><X size={18} /></IconButton></header><div className="modal-body">{children}</div>{footer && <footer className="modal-foot">{footer}</footer>}</section></div> }
+import { useDialogBehavior } from './useDialogBehavior'
+
+export function Modal({ open, title, children, onClose, footer }: { open: boolean; title: string; children: ReactNode; onClose: () => void; footer?: ReactNode }) {
+  const titleId = useId()
+  const dialogRef = useDialogBehavior(open, onClose)
+  if (!open) return null
+  return <div className="overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><section ref={dialogRef} className="modal" role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}><header className="modal-head"><h2 id={titleId}>{title}</h2><IconButton label="Đóng" onClick={onClose}><X size={18} /></IconButton></header><div className="modal-body">{children}</div>{footer && <footer className="modal-foot">{footer}</footer>}</section></div>
+}

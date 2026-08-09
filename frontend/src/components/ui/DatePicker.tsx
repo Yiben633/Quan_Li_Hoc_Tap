@@ -44,6 +44,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function
   const selectedDate = parseDate(currentValue)
   const [open, setOpen] = useState(false)
   const [dropUp, setDropUp] = useState(false)
+  const [alignRight, setAlignRight] = useState(false)
   const [month, setMonth] = useState(() => {
     const date = selectedDate ?? new Date()
     return new Date(date.getFullYear(), date.getMonth(), 1)
@@ -73,7 +74,10 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function
   useLayoutEffect(() => {
     if (!open || !wrapperRef.current) return
     const bounds = wrapperRef.current.getBoundingClientRect()
+    const boundary = wrapperRef.current.closest<HTMLElement>('.modal, .drawer')?.getBoundingClientRect()
+    const rightEdge = Math.min(window.innerWidth - 12, boundary?.right ?? window.innerWidth - 12)
     setDropUp(bounds.bottom + 340 > window.innerHeight)
+    setAlignRight(bounds.left + 296 > rightEdge)
   }, [open])
 
   useEffect(() => {
@@ -152,7 +156,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function
       <button ref={triggerRef} type="button" className="date-picker-trigger" onClick={openPicker} aria-label={ariaLabel ?? label ?? 'Chọn ngày'} aria-haspopup="dialog" aria-controls={popoverId} aria-expanded={open} disabled={disabled} aria-invalid={Boolean(error)}>
         <span>{display}</span><CalendarDays size={16} />
       </button>
-      {open && <div id={popoverId} className={`date-picker-popover${dropUp ? ' drop-up' : ''}`} role="dialog" aria-label={ariaLabel ?? label ?? 'Chọn ngày'} onKeyDown={handleCalendarKeyDown}>
+      {open && <div id={popoverId} className={`date-picker-popover${dropUp ? ' drop-up' : ''}${alignRight ? ' align-right' : ''}`} role="dialog" aria-label={ariaLabel ?? label ?? 'Chọn ngày'} onKeyDown={handleCalendarKeyDown}>
         <div className="date-picker-head">
           <button type="button" className="icon-button" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label="Tháng trước"><ChevronLeft size={16} /></button>
           <strong aria-live="polite">{month.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })}</strong>

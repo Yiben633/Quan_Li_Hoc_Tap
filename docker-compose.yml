@@ -79,6 +79,9 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      args:
+        VITE_AI_ENABLED: ${VITE_AI_ENABLED:-false}
+        VITE_AI_PROVIDER: ${VITE_AI_PROVIDER:-mock}
     container_name: studyflow-frontend
     restart: unless-stopped
     ports:
