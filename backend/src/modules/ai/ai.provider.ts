@@ -1,6 +1,53 @@
 import { env } from '../../config/env.js';
+import { MockAIProvider } from './providers/mock-ai.provider.js';
+import { OpenAIAIProvider } from './providers/openai-ai.provider.js';
 
-export interface AIProvider { chat(prompt: string): Promise<string>; summarize(text: string): Promise<string>; generateFlashcards(text: string, count: number): Promise<Array<{ question: string; answer: string }>>; }
-export class MockAIProvider implements AIProvider { async chat(prompt: string) { return `Mock assistant response for: ${prompt}`; } async summarize(text: string) { return text.trim().split(/\s+/).slice(0, 80).join(' '); } async generateFlashcards(text: string, count: number) { const words = text.trim().split(/\s+/); return Array.from({ length: Math.min(count, Math.max(1, Math.ceil(words.length / 12))) }, (_, index) => ({ question: `Key point ${index + 1}`, answer: words.slice(index * 12, index * 12 + 12).join(' ') })); } }
-export const aiProvider: AIProvider = new MockAIProvider();
-export const aiProviderName = env.AI_PROVIDER;
+export interface AIProvider {
+  chat(prompt: string): Promise<string>;
+  summarize(text: string): Promise<string>;
+  generateFlashcards(text: string, count: number): Promise<Array<{ question: string; answer: string }>>;
+  coach(prompt: string): Promise<unknown>;
+}
+
+export type AIProviderName = 'mock' | 'openai';
+
+export type AIProviderConfig = {
+  provider: AIProviderName;
+  openaiApiKey?: string;
+  openaiModel: string;
+};
+
+export class AIProviderError extends Error {
+  readonly statusCode: number;
+
+  constructor(message = 'AI provider is temporarily unavailable', statusCode = 503) {
+    super(message);
+    this.name = 'AIProviderError';
+    this.statusCode = statusCode;
+  }
+}
+
+export function normalizeAIProviderError(error: unknown): AIProviderError {
+  if (error instanceof AIProviderError) return error;
+  return new AIProviderError();
+}
+
+export function createAIProvider(config: AIProviderConfig): AIProvider {
+  if (config.provider === 'mock') return new MockAIProvider();
+
+  if (!config.openaiApiKey) {
+    throw new AIProviderError('OPENAI_API_KEY is required when AI_PROVIDER=openai', 500);
+  }
+
+  return new OpenAIAIProvider({
+    apiKey: config.openaiApiKey,
+    model: config.openaiModel,
+  });
+}
+
+export const aiProviderName: AIProviderName = env.AI_PROVIDER;
+export const aiProvider = createAIProvider({
+  provider: aiProviderName,
+  openaiApiKey: env.OPENAI_API_KEY,
+  openaiModel: env.OPENAI_MODEL,
+});

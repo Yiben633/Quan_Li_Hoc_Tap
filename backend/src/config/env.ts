@@ -26,7 +26,9 @@ const envSchema = z.object({
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_PUBLIC_BASE_URL: optionalUrl,
   S3_FORCE_PATH_STYLE: z.enum(['true', 'false']).default('false'),
-  AI_PROVIDER: z.string().default('mock'),
+  AI_PROVIDER: z.enum(['mock', 'openai']).default('mock'),
+  OPENAI_API_KEY: z.string().trim().min(1).optional(),
+  OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
   VERCEL: z.string().optional(),
 });
 
@@ -39,6 +41,9 @@ if (!parsed.success) {
 const accessSecret = parsed.data.JWT_SECRET ?? parsed.data.JWT_ACCESS_SECRET;
 const refreshSecret = parsed.data.REFRESH_TOKEN_SECRET ?? parsed.data.JWT_REFRESH_SECRET;
 if (!accessSecret || !refreshSecret) throw new Error('JWT secrets are required');
+if (parsed.data.AI_PROVIDER === 'openai' && !parsed.data.OPENAI_API_KEY) {
+  throw new Error('OPENAI_API_KEY is required when AI_PROVIDER=openai');
+}
 if (parsed.data.STORAGE_PROVIDER === 's3-compatible') {
   const requiredStorageVariables = [
     parsed.data.S3_BUCKET,

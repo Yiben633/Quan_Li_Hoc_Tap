@@ -1,7 +1,11 @@
 import type { Request, Response } from 'express';
 import { sendError, sendSuccess } from '../../utils/http.js';
 import * as service from './ai.service.js';
-function handle(res: Response, error: unknown) { return sendError(res, error instanceof Error ? error.message : 'Internal server error', undefined, 500); }
+import { AIProviderError } from './ai.provider.js';
+function handle(res: Response, error: unknown) {
+  if (error instanceof AIProviderError) return sendError(res, error.message, undefined, error.statusCode);
+  return sendError(res, 'Unable to process the AI request', undefined, 500);
+}
 export async function suggest(req: Request, res: Response) { try { return sendSuccess(res, 'Schedule suggestion generated', await service.suggestSchedule(req.user!.id, req.body.tasks, req.body.slots)); } catch (e) { return handle(res, e); } }
 export async function reschedule(req: Request, res: Response) { try { return sendSuccess(res, 'Tasks rescheduled', await service.reschedule(req.user!.id, req.body.tasks, req.body.slots)); } catch (e) { return handle(res, e); } }
 export async function chat(req: Request, res: Response) { try { return sendSuccess(res, 'AI response generated', await service.chat(req.user!.id, req.body.prompt)); } catch (e) { return handle(res, e); } }

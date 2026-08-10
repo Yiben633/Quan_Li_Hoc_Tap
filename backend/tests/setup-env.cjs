@@ -5,3 +5,4 @@ process.env.JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'test-access-se
 process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'test-refresh-secret-long-enough';
 process.env.CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
 process.env.CRON_SECRET = process.env.CRON_SECRET || 'test-cron-secret-32-characters';
+process.env.AI_PROVIDER = 'mock';
