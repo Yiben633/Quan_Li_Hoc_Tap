@@ -16,6 +16,14 @@ healthRouter.get(['/health', '/api/health'], async (_req, res) => {
     await Promise.all([
       prisma.user.count({ where: { deletedAt: null } }),
       prisma.role.count(),
+      prisma.userRole.count(),
+      prisma.user.findFirst({
+        where: { email: '__studyflow_schema_healthcheck__', deletedAt: null },
+        select: {
+          id: true,
+          roles: { select: { role: { select: { name: true } } } },
+        },
+      }),
     ]);
     checks.database = 'ok';
   } catch (error) {
