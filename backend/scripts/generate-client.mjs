@@ -7,6 +7,11 @@ const backendRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const schemaPath = resolve(backendRoot, '../database/prisma/schema.prisma');
 const prismaCli = join(backendRoot, 'node_modules', 'prisma', 'build', 'index.js');
 
+// Vercel's Neon integration supplies DATABASE_URL by default. Prisma still
+// resolves directUrl while generating, so use the runtime URL during builds
+// when a migration-only DIRECT_URL has not been injected into that service.
+process.env.DIRECT_URL ||= process.env.DATABASE_URL;
+
 execFileSync(process.execPath, [prismaCli, 'generate', '--schema', schemaPath], { stdio: 'inherit', cwd: backendRoot });
 
 const generatedTarget = join(backendRoot, 'node_modules/.prisma/client');

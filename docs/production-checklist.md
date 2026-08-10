@@ -19,7 +19,7 @@ Checklist này là cổng kiểm tra cuối cùng trước khi đưa StudyFlow l
 ## 1. Domain Và HTTPS
 
 - [ ] Frontend và backend đã dùng domain production chính thức, không dùng URL Preview làm URL công khai.
-- [ ] HTTPS hợp lệ trên cả hai domain; HTTP được chuyển hướng sang HTTPS.
+- [x] HTTPS hợp lệ trên cả hai domain; HTTP được chuyển hướng sang HTTPS.
 - [ ] Chứng chỉ bao phủ đúng hostname và không có mixed content trong DevTools.
 - [ ] DNS production không còn trỏ tới deployment cũ ngoài kế hoạch rollback.
 - [ ] Refresh trực tiếp các route SPA như `/login`, `/dashboard`, `/tasks` không trả 404.
@@ -33,6 +33,33 @@ curl.exe -I https://api.example.com/api/health
 ```
 
 Kết quả mong đợi: HTTPS không lỗi chứng chỉ, frontend trả `200`, health API trả `200` và không lộ stack trace.
+
+### Kết quả kiểm tra lần 1 - 2026-08-09
+
+Phạm vi kiểm tra: commit `83aca8fb6089c51de0a1cd42c129aa0706d8af11` và các deployment Production do GitHub/Vercel công bố.
+
+| Hạng mục | Kết quả | Bằng chứng / hành động tiếp theo |
+| --- | --- | --- |
+| Production URL ổn định | Chưa đạt | `https://study-slow.vercel.app` đang phục vụ frontend StudyFlow, nhưng repo đồng thời kết nối project `study-flow`; `https://study-flow.vercel.app` đang phục vụ một ứng dụng Next.js khác. Chọn một project production duy nhất và gỡ kết nối/alias cũ ngoài kế hoạch rollback. |
+| Deployment mới nhất | Chưa thể smoke test công khai | Hai deployment URL theo commit mới đều chuyển tới Vercel Authentication. Production phải được promote vào alias ổn định và cho phép người dùng công khai truy cập; có thể tiếp tục bảo vệ Preview. |
+| HTTPS và HTTP redirect | Đạt | `study-slow.vercel.app` có TLS hợp lệ; HTTP trả `308` sang HTTPS và response HTTPS có HSTS. Chứng chỉ `CN=*.vercel.app`, hiệu lực từ `2026-06-28` đến `2026-09-26`. |
+| Mixed content | Chưa kết luận đầy đủ | Quét các JavaScript bundle được trang production nạp không thấy `http://`, `localhost` hoặc `127.0.0.1`. Vẫn cần xác nhận tab Console/Security trên trình duyệt thật sau khi SPA hoạt động. |
+| SPA direct refresh | Không đạt | `GET /login`, `/dashboard`, `/tasks` trên `study-slow.vercel.app` đều trả `404`. Kiểm tra Vercel Project Settings: Root Directory phải là repo root, Framework Preset phải là **Services**, sau đó redeploy để root `vercel.json` và rewrite của frontend được áp dụng. |
+| Backend health | Không đạt | `GET https://study-slow.vercel.app/api/health` trả `500 FUNCTION_INVOCATION_FAILED`; chưa đạt yêu cầu health `200`. Kiểm tra Runtime Logs và các env production bắt buộc trước khi smoke test auth. |
+| DNS hiện tại | Cần dọn | `study-slow.vercel.app` resolve tới hạ tầng Vercel (`64.29.17.131`, `216.198.79.131`), nhưng còn hai Vercel project cùng deploy repo nên chưa thể xác nhận đã loại bỏ deployment cũ. |
+| Login/refresh/logout | Bị chặn | Chưa chạy vì SPA refresh đang `404` và backend health đang `500`. Topology dự kiến dùng chung origin `/api`, không cần cookie cross-site. |
+
+Lệnh kiểm tra lại sau khi sửa Vercel:
+
+```powershell
+curl.exe -I http://study-slow.vercel.app/login
+curl.exe -I https://study-slow.vercel.app/login
+curl.exe -I https://study-slow.vercel.app/dashboard
+curl.exe -I https://study-slow.vercel.app/tasks
+curl.exe -i https://study-slow.vercel.app/api/health
+```
+
+Chỉ đánh dấu các mục còn lại sau khi ba route SPA và health API cùng trả `200`, deployment production không yêu cầu đăng nhập Vercel và luồng cookie đã được thử trên trình duyệt thật.
 
 ## 2. Environment, CORS Và Secret
 
