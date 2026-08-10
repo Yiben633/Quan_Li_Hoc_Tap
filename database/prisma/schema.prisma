@@ -183,6 +183,31 @@ enum FeedbackStatus {
   @@map("feedback_status")
 }
 
+enum AiConversationStatus {
+  active
+  archived
+
+  @@map("ai_conversation_status")
+}
+
+enum AiMessageRole {
+  user
+  assistant
+  system
+  tool
+
+  @@map("ai_message_role")
+}
+
+enum AiPlanDraftStatus {
+  draft
+  applied
+  discarded
+  expired
+
+  @@map("ai_plan_draft_status")
+}
+
 model User {
   id               String         @id @default(uuid()) @db.Uuid
   fullName         String         @map("full_name")
@@ -222,6 +247,8 @@ model User {
   assignedGroupTasks GroupTask[]  @relation("GroupTaskAssignee")
   feedbacks        Feedback[]
   activityLogs     ActivityLog[]
+  aiConversations  AiConversation[]
+  aiPlanDrafts     AiPlanDraft[]
 
   @@index([email])
   @@index([studentCode])
@@ -717,6 +744,58 @@ model ActivityLog {
   @@index([action, createdAt])
   @@index([entityType, entityId])
   @@map("activity_logs")
+}
+
+/// Stores user-visible conversation state only. Provider prompts, hidden reasoning,
+/// and credentials must never be persisted here.
+model AiConversation {
+  id        String               @id @default(uuid()) @db.Uuid
+  userId    String               @map("user_id") @db.Uuid
+  title     String?
+  status    AiConversationStatus @default(active)
+  createdAt DateTime             @default(now()) @map("created_at")
+  updatedAt DateTime             @updatedAt @map("updated_at")
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AiMessage[]
+  drafts    AiPlanDraft[]
+
+  @@index([userId, updatedAt])
+  @@map("ai_conversations")
+}
+
+/// Metadata is limited to application state such as provider/model identifiers,
+/// tool outcomes, and draft references. It must not contain hidden reasoning.
+model AiMessage {
+  id             String         @id @default(uuid()) @db.Uuid
+  conversationId String         @map("conversation_id") @db.Uuid
+  role           AiMessageRole
+  content        String
+  metadata       Json?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}
+
+/// A plan draft is inert until a user explicitly applies it. Applied drafts are
+/// retained after a conversation is deleted for auditability via status/appliedAt.
+model AiPlanDraft {
+  id             String            @id @default(uuid()) @db.Uuid
+  conversationId String?           @map("conversation_id") @db.Uuid
+  userId         String            @map("user_id") @db.Uuid
+  draftType      String            @map("draft_type")
+  status         AiPlanDraftStatus @default(draft)
+  payload        Json
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  appliedAt      DateTime?         @map("applied_at")
+  conversation   AiConversation?   @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([conversationId])
+  @@map("ai_plan_drafts")
 }
 
 model Role {

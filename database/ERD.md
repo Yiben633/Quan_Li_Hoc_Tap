@@ -382,6 +382,36 @@ erDiagram
         datetime created_at
     }
 
+    AI_CONVERSATIONS {
+        uuid id PK
+        uuid user_id FK
+        string title "nullable"
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+
+    AI_MESSAGES {
+        uuid id PK
+        uuid conversation_id FK
+        string role
+        text content
+        json metadata "nullable"
+        datetime created_at
+    }
+
+    AI_PLAN_DRAFTS {
+        uuid id PK
+        uuid conversation_id FK "nullable"
+        uuid user_id FK
+        string draft_type
+        string status
+        json payload
+        datetime created_at
+        datetime updated_at
+        datetime applied_at "nullable"
+    }
+
     USERS ||--o{ USER_ROLES : has
     ROLES ||--o{ USER_ROLES : assigned_to
     USERS ||--o{ REFRESH_TOKENS : owns
@@ -433,6 +463,10 @@ erDiagram
 
     USERS ||--o{ FEEDBACKS : sends
     USERS ||--o{ ACTIVITY_LOGS : triggers
+    USERS ||--o{ AI_CONVERSATIONS : owns
+    AI_CONVERSATIONS ||--o{ AI_MESSAGES : contains
+    AI_CONVERSATIONS ||--o{ AI_PLAN_DRAFTS : proposes
+    USERS ||--o{ AI_PLAN_DRAFTS : owns
 ```
 
 ## Nullable, Cascade Và Soft Delete
@@ -566,4 +600,3 @@ Mục tiêu: mở thư viện tài liệu/ghi chú nhanh theo môn, task, tag v�
 - Các trường progress như `StudyPlan.progressPercent` có thể lưu cache để hiển thị nhanh, nhưng backend phải tính lại sau khi task thay đổi.
 - `Goal.progressPercent` không nên lưu nếu có thể tính từ dữ liệu hiện tại; chỉ lưu `targetValue` và `currentValue` khi loại mục tiêu cần nhập tay.
 - Với PostgreSQL, các enum nên được định nghĩa nhất quán trong Prisma để tránh lỗi sai chuỗi trạng thái giữa backend và database.
-
