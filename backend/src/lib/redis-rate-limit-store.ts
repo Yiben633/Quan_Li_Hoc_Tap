@@ -20,7 +20,10 @@ return current
 `;
 
 export class RedisRateLimitStore implements Store {
-  readonly localKeys = false;
+  // Each store instance owns a distinct Redis namespace through `prefix`.
+  // Marking keys as instance-local lets express-rate-limit safely compose the
+  // global limiter with stricter route-specific limiters on the same request.
+  readonly localKeys = true;
   readonly prefix: string;
   private windowMs = 60_000;
 
