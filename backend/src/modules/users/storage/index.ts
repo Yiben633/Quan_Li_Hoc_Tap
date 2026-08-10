@@ -1,10 +1,12 @@
 import { env } from '../../../config/env.js';
+import { DisabledStorageProvider } from './disabled.storage.js';
 import { LocalStorageProvider } from './local.storage.js';
 import { S3CompatibleStorageProvider } from './s3.storage.js';
 import type { StorageProvider } from './storage.provider.js';
 
 function createStorageProvider(): StorageProvider {
   if (env.STORAGE_PROVIDER === 'local') return new LocalStorageProvider();
+  if (env.STORAGE_PROVIDER === 'disabled') return new DisabledStorageProvider();
 
   return new S3CompatibleStorageProvider({
     endpoint: env.S3_ENDPOINT,

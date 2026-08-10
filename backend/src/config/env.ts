@@ -18,7 +18,7 @@ const envSchema = z.object({
   TRUST_PROXY: z.string().default('false'),
   CRON_SECRET: z.string().default(''),
   DOCUMENT_MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(20 * 1024 * 1024),
-  STORAGE_PROVIDER: z.enum(['local', 's3-compatible']).default('local'),
+  STORAGE_PROVIDER: z.enum(['local', 's3-compatible', 'disabled']).default('local'),
   S3_ENDPOINT: optionalUrl,
   S3_REGION: z.string().default('auto'),
   S3_BUCKET: z.string().optional(),
@@ -50,9 +50,6 @@ if (parsed.data.STORAGE_PROVIDER === 's3-compatible') {
     throw new Error('S3_BUCKET, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY and S3_PUBLIC_BASE_URL are required for s3-compatible storage');
   }
 }
-if (parsed.data.NODE_ENV === 'production' && parsed.data.VERCEL === '1' && parsed.data.STORAGE_PROVIDER === 'local') {
-  throw new Error('Local file storage is not supported on Vercel. Configure STORAGE_PROVIDER=s3-compatible');
-}
 if (parsed.data.NODE_ENV === 'production' && parsed.data.CRON_SECRET.length < 16) {
   throw new Error('CRON_SECRET must contain at least 16 characters in production');
 }
@@ -60,4 +57,21 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.VERCEL === '1' && !pars
   throw new Error('Vercel production requires a TLS Redis URL beginning with rediss://');
 }
 const frontendUrl = parsed.data.FRONTEND_URL ?? parsed.data.CLIENT_ORIGIN;
-export const env = { ...parsed.data, JWT_ACCESS_SECRET: accessSecret, JWT_REFRESH_SECRET: refreshSecret, CLIENT_ORIGIN: frontendUrl, FRONTEND_URL: frontendUrl };
+const storageProvider = parsed.data.NODE_ENV === 'production'
+  && parsed.data.VERCEL === '1'
+  && parsed.data.STORAGE_PROVIDER === 'local'
+  ? 'disabled' as const
+  : parsed.data.STORAGE_PROVIDER;
+
+if (storageProvider === 'disabled') {
+  console.warn('Cloud file storage is not configured; upload endpoints are disabled');
+}
+
+export const env = {
+  ...parsed.data,
+  JWT_ACCESS_SECRET: accessSecret,
+  JWT_REFRESH_SECRET: refreshSecret,
+  CLIENT_ORIGIN: frontendUrl,
+  FRONTEND_URL: frontendUrl,
+  STORAGE_PROVIDER: storageProvider,
+};

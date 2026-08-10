@@ -1,4 +1,4 @@
-export type StorageProviderKind = 'local' | 's3-compatible';
+export type StorageProviderKind = 'local' | 's3-compatible' | 'disabled';
 
 export interface StorageProvider {
   readonly kind: StorageProviderKind;

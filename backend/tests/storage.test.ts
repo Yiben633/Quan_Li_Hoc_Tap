@@ -1,7 +1,17 @@
+import { DisabledStorageProvider } from '../src/modules/users/storage/disabled.storage.js';
 import { LocalStorageProvider } from '../src/modules/users/storage/local.storage.js';
 import { S3CompatibleStorageProvider } from '../src/modules/users/storage/s3.storage.js';
 
 describe('storage providers', () => {
+  it('returns a service-unavailable error when cloud storage is disabled', async () => {
+    const provider = new DisabledStorageProvider();
+
+    await expect(provider.save()).rejects.toMatchObject({
+      message: 'Cloud file storage is not configured',
+      statusCode: 503,
+    });
+  });
+
   it('extracts local storage keys from public URLs', () => {
     expect(new LocalStorageProvider().keyFromUrl('/uploads/documents/example.pdf')).toBe('documents/example.pdf');
   });
