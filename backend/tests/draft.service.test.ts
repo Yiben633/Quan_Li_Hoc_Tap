@@ -84,4 +84,25 @@ describe('AI Coach draft service', () => {
     });
     expect(draftUpdate).not.toHaveBeenCalled();
   });
+
+  it('soft-discards a draft and records the action without deleting it', async () => {
+    draftFindFirst.mockResolvedValue({ id: 'draft-a', userId: 'user-a', status: 'draft' });
+    draftUpdate.mockResolvedValue({ id: 'draft-a', status: 'discarded' });
+    activityLogCreate.mockResolvedValue({});
+
+    await expect(service.discardDraft('user-a', 'draft-a')).resolves.toMatchObject({ id: 'draft-a', status: 'discarded' });
+
+    expect(draftUpdate).toHaveBeenCalledWith({ where: { id: 'draft-a' }, data: { status: 'discarded' } });
+    expect(activityLogCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ userId: 'user-a', action: 'ai.draft_discarded', entityId: 'draft-a' }),
+    }));
+  });
+
+  it('returns an already discarded draft without another write', async () => {
+    const discardedDraft = { id: 'draft-a', userId: 'user-a', status: 'discarded' };
+    draftFindFirst.mockResolvedValue(discardedDraft);
+
+    await expect(service.discardDraft('user-a', 'draft-a')).resolves.toBe(discardedDraft);
+    expect(draftUpdate).not.toHaveBeenCalled();
+  });
 });

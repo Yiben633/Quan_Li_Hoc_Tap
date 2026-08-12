@@ -5,6 +5,7 @@ import { authenticate } from '../../middlewares/auth.js';
 import { validateBody } from '../../middlewares/validate.js';
 import { asyncHandler } from '../../utils/async-handler.js';
 import * as controller from './ai.controller.js';
+import { coachRouter } from './coach/coach.routes.js';
 import { z } from 'zod';
 const slot = z.object({ startAt: z.coerce.date(), endAt: z.coerce.date() });
 const tasks = z.array(z.object({ id: z.string().uuid().optional(), title: z.string().min(1), estimatedMinutes: z.coerce.number().int().positive(), dueDate: z.coerce.date().nullable().optional() }));
@@ -19,4 +20,4 @@ export const aiRouter = Router(); aiRouter.use(authenticate); aiRouter.use(rateL
   store: createRateLimitStore('ai'),
   passOnStoreError: true,
 }));
-aiRouter.post('/suggest-schedule', validateBody(scheduleSchema), asyncHandler(controller.suggest)); aiRouter.post('/reschedule', validateBody(scheduleSchema), asyncHandler(controller.reschedule)); aiRouter.post('/chat', validateBody(chatSchema), asyncHandler(controller.chat)); aiRouter.post('/summarize-document', validateBody(textSchema.omit({ count: true })), asyncHandler(controller.summarize)); aiRouter.post('/generate-flashcards', validateBody(textSchema), asyncHandler(controller.flashcards)); aiRouter.post('/coach/drafts/:id/apply', asyncHandler(controller.applyDraft));
+aiRouter.post('/suggest-schedule', validateBody(scheduleSchema), asyncHandler(controller.suggest)); aiRouter.post('/reschedule', validateBody(scheduleSchema), asyncHandler(controller.reschedule)); aiRouter.post('/chat', validateBody(chatSchema), asyncHandler(controller.chat)); aiRouter.post('/summarize-document', validateBody(textSchema.omit({ count: true })), asyncHandler(controller.summarize)); aiRouter.post('/generate-flashcards', validateBody(textSchema), asyncHandler(controller.flashcards)); aiRouter.post('/coach/drafts/:id/apply', asyncHandler(controller.applyDraft)); aiRouter.post('/coach/drafts/:id/discard', asyncHandler(controller.discardDraftController)); aiRouter.use('/coach', coachRouter);

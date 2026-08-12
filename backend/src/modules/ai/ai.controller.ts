@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { sendError, sendSuccess } from '../../utils/http.js';
 import * as service from './ai.service.js';
 import { applyScheduleDraft } from './coach/actionExecutor.service.js';
+import { discardDraft } from './coach/draft.service.js';
 import { AIProviderError } from './ai.provider.js';
 function handle(res: Response, error: unknown) {
   if (error instanceof AIProviderError) return sendError(res, error.message, undefined, error.statusCode);
@@ -15,6 +16,13 @@ export async function flashcards(req: Request, res: Response) { try { return sen
 export async function applyDraft(req: Request, res: Response) {
   const draftId = Array.isArray(req.params.id) ? req.params.id[0] ?? '' : req.params.id;
   return sendSuccess(res, 'Draft applied', await applyScheduleDraft(req.user!.id, draftId, {
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent'),
+  }));
+}
+export async function discardDraftController(req: Request, res: Response) {
+  const draftId = Array.isArray(req.params.id) ? req.params.id[0] ?? '' : req.params.id;
+  return sendSuccess(res, 'Draft discarded', await discardDraft(req.user!.id, draftId, {
     ipAddress: req.ip,
     userAgent: req.get('user-agent'),
   }));
