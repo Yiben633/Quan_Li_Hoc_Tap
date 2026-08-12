@@ -167,7 +167,7 @@ export async function buildStudyCoachContext(userId: string, options: StudyCoach
     }),
     prisma.task.findMany({
       where: taskWhere,
-      select: { id: true, title: true, subjectId: true, studyPlanId: true, dueDate: true, priority: true, status: true, estimatedMinutes: true, difficulty: true },
+      select: { id: true, title: true, subjectId: true, studyPlanId: true, startDate: true, dueDate: true, priority: true, status: true, estimatedMinutes: true, difficulty: true },
       orderBy: [{ dueDate: 'asc' }, { updatedAt: 'desc' }],
       take: MAX_TASKS,
     }),
@@ -217,7 +217,7 @@ export async function buildStudyCoachContext(userId: string, options: StudyCoach
     now: now.toISOString(),
     timezone,
     subjects: subjects.map((subject) => ({ ...subject, targetGrade: subject.targetGrade === null ? null : Number(subject.targetGrade) })),
-    tasks: rankedTasks.map((task) => ({ ...task, dueDate: iso(task.dueDate) })),
+    tasks: rankedTasks.map((task) => ({ ...task, startDate: iso(task.startDate), dueDate: iso(task.dueDate) })),
     plans: plans.map((plan) => ({ ...plan, startDate: iso(plan.startDate), endDate: iso(plan.endDate), estimatedHours: plan.estimatedHours === null ? null : Number(plan.estimatedHours) })),
     calendar: [
       ...events.map((event) => ({ id: event.id, type: 'event' as const, title: event.title, subjectId: null, startAt: event.startAt.toISOString(), endAt: iso(event.endAt) })),

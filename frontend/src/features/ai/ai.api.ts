@@ -12,9 +12,12 @@ export type ScheduleTaskInput = {
 export type FreeSlotInput = { startAt: string; endAt: string }
 export type ScheduleInput = { tasks: ScheduleTaskInput[]; slots: FreeSlotInput[] }
 export type ScheduleAssignment = { taskId?: string; title: string; startAt: string; endAt: string }
+export type ScheduleWarningCode = 'INSUFFICIENT_TIME' | 'NO_AVAILABLE_SLOT' | 'DEADLINE_AT_RISK' | 'DAILY_LIMIT_EXCEEDED' | 'MISSING_ESTIMATE'
+export type ScheduleWarning = { code: ScheduleWarningCode; taskId?: string; message: string }
 export type ScheduleSuggestion = {
   assignments: ScheduleAssignment[]
-  warnings: string[]
+  warnings: ScheduleWarning[]
+  warningMessages: string[]
   totalRequestedMinutes: number
   totalAssignedMinutes: number
 }

@@ -6,11 +6,11 @@ const context: StudyCoachContext = {
   timezone: 'Asia/Ho_Chi_Minh',
   subjects: [],
   tasks: [
-    { id: 'normal', title: 'Normal', subjectId: null, studyPlanId: null, dueDate: null, priority: 'medium', status: 'todo', estimatedMinutes: null, difficulty: null },
-    { id: 'high', title: 'High', subjectId: null, studyPlanId: null, dueDate: null, priority: 'high', status: 'todo', estimatedMinutes: null, difficulty: null },
-    { id: 'progress', title: 'In progress', subjectId: null, studyPlanId: null, dueDate: null, priority: 'low', status: 'in_progress', estimatedMinutes: null, difficulty: null },
-    { id: 'soon', title: 'Due soon', subjectId: null, studyPlanId: null, dueDate: '2026-08-11T12:00:00.000Z', priority: 'low', status: 'todo', estimatedMinutes: null, difficulty: null },
-    { id: 'overdue', title: 'Overdue', subjectId: null, studyPlanId: null, dueDate: '2026-08-09T12:00:00.000Z', priority: 'low', status: 'todo', estimatedMinutes: null, difficulty: null },
+    { id: 'normal', title: 'Normal', subjectId: null, studyPlanId: null, startDate: null, dueDate: null, priority: 'medium', status: 'todo', estimatedMinutes: null, difficulty: null },
+    { id: 'high', title: 'High', subjectId: null, studyPlanId: null, startDate: null, dueDate: null, priority: 'high', status: 'todo', estimatedMinutes: null, difficulty: null },
+    { id: 'progress', title: 'In progress', subjectId: null, studyPlanId: null, startDate: null, dueDate: null, priority: 'low', status: 'in_progress', estimatedMinutes: null, difficulty: null },
+    { id: 'soon', title: 'Due soon', subjectId: null, studyPlanId: null, startDate: null, dueDate: '2026-08-11T12:00:00.000Z', priority: 'low', status: 'todo', estimatedMinutes: null, difficulty: null },
+    { id: 'overdue', title: 'Overdue', subjectId: null, studyPlanId: null, startDate: null, dueDate: '2026-08-09T12:00:00.000Z', priority: 'low', status: 'todo', estimatedMinutes: null, difficulty: null },
   ],
   plans: [],
   calendar: [

@@ -1,9 +1,60 @@
 import { prisma } from '../../lib/prisma.js';
 import { aiProvider, aiProviderName, normalizeAIProviderError } from './ai.provider.js';
+import { buildPlan } from './coach/planningEngine.js';
+
 type Slot = { startAt: Date; endAt: Date };
 type TaskInput = { id?: string; title: string; estimatedMinutes: number; dueDate?: Date | null };
+
 async function log(userId: string, action: string, metadata: object) { await prisma.activityLog.create({ data: { userId, action, metadata } }); }
-export async function suggestSchedule(userId: string, tasks: TaskInput[], slots: Slot[]) { const remaining = [...tasks].sort((a, b) => (a.dueDate?.getTime() ?? Number.MAX_SAFE_INTEGER) - (b.dueDate?.getTime() ?? Number.MAX_SAFE_INTEGER)); const assignments: Array<{ taskId?: string; title: string; startAt: Date; endAt: Date }> = []; const warnings: string[] = []; for (const task of remaining) { let placed = false; for (const slot of slots) { const used = assignments.filter((item) => item.startAt >= slot.startAt && item.endAt <= slot.endAt).reduce((sum, item) => sum + (item.endAt.getTime() - item.startAt.getTime()) / 60000, 0); const start = new Date(slot.startAt.getTime() + used * 60000); const end = new Date(start.getTime() + task.estimatedMinutes * 60000); if (end <= slot.endAt) { assignments.push({ taskId: task.id, title: task.title, startAt: start, endAt: end }); placed = true; break; } } if (!placed) warnings.push(`Not enough free time for "${task.title}" (${task.estimatedMinutes} minutes).`); } await log(userId, 'ai.schedule_suggested', { taskCount: tasks.length, assignedCount: assignments.length }); return { assignments, warnings, totalRequestedMinutes: tasks.reduce((sum, task) => sum + task.estimatedMinutes, 0), totalAssignedMinutes: assignments.reduce((sum, item) => sum + (item.endAt.getTime() - item.startAt.getTime()) / 60000, 0) }; }
+
+export async function suggestSchedule(userId: string, tasks: TaskInput[], slots: Slot[]) {
+  const legacyTaskIds = new Map<string, string | undefined>();
+  const plan = buildPlan({
+    tasks: tasks.map((task, index) => {
+      const id = task.id ?? `legacy-task-${index}`;
+      legacyTaskIds.set(id, task.id);
+      return {
+        id,
+        title: task.title,
+        status: 'todo',
+        priority: 'medium',
+        dueDate: task.dueDate,
+        estimatedMinutes: task.estimatedMinutes,
+      };
+    }),
+    availableSlots: slots.map((slot) => ({
+      ...slot,
+      durationMinutes: Math.max(0, Math.floor((slot.endAt.getTime() - slot.startAt.getTime()) / 60_000)),
+    })),
+  });
+  const incompleteTaskIds = new Set(plan.unallocatedTasks.map((task) => task.taskId));
+  const assignments = plan.sessions
+    // The legacy endpoint used all-or-nothing assignments. Keep that contract
+    // while the Coach flow can show partial sessions and structured warnings.
+    .filter((session) => !incompleteTaskIds.has(session.taskId))
+    .map((session) => ({
+      taskId: legacyTaskIds.get(session.taskId),
+      title: session.title,
+      startAt: session.startAt,
+      endAt: session.endAt,
+    }));
+  const warnings = plan.warnings;
+  const totalAssignedMinutes = assignments.reduce((sum, assignment) => sum + (assignment.endAt.getTime() - assignment.startAt.getTime()) / 60_000, 0);
+
+  await log(userId, 'ai.schedule_suggested', {
+    taskCount: tasks.length,
+    assignedCount: assignments.length,
+    sessionCount: plan.sessions.length,
+    unallocatedTaskCount: plan.unallocatedTasks.length,
+  });
+  return {
+    assignments,
+    warnings,
+    warningMessages: warnings.map((warning) => warning.message),
+    totalRequestedMinutes: tasks.reduce((sum, task) => sum + task.estimatedMinutes, 0),
+    totalAssignedMinutes,
+  };
+}
 export async function reschedule(userId: string, tasks: TaskInput[], slots: Slot[]) { return suggestSchedule(userId, tasks, slots); }
 async function runProviderCall<T>(userId: string, action: string, metadata: Record<string, unknown>, operation: () => Promise<T>): Promise<T> {
   const startedAt = performance.now();

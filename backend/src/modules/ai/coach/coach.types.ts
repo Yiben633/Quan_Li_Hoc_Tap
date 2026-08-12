@@ -14,6 +14,7 @@ export type StudyCoachContext = {
     title: string;
     subjectId: string | null;
     studyPlanId: string | null;
+    startDate: string | null;
     dueDate: string | null;
     priority: string;
     status: string;

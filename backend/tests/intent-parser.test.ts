@@ -8,7 +8,7 @@ const context: StudyCoachContext = {
   now: '2026-08-10T12:00:00.000Z',
   timezone: 'Asia/Ho_Chi_Minh',
   subjects: [{ id: subjectId, code: 'JAVA', name: 'Java', credits: 3, status: 'in_progress', targetGrade: null }],
-  tasks: [{ id: taskId, title: 'On Collections', subjectId, studyPlanId: null, dueDate: null, priority: 'high', status: 'todo', estimatedMinutes: 45, difficulty: 3 }],
+  tasks: [{ id: taskId, title: 'On Collections', subjectId, studyPlanId: null, startDate: null, dueDate: null, priority: 'high', status: 'todo', estimatedMinutes: 45, difficulty: 3 }],
   plans: [],
   calendar: [],
   goals: [],
