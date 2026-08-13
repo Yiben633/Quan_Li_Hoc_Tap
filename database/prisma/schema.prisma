@@ -249,6 +249,7 @@ model User {
   activityLogs     ActivityLog[]
   aiConversations  AiConversation[]
   aiPlanDrafts     AiPlanDraft[]
+  studyPlanningPreference StudyPlanningPreference?
 
   @@index([email])
   @@index([studentCode])
@@ -796,6 +797,26 @@ model AiPlanDraft {
   @@index([userId, status])
   @@index([conversationId])
   @@map("ai_plan_drafts")
+}
+
+/// Per-user defaults used by the deterministic AI Coach planning engine. Time
+/// boundaries stay optional so the engine can use its safe availability defaults.
+model StudyPlanningPreference {
+  id                    String   @id @default(uuid()) @db.Uuid
+  userId                String   @unique @map("user_id") @db.Uuid
+  timezone              String   @default("Asia/Ho_Chi_Minh")
+  preferredStudyStart   String?  @map("preferred_study_start")
+  preferredStudyEnd     String?  @map("preferred_study_end")
+  maxStudyMinutesPerDay Int      @default(180) @map("max_study_minutes_per_day")
+  defaultSessionMinutes Int      @default(45) @map("default_session_minutes")
+  minBreakMinutes       Int      @default(10) @map("min_break_minutes")
+  allowWeekend          Boolean  @default(true) @map("allow_weekend")
+  preferredDays         Int[]    @default([0, 1, 2, 3, 4, 5, 6]) @map("preferred_days")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("study_planning_preferences")
 }
 
 model Role {

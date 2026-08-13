@@ -11,6 +11,8 @@ import { parseCoachIntent } from './intentParser.js';
 import { buildPlan } from './planningEngine.js';
 import { sortTasksForPlanning } from './taskScoring.js';
 import type { CoachIntent, ParsedCoachIntent, StudyCoachContext, StudyCoachContextOptions } from './coach.types.js';
+import { resolveCoachClarification } from './clarification.js';
+import { getStudyPlanningPreference } from './planning-preferences.service.js';
 
 const PLANNING_INTENTS = new Set<CoachIntent>(['create_study_plan', 'create_schedule', 'reschedule', 'create_tasks']);
 const DEFAULT_PLANNING_DAYS = 7;
@@ -168,7 +170,7 @@ export async function chatWithCoach(userId: string, input: CoachChatInput, audit
   await addMessage(userId, conversationId, { role: 'user', content: message }, audit);
 
   const context = await buildStudyCoachContext(userId, input.context);
-  const intent = await parseCoachIntent(message, context);
+  const intent = resolveCoachClarification(await parseCoachIntent(message, context), context);
   let responseMessage: string;
   let draft: CoachChatResponse['draft'] = null;
   let suggestions: CoachChatSuggestion[] | undefined;
@@ -180,6 +182,7 @@ export async function chatWithCoach(userId: string, input: CoachChatInput, audit
     if (tasks.length === 0) {
       responseMessage = 'Mình chưa tìm thấy công việc phù hợp để lập lịch. Bạn hãy chọn môn học hoặc tạo công việc trước nhé.';
     } else {
+      const planningPreferences = await getStudyPlanningPreference(userId);
       const range = resolvePlanningRange(intent, new Date(context.now));
       const sources = await scheduleSources(userId, range.startAt, range.endAt);
       const slots = buildAvailableSlots({
@@ -188,12 +191,12 @@ export async function chatWithCoach(userId: string, input: CoachChatInput, audit
         events: sources.events,
         schedules: sources.schedules,
         preferences: {
-          studyStartTime: intent.constraints?.preferredStartTime,
-          studyEndTime: intent.constraints?.preferredEndTime,
+          studyStartTime: intent.constraints?.preferredStartTime ?? planningPreferences.preferredStudyStart ?? undefined,
+          studyEndTime: intent.constraints?.preferredEndTime ?? planningPreferences.preferredStudyEnd ?? undefined,
           studyDays: intent.constraints?.excludeDays
-            ? [0, 1, 2, 3, 4, 5, 6].filter((day) => !intent.constraints?.excludeDays?.includes(day))
-            : undefined,
-          minimumSlotMinutes: Math.min(intent.constraints?.sessionMinutes ?? 25, 60),
+            ? planningPreferences.preferredDays.filter((day) => !intent.constraints?.excludeDays?.includes(day))
+            : planningPreferences.preferredDays,
+          minimumSlotMinutes: Math.min(intent.constraints?.sessionMinutes ?? planningPreferences.defaultSessionMinutes, 60),
         },
       });
       const plan = buildPlan({
@@ -201,9 +204,10 @@ export async function chatWithCoach(userId: string, input: CoachChatInput, audit
         tasks,
         availableSlots: slots,
         preferences: {
-          timezone: context.timezone,
-          maxSessionMinutes: intent.constraints?.sessionMinutes,
-          maxMinutesPerDay: intent.constraints?.maxMinutesPerDay,
+          timezone: planningPreferences.timezone,
+          maxSessionMinutes: intent.constraints?.sessionMinutes ?? planningPreferences.defaultSessionMinutes,
+          maxMinutesPerDay: intent.constraints?.maxMinutesPerDay ?? planningPreferences.maxStudyMinutesPerDay,
+          breakMinutes: planningPreferences.minBreakMinutes,
         },
       });
       const explanationFallback = plan.sessions.length

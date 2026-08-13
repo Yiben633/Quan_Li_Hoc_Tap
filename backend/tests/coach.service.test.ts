@@ -12,6 +12,7 @@ const parseCoachIntent = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const buildAvailableSlots = jest.fn<(...args: unknown[]) => unknown>();
 const buildPlan = jest.fn<(...args: unknown[]) => unknown>();
 const createScheduleDraft = jest.fn<(...args: unknown[]) => Promise<unknown>>();
+const getStudyPlanningPreference = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 
 jest.unstable_mockModule('../src/modules/ai/ai.provider.js', () => ({
   aiProviderName: 'mock',
@@ -34,6 +35,7 @@ jest.unstable_mockModule('../src/modules/ai/coach/intentParser.js', () => ({ par
 jest.unstable_mockModule('../src/modules/ai/coach/availabilityEngine.js', () => ({ buildAvailableSlots }));
 jest.unstable_mockModule('../src/modules/ai/coach/planningEngine.js', () => ({ buildPlan }));
 jest.unstable_mockModule('../src/modules/ai/coach/draft.service.js', () => ({ createScheduleDraft }));
+jest.unstable_mockModule('../src/modules/ai/coach/planning-preferences.service.js', () => ({ getStudyPlanningPreference }));
 
 const { chatWithCoach } = await import('../src/modules/ai/coach/coach.service.js');
 
@@ -49,9 +51,17 @@ const context = {
   stats: { studyMinutesThisWeek: 0, completedTasksThisWeek: 0 },
 };
 
+const multiSubjectContext = {
+  ...context,
+  tasks: [
+    { ...context.tasks[0], subjectId: '11111111-1111-4111-8111-111111111112' },
+    { ...context.tasks[0], id: '22222222-2222-4222-8222-222222222222', title: 'React Hooks', subjectId: '33333333-3333-4333-8333-333333333333' },
+  ],
+};
+
 describe('AI Coach chat orchestration', () => {
   beforeEach(() => {
-    [providerChat, activityLogCreate, eventFindMany, scheduleFindMany, createConversation, getConversation, addMessage, buildStudyCoachContext, parseCoachIntent, buildAvailableSlots, buildPlan, createScheduleDraft].forEach((mock) => mock.mockReset());
+    [providerChat, activityLogCreate, eventFindMany, scheduleFindMany, createConversation, getConversation, addMessage, buildStudyCoachContext, parseCoachIntent, buildAvailableSlots, buildPlan, createScheduleDraft, getStudyPlanningPreference].forEach((mock) => mock.mockReset());
     createConversation.mockResolvedValue({ id: 'conversation-a' });
     getConversation.mockResolvedValue({ id: 'conversation-a' });
     addMessage.mockResolvedValue({});
@@ -59,6 +69,16 @@ describe('AI Coach chat orchestration', () => {
     activityLogCreate.mockResolvedValue({});
     eventFindMany.mockResolvedValue([]);
     scheduleFindMany.mockResolvedValue([]);
+    getStudyPlanningPreference.mockResolvedValue({
+      timezone: 'Asia/Ho_Chi_Minh',
+      preferredStudyStart: null,
+      preferredStudyEnd: null,
+      maxStudyMinutesPerDay: 180,
+      defaultSessionMinutes: 45,
+      minBreakMinutes: 10,
+      allowWeekend: true,
+      preferredDays: [0, 1, 2, 3, 4, 5, 6],
+    });
   });
 
   it('answers a question from context without creating or applying a draft', async () => {
@@ -100,6 +120,39 @@ describe('AI Coach chat orchestration', () => {
     expect(createScheduleDraft).toHaveBeenCalledWith('user-a', expect.objectContaining({ conversationId: 'conversation-a' }), undefined);
     expect(createScheduleDraft.mock.calls[0]?.[1]).toMatchObject({
       payload: expect.objectContaining({ type: 'study_schedule', sessions: expect.arrayContaining([expect.objectContaining({ taskId })]) }),
+    });
+    expect(buildPlan).toHaveBeenCalledWith(expect.objectContaining({
+      preferences: expect.objectContaining({ maxSessionMinutes: 45, maxMinutesPerDay: 180, breakMinutes: 10 }),
+    }));
+  });
+
+  it('asks one scope question when a plan request is ambiguous across multiple subjects', async () => {
+    buildStudyCoachContext.mockResolvedValue(multiSubjectContext);
+    parseCoachIntent.mockResolvedValue({ intent: 'create_schedule', confidence: 0.95, subjectIds: [], taskIds: [], missingInformation: [] });
+
+    await expect(chatWithCoach('user-a', { message: 'Lập kế hoạch học giúp tôi' })).resolves.toMatchObject({
+      intent: 'clarify',
+      needsConfirmation: false,
+      draft: null,
+      message: 'Bạn muốn lập kế hoạch cho một môn cụ thể hay tất cả công việc tuần này?',
+    });
+
+    expect(createScheduleDraft).not.toHaveBeenCalled();
+    expect(buildPlan).not.toHaveBeenCalled();
+    expect(providerChat).not.toHaveBeenCalled();
+  });
+
+  it('does not ask a scope question when the requested work is already limited to one subject', async () => {
+    parseCoachIntent.mockResolvedValue({ intent: 'create_schedule', confidence: 0.95, subjectIds: [], taskIds: [taskId], missingInformation: [] });
+    providerChat.mockResolvedValue('Mình đã chuẩn bị một bản nháp.');
+    buildAvailableSlots.mockReturnValue([]);
+    buildPlan.mockReturnValue({ sessions: [], warnings: [], unallocatedTasks: [], metrics: { taskCount: 1, scheduledTaskCount: 0, sessionCount: 0, totalRequestedMinutes: 45, totalScheduledMinutes: 0, totalUnallocatedMinutes: 45 } });
+    createScheduleDraft.mockResolvedValue({ id: 'draft-a', status: 'draft' });
+
+    await expect(chatWithCoach('user-a', { message: 'Lập kế hoạch cho Java' })).resolves.toMatchObject({
+      intent: 'create_schedule',
+      needsConfirmation: true,
+      draft: { id: 'draft-a' },
     });
   });
 });

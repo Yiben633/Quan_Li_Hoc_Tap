@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { validateBody } from '../../../middlewares/validate.js';
+import { validateBody, validateQuery } from '../../../middlewares/validate.js';
 import { asyncHandler } from '../../../utils/async-handler.js';
 import * as controller from './coach.controller.js';
+import { updateStudyPlanningPreferenceSchema } from './planning-preferences.schemas.js';
+import { conversationListQuerySchema, messageListQuerySchema } from './conversation.schemas.js';
 
 const chatSchema = z.object({
   conversationId: z.string().uuid().optional(),
@@ -15,4 +17,9 @@ const chatSchema = z.object({
 }).strict();
 
 export const coachRouter = Router();
+coachRouter.get('/preferences', asyncHandler(controller.getPreferences));
+coachRouter.patch('/preferences', validateBody(updateStudyPlanningPreferenceSchema), asyncHandler(controller.updatePreferences));
+coachRouter.get('/conversations', validateQuery(conversationListQuerySchema), asyncHandler(controller.conversations));
+coachRouter.get('/conversations/:id/messages', validateQuery(messageListQuerySchema), asyncHandler(controller.messages));
+coachRouter.delete('/conversations/:id', asyncHandler(controller.removeConversation));
 coachRouter.post('/chat', validateBody(chatSchema), asyncHandler(controller.chat));

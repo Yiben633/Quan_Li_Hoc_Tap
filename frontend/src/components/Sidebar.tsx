@@ -16,7 +16,7 @@ const primaryLinks = [
   { to: '/notes', label: 'Ghi chú', icon: NotebookPen },
   { to: '/flashcards', label: 'Thẻ ghi nhớ', icon: BookOpenCheck },
   { to: '/groups', label: 'Nhóm chia sẻ', icon: Users },
-  ...(aiFeaturesEnabled ? [{ to: '/assistant', label: 'Trợ lý AI', icon: BrainCircuit }] : []),
+  ...(aiFeaturesEnabled ? [{ to: '/ai-coach', label: 'Trợ lý AI', icon: BrainCircuit }] : []),
   { to: '/study', label: 'Tập trung', icon: Timer },
   { to: '/statistics', label: 'Thống kê', icon: BarChart3 },
 ]

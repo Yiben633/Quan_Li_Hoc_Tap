@@ -22,7 +22,7 @@ import { StudyTimeStatsPage } from '../pages/StudyTimeStatsPage'
 import { DocumentLibraryPage } from '../pages/DocumentLibraryPage'
 import { NotesPage } from '../pages/NotesPage'
 import { StatisticsPage } from '../pages/StatisticsPage'
-import { AIWorkspacePage } from '../pages/AIWorkspacePage'
+import { AICoachPage } from '../pages/AICoachPage'
 import { FlashcardsPage } from '../pages/FlashcardsPage'
 import { StudyGroupsPage } from '../pages/StudyGroupsPage'
 import { StudyGroupDetailPage } from '../pages/StudyGroupDetailPage'
@@ -53,7 +53,10 @@ export const router = createBrowserRouter([
     { path: 'flashcards', element: <FlashcardsPage /> },
     { path: 'groups', element: <StudyGroupsPage /> },
     { path: 'groups/:id', element: <StudyGroupDetailPage /> },
-    ...(aiFeaturesEnabled ? [{ path: 'assistant', element: <AIWorkspacePage /> }] : []),
+    ...(aiFeaturesEnabled ? [
+      { path: 'ai-coach', element: <AICoachPage /> },
+      { path: 'assistant', element: <Navigate to="/ai-coach" replace /> },
+    ] : []),
     { path: 'calendar', element: <CalendarPage /> },
     { path: 'subjects', element: <LearningSpacesPage /> },
     { path: 'topics', element: <TopicsPage /> },

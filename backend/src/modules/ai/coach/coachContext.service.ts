@@ -130,10 +130,13 @@ async function verifyScopeOwnership(userId: string, options: StudyCoachContextOp
 export async function buildStudyCoachContext(userId: string, options: StudyCoachContextOptions = {}): Promise<StudyCoachContext> {
   await verifyScopeOwnership(userId, options);
 
-  const user = await prisma.user.findFirst({ where: { id: userId, deletedAt: null }, select: { timezone: true } });
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deletedAt: null },
+    select: { timezone: true, studyPlanningPreference: { select: { timezone: true } } },
+  });
   if (!user) throw serviceError('User not found', 404);
 
-  const timezone = resolveTimezone(user.timezone);
+  const timezone = resolveTimezone(user.studyPlanningPreference?.timezone ?? user.timezone);
   const now = new Date();
   const horizonDays = clampHorizon(options.horizonDays);
   const horizonEnd = addLocalDays(now, horizonDays + 1, timezone);
