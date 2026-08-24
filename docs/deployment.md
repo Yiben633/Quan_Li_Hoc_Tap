@@ -136,6 +136,8 @@ Khai báo giá trị riêng trong Vercel cho Preview và Production. `VITE_API_U
 
 ### Backend Vercel Functions
 
+AI Coach supports `POST /api/ai/coach/chat/stream` through Server-Sent Events. The Vercel Node.js runtime supports streaming, but every Function still has a plan-dependent execution limit. Draft data is only sent in the final SSE event after backend validation. The frontend falls back to `POST /api/ai/coach/chat` when streaming is unavailable before the response begins.
+
 Tạo Vercel project thứ hai trong cùng repository:
 
 - Root Directory: `backend`

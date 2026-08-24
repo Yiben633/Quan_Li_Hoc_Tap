@@ -4,10 +4,26 @@ import { OpenAIAIProvider } from './providers/openai-ai.provider.js';
 
 export interface AIProvider {
   chat(prompt: string): Promise<string>;
+  chatStream?(prompt: string): AsyncIterable<string>;
   summarize(text: string): Promise<string>;
   generateFlashcards(text: string, count: number): Promise<Array<{ question: string; answer: string }>>;
   coach(prompt: string): Promise<unknown>;
+  chatWithUsage?(prompt: string): Promise<AIProviderCallResult<string>>;
+  summarizeWithUsage?(text: string): Promise<AIProviderCallResult<string>>;
+  generateFlashcardsWithUsage?(text: string, count: number): Promise<AIProviderCallResult<Array<{ question: string; answer: string }>>>;
+  coachWithUsage?(prompt: string): Promise<AIProviderCallResult<unknown>>;
 }
+
+export type AIProviderUsage = {
+  model: string;
+  inputTokens?: number;
+  outputTokens?: number;
+};
+
+export type AIProviderCallResult<T> = {
+  value: T;
+  usage?: AIProviderUsage;
+};
 
 export type AIProviderName = 'mock' | 'openai';
 
@@ -17,10 +33,12 @@ export type AIProviderConfig = {
   openaiModel: string;
 };
 
+export const AI_PROVIDER_UNAVAILABLE_MESSAGE = 'Trợ lý AI đang tạm thời không phản hồi. Các chức năng StudyFlow khác vẫn hoạt động bình thường.';
+
 export class AIProviderError extends Error {
   readonly statusCode: number;
 
-  constructor(message = 'AI provider is temporarily unavailable', statusCode = 503) {
+  constructor(message = AI_PROVIDER_UNAVAILABLE_MESSAGE, statusCode = 503) {
     super(message);
     this.name = 'AIProviderError';
     this.statusCode = statusCode;

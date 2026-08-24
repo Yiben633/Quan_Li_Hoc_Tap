@@ -5,7 +5,9 @@ const draftUpdate = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const taskFindMany = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const taskCreate = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const subjectFindMany = jest.fn<(...args: unknown[]) => Promise<unknown>>();
+const subjectFindFirst = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const planFindMany = jest.fn<(...args: unknown[]) => Promise<unknown>>();
+const goalCreate = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const eventFindMany = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const eventCreate = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 const scheduleFindMany = jest.fn<(...args: unknown[]) => Promise<unknown>>();
@@ -15,8 +17,9 @@ const transaction = jest.fn<(input: unknown) => Promise<unknown>>(async (input) 
   return input({
     aiPlanDraft: { findFirst: draftFindFirst, update: draftUpdate },
     task: { findMany: taskFindMany, create: taskCreate },
-    subject: { findMany: subjectFindMany },
+    subject: { findMany: subjectFindMany, findFirst: subjectFindFirst },
     studyPlan: { findMany: planFindMany },
+    goal: { create: goalCreate },
     event: { findMany: eventFindMany, create: eventCreate },
     schedule: { findMany: scheduleFindMany },
     activityLog: { create: activityLogCreate },
@@ -27,7 +30,7 @@ jest.unstable_mockModule('../src/lib/prisma.js', () => ({
   prisma: { $transaction: transaction },
 }));
 
-const { applyScheduleDraft } = await import('../src/modules/ai/coach/actionExecutor.service.js');
+const { applyGoalDraft, applyScheduleDraft } = await import('../src/modules/ai/coach/actionExecutor.service.js');
 
 const taskId = '11111111-1111-4111-8111-111111111111';
 const draft = {
@@ -47,16 +50,30 @@ const draft = {
   },
 };
 
+const goalDraft = {
+  id: 'goal-draft-a',
+  userId: 'user-a',
+  draftType: 'goal',
+  status: 'draft',
+  payload: {
+    version: 1,
+    type: 'goal',
+    title: 'Học Java 20 giờ tháng này',
+    goal: { name: 'Học Java 20 giờ tháng này', type: 'study_time', targetValue: 1200, subjectId: null, deadline: '2026-08-31' },
+  },
+};
+
 describe('AI Coach draft action executor', () => {
   beforeEach(() => {
-    [draftFindFirst, draftUpdate, taskFindMany, taskCreate, subjectFindMany, planFindMany, eventFindMany, eventCreate, scheduleFindMany, activityLogCreate, transaction].forEach((mock) => mock.mockReset());
+    [draftFindFirst, draftUpdate, taskFindMany, taskCreate, subjectFindMany, subjectFindFirst, planFindMany, goalCreate, eventFindMany, eventCreate, scheduleFindMany, activityLogCreate, transaction].forEach((mock) => mock.mockReset());
     transaction.mockImplementation(async (input: unknown) => {
       if (typeof input !== 'function') throw new Error('Expected transaction callback');
       return input({
         aiPlanDraft: { findFirst: draftFindFirst, update: draftUpdate },
         task: { findMany: taskFindMany, create: taskCreate },
-        subject: { findMany: subjectFindMany },
+        subject: { findMany: subjectFindMany, findFirst: subjectFindFirst },
         studyPlan: { findMany: planFindMany },
+        goal: { create: goalCreate },
         event: { findMany: eventFindMany, create: eventCreate },
         schedule: { findMany: scheduleFindMany },
         activityLog: { create: activityLogCreate },
@@ -68,6 +85,7 @@ describe('AI Coach draft action executor', () => {
     eventFindMany.mockResolvedValue([]);
     scheduleFindMany.mockResolvedValue([]);
     eventCreate.mockResolvedValue({ id: 'event-a' });
+    goalCreate.mockResolvedValue({ id: 'goal-a' });
     draftUpdate.mockResolvedValue({ ...draft, status: 'applied' });
     activityLogCreate.mockResolvedValue({});
   });
@@ -75,7 +93,7 @@ describe('AI Coach draft action executor', () => {
   it('revalidates references, creates calendar events, and marks the draft applied in one transaction', async () => {
     draftFindFirst.mockResolvedValue(draft);
 
-    await expect(applyScheduleDraft('user-a', draft.id)).resolves.toEqual({
+    await expect(applyScheduleDraft('user-a', draft.id)).resolves.toMatchObject({
       draftId: draft.id,
       status: 'applied',
       alreadyApplied: false,
@@ -102,5 +120,22 @@ describe('AI Coach draft action executor', () => {
     await expect(applyScheduleDraft('user-a', draft.id)).rejects.toMatchObject({ statusCode: 409, code: 'DRAFT_CONFLICT' });
     expect(eventCreate).not.toHaveBeenCalled();
     expect(draftUpdate).not.toHaveBeenCalled();
+  });
+
+  it('creates a goal only while applying a validated goal draft', async () => {
+    draftFindFirst.mockResolvedValue(goalDraft);
+    draftUpdate.mockResolvedValue({ ...goalDraft, status: 'applied' });
+
+    await expect(applyGoalDraft('user-a', goalDraft.id)).resolves.toMatchObject({
+      draftId: goalDraft.id,
+      status: 'applied',
+      alreadyApplied: false,
+      createdGoalId: 'goal-a',
+    });
+
+    expect(goalCreate).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ userId: 'user-a', name: 'Học Java 20 giờ tháng này', type: 'study_time', targetValue: 1200 }),
+    }));
+    expect(draftUpdate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ status: 'applied', appliedAt: expect.any(Date) }) }));
   });
 });

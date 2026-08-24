@@ -10,9 +10,10 @@ import type { ActiveStudySession, StartedStudySession } from '../features/study-
 import { useActiveStudySessionQuery, useStartStudySessionMutation } from '../features/study-sessions/studySessions.hooks'
 import { useTaskQuery } from '../features/tasks/tasks.hooks'
 
-type StudyLocationState = { activeSession?: StartedStudySession }
+type StudyLocationState = { activeSession?: StartedStudySession | ActiveStudySession }
 
-function toActiveSession(session: StartedStudySession): ActiveStudySession {
+function toActiveSession(session: StartedStudySession | ActiveStudySession): ActiveStudySession {
+  if ('pomodoro' in session) return session
   return { ...session, pomodoro: null, completedFocusCount: 0, lastCompletedPomodoroType: null }
 }
 

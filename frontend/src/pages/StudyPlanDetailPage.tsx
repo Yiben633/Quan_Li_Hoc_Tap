@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, ListPlus, ListTodo, MoreHorizontal, Pause, Play, Plus, Target, Trash2 } from 'lucide-react'
+import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, ListPlus, ListTodo, MoreHorizontal, Pause, Play, Plus, Sparkles, Target, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -80,6 +80,7 @@ export function StudyPlanDetailPage() {
       </div>
       <div className="plan-detail-actions">
         <Button variant="secondary" onClick={() => setBreakdownOpen(true)}><ListPlus size={16} /> Chia nhỏ kế hoạch</Button>
+        <Link className="button secondary" to={`/ai-coach?studyPlanId=${encodeURIComponent(plan.id)}`}><Sparkles size={16} /> Điều chỉnh bằng AI</Link>
         <Button onClick={openQuickCreate}><Plus size={16} /> Thêm công việc</Button>
         <Dropdown ariaLabel={`Thao tác với ${plan.title}`} label={<><MoreHorizontal size={18} /><span className="sr-only">Thao tác với {plan.title}</span></>} showChevron={false}>
           {canPause && <button type="button" className="menu-item" onClick={() => changePlanStatus('paused')}><Pause size={15} /> Tạm dừng</button>}

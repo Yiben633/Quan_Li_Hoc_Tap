@@ -39,6 +39,26 @@ export async function endStudySession(id: string) {
   return (await apiClient.post<ApiResponse<StudySession & { state: { status: 'ended'; totalMinutes: number } }>>(`/study-sessions/${id}/end`)).data.data
 }
 
+export async function startFocusPomodoro(input: { subjectId?: string | null; plannedMinutes: number }): Promise<ActiveStudySession> {
+  const startedSession = await startStudySession({ subjectId: input.subjectId ?? null })
+
+  try {
+    const pomodoro = await startPomodoro(startedSession.session.id, {
+      sessionType: 'focus',
+      plannedMinutes: input.plannedMinutes,
+    })
+    return {
+      ...startedSession,
+      pomodoro,
+      completedFocusCount: 0,
+      lastCompletedPomodoroType: null,
+    }
+  } catch (error) {
+    await endStudySession(startedSession.session.id).catch(() => undefined)
+    throw error
+  }
+}
+
 export async function startPomodoro(sessionId: string, input: { sessionType: PomodoroType; plannedMinutes: number }) {
   return (await apiClient.post<ApiResponse<ActivePomodoro>>(`/study-sessions/${sessionId}/pomodoro/start`, input)).data.data
 }

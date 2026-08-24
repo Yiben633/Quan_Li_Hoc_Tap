@@ -1,11 +1,13 @@
 import { jest } from '@jest/globals';
 
 const activityLogCreate = jest.fn<(input: unknown) => Promise<unknown>>();
+const assertAIInputLength = jest.fn();
+const consumeAiDailyRequest = jest.fn<(...args: unknown[]) => Promise<unknown>>();
 
 class TestAIProviderError extends Error {
   readonly statusCode: number;
 
-  constructor(message = 'AI provider is temporarily unavailable', statusCode = 503) {
+  constructor(message = 'Trợ lý AI đang tạm thời không phản hồi. Các chức năng StudyFlow khác vẫn hoạt động bình thường.', statusCode = 503) {
     super(message);
     this.name = 'AIProviderError';
     this.statusCode = statusCode;
@@ -27,6 +29,10 @@ jest.unstable_mockModule('../src/modules/ai/ai.provider.js', () => ({
   },
   normalizeAIProviderError: () => new TestAIProviderError(),
 }));
+jest.unstable_mockModule('../src/modules/ai/aiCostControl.service.js', () => ({
+  assertAIInputLength,
+  consumeAiDailyRequest,
+}));
 
 const { chat, suggestSchedule } = await import('../src/modules/ai/ai.service.js');
 
@@ -34,11 +40,14 @@ describe('AI service provider failures', () => {
   beforeEach(() => {
     activityLogCreate.mockReset();
     activityLogCreate.mockResolvedValue({});
+    assertAIInputLength.mockReset();
+    consumeAiDailyRequest.mockReset();
+    consumeAiDailyRequest.mockResolvedValue(undefined);
   });
 
   it('sanitizes a provider failure and logs only safe metadata', async () => {
     await expect(chat('user-1', 'Nội dung riêng tư của người dùng')).rejects.toMatchObject({
-      message: 'AI provider is temporarily unavailable',
+      message: 'Trợ lý AI đang tạm thời không phản hồi. Các chức năng StudyFlow khác vẫn hoạt động bình thường.',
       statusCode: 503,
     });
 

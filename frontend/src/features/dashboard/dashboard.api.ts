@@ -44,6 +44,11 @@ export type DashboardSummary = {
   activeSubjects: DashboardSubject[]
   upcomingSchedules: DashboardSchedule[]
   activeGoals: DashboardGoal[]
+  dailyBriefing?: {
+    openTaskCount: number
+    dueTodayCount: number
+    availableSlot: { startTime: string; endTime: string } | null
+  }
 }
 
 export type ProgressPoint = { date: string; taskDone: number; studyMinutes: number }

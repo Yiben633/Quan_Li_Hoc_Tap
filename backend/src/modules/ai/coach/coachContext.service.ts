@@ -110,7 +110,7 @@ function taskRank(task: { dueDate: Date | null; priority: string; status: string
 }
 
 async function verifyScopeOwnership(userId: string, options: StudyCoachContextOptions) {
-  const [subject, plan, task] = await Promise.all([
+  const [subject, plan, task, event] = await Promise.all([
     options.subjectId
       ? prisma.subject.findFirst({ where: { id: options.subjectId, userId, deletedAt: null, semester: { deletedAt: null } }, select: { id: true } })
       : Promise.resolve(null),
@@ -120,11 +120,15 @@ async function verifyScopeOwnership(userId: string, options: StudyCoachContextOp
     options.taskId
       ? prisma.task.findFirst({ where: { id: options.taskId, userId, deletedAt: null }, select: { id: true } })
       : Promise.resolve(null),
+    options.eventId
+      ? prisma.event.findFirst({ where: { id: options.eventId, userId, deletedAt: null }, select: { id: true } })
+      : Promise.resolve(null),
   ]);
 
   if (options.subjectId && !subject) throw serviceError('Subject not found', 404);
   if (options.studyPlanId && !plan) throw serviceError('Study plan not found', 404);
   if (options.taskId && !task) throw serviceError('Task not found', 404);
+  if (options.eventId && !event) throw serviceError('Event not found', 404);
 }
 
 export async function buildStudyCoachContext(userId: string, options: StudyCoachContextOptions = {}): Promise<StudyCoachContext> {

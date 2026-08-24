@@ -1,10 +1,11 @@
+import { env } from '../../../config/env.js';
 import type { CoachContextReductionLimits, ReducedStudyCoachContext, StudyCoachContext } from './coach.types.js';
 
 export const defaultCoachContextReductionLimits: CoachContextReductionLimits = {
   subjects: 16,
-  tasks: 40,
+  tasks: env.MAX_CONTEXT_TASKS,
   plans: 20,
-  calendar: 40,
+  calendar: env.MAX_CONTEXT_EVENTS,
   goals: 12,
 };
 

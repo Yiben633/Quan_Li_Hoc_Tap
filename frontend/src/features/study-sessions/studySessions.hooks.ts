@@ -28,6 +28,11 @@ export function useStartStudySessionMutation() {
   return useMutation({ mutationFn: api.startStudySession, onSuccess: invalidate })
 }
 
+export function useStartFocusPomodoroMutation() {
+  const invalidate = useInvalidateStudyData()
+  return useMutation({ mutationFn: api.startFocusPomodoro, onSuccess: invalidate })
+}
+
 export function usePauseStudySessionMutation() {
   const invalidate = useInvalidateStudyData()
   return useMutation({ mutationFn: api.pauseStudySession, onSuccess: invalidate })

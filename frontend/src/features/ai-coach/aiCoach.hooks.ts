@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { sendCoachMessage } from './aiCoach.api'
+import { sendCoachMessage, streamCoachMessage } from './aiCoach.api'
 import * as api from './aiCoach.api'
+import type { CoachChatInput } from './aiCoach.types'
 
 const coachKeys = {
   conversations: ['ai-coach', 'conversations'] as const,
@@ -30,6 +31,17 @@ export function useCoachChatMutation() {
   })
 }
 
+export function useCoachChatStreamMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ input, onTextDelta }: { input: CoachChatInput; onTextDelta: (text: string) => void }) => streamCoachMessage(input, onTextDelta),
+    onSuccess: (data) => {
+      void queryClient.invalidateQueries({ queryKey: coachKeys.conversations })
+      void queryClient.invalidateQueries({ queryKey: coachKeys.messages(data.conversationId) })
+    },
+  })
+}
+
 export function useDeleteCoachConversationMutation() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -38,5 +50,36 @@ export function useDeleteCoachConversationMutation() {
       void queryClient.invalidateQueries({ queryKey: coachKeys.conversations })
       queryClient.removeQueries({ queryKey: coachKeys.messages(conversationId) })
     },
+  })
+}
+
+export function useApplyCoachDraftMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.applyCoachDraft,
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+      queryClient.invalidateQueries({ queryKey: ['study-plans'] }),
+      queryClient.invalidateQueries({ queryKey: ['calendar'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
+      queryClient.invalidateQueries({ queryKey: ['goals'] }),
+      queryClient.invalidateQueries({ queryKey: coachKeys.conversations }),
+    ]),
+  })
+}
+
+export function useDiscardCoachDraftMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.discardCoachDraft,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: coachKeys.conversations }),
+  })
+}
+
+export function useUpdateCoachDraftMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: api.updateCoachDraft,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: coachKeys.conversations }),
   })
 }

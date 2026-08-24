@@ -5,13 +5,20 @@ export type CoachIntent =
   | 'reschedule'
   | 'prioritize_tasks'
   | 'create_tasks'
+  | 'create_goal'
+  | 'analytics'
   | 'start_focus'
   | 'clarify'
 
 export type CoachDraft = {
   id: string
   status: 'draft' | 'applied' | 'discarded' | 'expired' | string
+  type?: 'study_schedule' | 'study_plan_bundle' | 'reschedule' | 'goal'
   title: string
+  range?: {
+    startAt?: string
+    endAt?: string
+  }
   sessions: Array<{
     id: string
     taskId: string
@@ -22,11 +29,29 @@ export type CoachDraft = {
     minutes: number
     sequence: number
   }>
+  moves?: Array<{
+    id: string
+    eventId: string
+    taskId?: string
+    title: string
+    fromStartAt: string
+    fromEndAt: string
+    toStartAt: string
+    toEndAt: string
+    minutes: number
+  }>
   warnings: Array<{ code: string; taskId?: string; message: string }>
   summary: {
     totalSessions: number
     totalMinutes: number
     taskCount: number
+  }
+  goal?: {
+    name: string
+    type: 'score' | 'study_time' | 'task_count' | 'course_completion' | 'gpa'
+    targetValue: number
+    subjectId: string | null
+    deadline: string | null
   }
 }
 
@@ -42,6 +67,32 @@ export type CoachChatResponse = {
     estimatedMinutes: number | null
     dueDate: string | null
   }>
+  taskPriority?: {
+    type: 'task_priority'
+    taskIds: string[]
+  }
+  focusProposal?: {
+    type: 'pomodoro'
+    taskId: string
+    subjectId: string | null
+    title: string
+    plannedMinutes: number
+  }
+  analytics?: {
+    type: 'weekly'
+    range: { startAt: string; endAt: string }
+    timezone: string
+    studyMinutes: number
+    completedTasks: number
+    totalTasks: number
+    overdueTasks: number
+    subjectBreakdown: Array<{
+      subjectId: string | null
+      name: string
+      minutes: number
+      percent: number
+    }>
+  }
   provider: string
 }
 
@@ -52,6 +103,7 @@ export type CoachChatInput = {
     subjectId?: string
     studyPlanId?: string
     taskId?: string
+    eventId?: string
   }
 }
 

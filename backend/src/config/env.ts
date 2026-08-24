@@ -29,6 +29,10 @@ const envSchema = z.object({
   AI_PROVIDER: z.enum(['mock', 'openai']).default('mock'),
   OPENAI_API_KEY: z.string().trim().min(1).optional(),
   OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
+  MAX_CONTEXT_TASKS: z.coerce.number().int().min(1).max(100).default(40),
+  MAX_CONTEXT_EVENTS: z.coerce.number().int().min(1).max(100).default(40),
+  AI_MAX_INPUT_CHARS: z.coerce.number().int().min(1_000).max(200_000).default(24_000),
+  AI_DAILY_REQUEST_LIMIT: z.coerce.number().int().min(1).max(1_000).default(50),
   VERCEL: z.string().optional(),
 });
 

@@ -141,7 +141,8 @@ export async function addMessage(userId: string, conversationId: string, input: 
 
 export async function listMessages(userId: string, conversationId: string, query: MessagePageQuery) {
   await ownedConversation(userId, conversationId);
-  const where: Prisma.AiMessageWhereInput = { conversationId };
+  // System rows are application-maintained memory summaries, not chat messages.
+  const where: Prisma.AiMessageWhereInput = { conversationId, role: { not: 'system' } };
   const [items, total] = await Promise.all([
     prisma.aiMessage.findMany({
       where,

@@ -43,6 +43,122 @@
 .ai-coach-plan-draft p,
 .ai-coach-plan-draft small { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
 .ai-coach-plan-draft small { color: var(--warning); }
+.ai-coach-plan-draft-card { display: grid; gap: 15px; width: min(100%, 520px); padding: 16px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--blue) 35%, var(--line)); border-left: 3px solid var(--blue); border-radius: 8px; box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 7%, transparent); }
+.ai-coach-plan-draft-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ai-coach-plan-draft-card-head > div { min-width: 0; }
+.ai-coach-plan-draft-card-head > div > span { display: block; color: var(--blue); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.ai-coach-plan-draft-card h3 { margin: 5px 0 0; overflow: hidden; color: var(--ink); font: 700 16px 'Plus Jakarta Sans', sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-plan-draft-applied { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; color: var(--green); font-size: 11px; font-weight: 800; }
+.ai-coach-plan-draft-metrics { display: grid; gap: 8px; padding: 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-plan-draft-metrics > span { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+.ai-coach-plan-draft-metrics svg { flex: 0 0 auto; color: var(--blue); }
+.ai-coach-plan-draft-metrics .ai-coach-plan-draft-warning { color: var(--warning); }
+.ai-coach-plan-draft-metrics .ai-coach-plan-draft-warning svg { color: var(--warning); }
+.ai-coach-plan-draft-sessions { display: grid; gap: 0; max-height: 220px; margin: 0; padding: 0; overflow-y: auto; border: 1px solid var(--line); border-radius: 7px; list-style: none; }
+.ai-coach-plan-draft-sessions li { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 42px; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.ai-coach-plan-draft-sessions li:last-child { border-bottom: 0; }
+.ai-coach-plan-draft-sessions li > span,
+.ai-coach-plan-draft-sessions small { color: var(--muted); font-size: 10px; }
+.ai-coach-plan-draft-sessions strong { overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-plan-draft-sessions li.empty { display: block; color: var(--muted); font-size: 12px; }
+.ai-coach-plan-draft-card footer { display: flex; justify-content: flex-end; gap: 8px; }
+.ai-coach-plan-draft-card footer .button { min-height: 36px; padding: 0 12px; font-size: 12px; }
+.ai-coach-task-priority { display: grid; gap: 10px; width: min(100%, 520px); padding: 13px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--green) 28%, var(--line)); border-left: 3px solid var(--green); border-radius: 8px; }
+.ai-coach-task-priority > header { display: flex; gap: 9px; align-items: flex-start; color: var(--green); }
+.ai-coach-task-priority > header > div { display: grid; gap: 2px; }
+.ai-coach-task-priority > header span { color: var(--green); font-size: 10px; font-weight: 800; }
+.ai-coach-task-priority > header strong { color: var(--ink); font-size: 12px; }
+.ai-coach-task-priority > div { display: grid; gap: 7px; }
+.ai-coach-task-priority a { display: grid; grid-template-columns: 24px minmax(0, 1fr) 18px; gap: 9px; align-items: center; min-height: 56px; padding: 8px 9px; color: var(--ink); background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-task-priority a:hover { color: var(--ink); background: var(--green-soft); border-color: color-mix(in srgb, var(--green) 44%, var(--line)); }
+.ai-coach-task-priority a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.ai-coach-task-priority-rank { display: grid; place-items: center; width: 24px; height: 24px; color: var(--green); background: var(--green-soft); border: 1px solid color-mix(in srgb, var(--green) 32%, var(--line)); border-radius: 50%; font-size: 11px; font-weight: 800; }
+.ai-coach-task-priority-copy { display: grid; gap: 4px; min-width: 0; }
+.ai-coach-task-priority-copy > strong { overflow: hidden; color: var(--ink); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-task-priority-copy small { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; color: var(--muted); font-size: 10px; }
+.ai-coach-task-priority a > svg { justify-self: end; color: var(--muted); }
+.ai-coach-focus-proposal { display: grid; gap: 11px; width: min(100%, 520px); padding: 14px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--blue) 32%, var(--line)); border-left: 3px solid var(--blue); border-radius: 8px; }
+.ai-coach-focus-proposal header { display: flex; gap: 10px; align-items: center; }
+.ai-coach-focus-proposal-icon { display: grid; place-items: center; width: 34px; height: 34px; color: var(--blue); background: var(--blue-soft); border-radius: 7px; }
+.ai-coach-focus-proposal header > div { display: grid; gap: 2px; min-width: 0; }
+.ai-coach-focus-proposal header span:not(.ai-coach-focus-proposal-icon) { color: var(--blue); font-size: 10px; font-weight: 800; }
+.ai-coach-focus-proposal header strong { overflow: hidden; color: var(--ink); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-focus-proposal > p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.ai-coach-focus-proposal .button { justify-self: start; min-height: 36px; padding: 0 12px; font-size: 12px; }
+.ai-coach-goal-draft-card { display: grid; gap: 14px; width: min(100%, 520px); padding: 16px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--green) 34%, var(--line)); border-left: 3px solid var(--green); border-radius: 8px; }
+.ai-coach-goal-draft-card > header { display: flex; align-items: flex-start; gap: 10px; }
+.ai-coach-goal-draft-icon { display: grid; flex: 0 0 auto; place-items: center; width: 36px; height: 36px; color: var(--green); background: var(--green-soft); border-radius: 7px; }
+.ai-coach-goal-draft-card > header > div { display: grid; gap: 3px; min-width: 0; }
+.ai-coach-goal-draft-card > header > div > span { color: var(--green); font-size: 10px; font-weight: 800; }
+.ai-coach-goal-draft-card h3 { margin: 0; overflow: hidden; color: var(--ink); font: 700 16px 'Plus Jakarta Sans', sans-serif; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-goal-draft-applied { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; margin-left: auto; color: var(--green); font-size: 10px; font-weight: 800; }
+.ai-coach-goal-draft-details { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 11px 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-goal-draft-details > span { color: var(--muted); font-size: 11px; }
+.ai-coach-goal-draft-details > strong { color: var(--ink); font-size: 15px; }
+.ai-coach-goal-draft-details > small { display: inline-flex; gap: 5px; align-items: center; width: 100%; color: var(--muted); font-size: 11px; }
+.ai-coach-goal-draft-card footer { display: flex; justify-content: flex-end; gap: 8px; }
+.ai-coach-goal-draft-card footer .button { min-height: 36px; padding: 0 12px; font-size: 12px; }
+.modal:has(.ai-coach-goal-draft-preview) { width: min(100%, 560px); }
+.ai-coach-goal-draft-preview { display: grid; gap: 16px; }
+.ai-coach-goal-draft-preview > header { padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.ai-coach-goal-draft-preview > header > span { color: var(--green); font-size: 10px; font-weight: 800; }
+.ai-coach-goal-draft-preview h3 { margin: 6px 0 0; color: var(--ink); font: 700 19px 'Plus Jakarta Sans', sans-serif; }
+.ai-coach-goal-draft-preview > header p { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.ai-coach-goal-draft-preview dl { display: grid; gap: 8px; margin: 0; }
+.ai-coach-goal-draft-preview dl > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-goal-draft-preview dt { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+.ai-coach-goal-draft-preview dd { margin: 0; color: var(--ink); font-size: 12px; font-weight: 800; text-align: right; }
+.ai-coach-goal-draft-link { display: inline-flex; justify-self: start; gap: 6px; align-items: center; min-height: 34px; color: var(--ink); font-size: 11px; font-weight: 700; }
+.ai-coach-goal-draft-link:hover { color: var(--green); }
+.ai-coach-goal-draft-preview footer { display: flex; justify-content: flex-end; gap: 8px; }
+.modal:has(.ai-coach-plan-preview) { width: min(100%, 700px); }
+.ai-coach-plan-preview { display: grid; gap: 18px; }
+.ai-coach-plan-preview-intro { padding-bottom: 15px; border-bottom: 1px solid var(--line); }
+.ai-coach-plan-preview-intro > span { color: var(--blue); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.ai-coach-plan-preview-intro h3 { margin: 6px 0 0; color: var(--ink); font: 700 19px 'Plus Jakarta Sans', sans-serif; }
+.ai-coach-plan-preview-intro p { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
+.ai-coach-plan-preview-days { display: grid; gap: 16px; }
+.ai-coach-plan-preview-day { display: grid; gap: 8px; }
+.ai-coach-plan-preview-day h4 { margin: 0; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 0; }
+.ai-coach-plan-preview-day article { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 12px; align-items: start; padding: 11px 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-plan-preview-day time { color: var(--blue); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.ai-coach-plan-preview-day article > div { display: grid; gap: 4px; min-width: 0; }
+.ai-coach-plan-preview-day strong { overflow: hidden; color: var(--ink); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-plan-preview-day article span { color: var(--muted); font-size: 11px; }
+.ai-coach-reschedule-preview { display: grid; gap: 10px; }
+.ai-coach-reschedule-preview article { display: grid; gap: 9px; padding: 13px; background: var(--canvas); border: 1px solid color-mix(in srgb, var(--blue) 34%, var(--line)); border-left: 3px solid var(--blue); border-radius: 7px; }
+.ai-coach-reschedule-preview strong { color: var(--ink); font-size: 13px; }
+.ai-coach-reschedule-preview-times { display: grid; grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr); gap: 8px; align-items: center; }
+.ai-coach-reschedule-preview-times time { color: var(--blue); font-size: 12px; font-weight: 800; line-height: 1.45; }
+.ai-coach-reschedule-preview-times svg { justify-self: center; color: var(--muted); }
+.ai-coach-reschedule-preview article > span { color: var(--muted); font-size: 11px; }
+.ai-coach-plan-preview-warnings { display: grid; gap: 7px; padding: 11px 12px; color: var(--warning); background: var(--orange-soft); border: 1px solid color-mix(in srgb, var(--warning) 36%, var(--line)); border-radius: 7px; }
+.ai-coach-plan-preview-warnings p { margin: 0; font-size: 12px; line-height: 1.5; }
+.ai-coach-plan-preview-conflict,
+.ai-coach-plan-editor-error { margin: 0; padding: 11px 12px; color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--line)); border-radius: 7px; font-size: 12px; line-height: 1.5; }
+.ai-coach-plan-preview-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.ai-coach-plan-preview-links a { display: inline-flex; align-items: center; gap: 5px; min-height: 34px; padding: 0 9px; color: var(--ink); background: var(--canvas); border: 1px solid var(--line); border-radius: 6px; font-size: 11px; font-weight: 700; }
+.ai-coach-plan-preview-links a:hover { color: var(--blue); background: var(--blue-soft); border-color: color-mix(in srgb, var(--blue) 42%, var(--line)); }
+.ai-coach-plan-preview-links a svg:last-child { margin-left: -2px; }
+.ai-coach-plan-preview-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 2px; }
+.ai-coach-plan-preview-actions .button { min-height: 38px; padding: 0 12px; font-size: 12px; }
+.ai-coach-plan-editor { display: grid; gap: 16px; }
+.ai-coach-plan-editor-intro { padding: 11px 12px; background: var(--blue-soft); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--line)); border-radius: 7px; }
+.ai-coach-plan-editor-intro p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.ai-coach-plan-editor-sessions { display: grid; gap: 10px; max-height: min(52vh, 520px); overflow-y: auto; padding-right: 3px; }
+.ai-coach-plan-editor-sessions article { display: grid; gap: 11px; padding: 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-plan-editor-session-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.ai-coach-plan-editor-session-head > div { display: grid; gap: 3px; min-width: 0; }
+.ai-coach-plan-editor-session-head span { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.ai-coach-plan-editor-session-head strong { overflow: hidden; color: var(--ink); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-plan-editor-session-head .icon-button { color: var(--danger); }
+.ai-coach-plan-editor-times { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 9px; align-items: end; }
+.ai-coach-plan-editor-times label { display: grid; gap: 5px; min-width: 0; }
+.ai-coach-plan-editor-times label > span { color: var(--muted); font-size: 10px; font-weight: 700; }
+.ai-coach-plan-editor-times input { width: 100%; min-width: 0; min-height: 38px; padding: 0 9px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 11px; }
+.ai-coach-plan-editor-times input:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; border-color: var(--blue); }
+.ai-coach-plan-editor-duration { align-self: end; min-height: 38px; padding: 11px 2px; color: var(--blue); font-size: 11px; font-weight: 800; white-space: nowrap; }
+.ai-coach-plan-editor-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .ai-coach-suggestions { display: flex; flex-wrap: wrap; gap: 8px; }
 .ai-coach-suggestions button { min-height: 36px; padding: 0 12px; color: var(--ink); background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; font-size: 12px; text-align: left; }
 .ai-coach-suggestions button:hover:not(:disabled) { color: var(--blue); background: var(--blue-soft); border-color: color-mix(in srgb, var(--blue) 40%, var(--line)); }
@@ -112,6 +228,24 @@
 .ai-assignment-list time { display: block; }
 .ai-assignment-list strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .ai-assignment-list time { margin-top: 4px; color: var(--muted); font-size: 10px; }
+
+.ai-coach-analytics-card { display: grid; gap: 14px; width: min(100%, 610px); padding: 15px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--blue); border-radius: 8px; }
+.ai-coach-analytics-card header { display: flex; align-items: center; gap: 10px; }
+.ai-coach-analytics-card header > div { min-width: 0; }
+.ai-coach-analytics-card header p { margin: 0; color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: 0; }
+.ai-coach-analytics-card h3 { margin: 3px 0 0; font: 700 15px 'Plus Jakarta Sans', sans-serif; }
+.ai-coach-analytics-icon { display: grid; flex: 0 0 auto; place-items: center; width: 34px; height: 34px; color: var(--blue); background: var(--blue-soft); border-radius: 7px; }
+.ai-coach-analytics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ai-coach-analytics-grid article { display: grid; gap: 5px; min-width: 0; padding: 10px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; }
+.ai-coach-analytics-grid svg { color: var(--blue); }
+.ai-coach-analytics-grid article.has-warning svg,
+.ai-coach-analytics-grid article.has-warning strong { color: var(--warning); }
+.ai-coach-analytics-grid span { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-analytics-grid strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-coach-analytics-focus { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 11px; border-top: 1px solid var(--line); font-size: 11px; }
+.ai-coach-analytics-focus span { color: var(--muted); }
+.ai-coach-analytics-focus strong { color: var(--ink); text-align: right; }
+.ai-coach-analytics-card > small { color: var(--muted); font-size: 10px; }
 
 .assistant-layout { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr); gap: 18px; align-items: start; }
 .assistant-summary { position: sticky; top: 92px; }
@@ -213,6 +347,11 @@
   .ai-coach-message { width: min(94%, 640px); }
   .ai-coach-composer-foot { align-items: flex-end; flex-direction: column; }
   .ai-coach-composer-foot > span { width: 100%; }
+  .ai-coach-plan-preview-actions { flex-wrap: wrap; }
+  .ai-coach-plan-preview-actions .button:first-child { margin-right: auto; }
+  .ai-coach-analytics-grid { grid-template-columns: 1fr; }
+  .ai-coach-plan-editor-times { grid-template-columns: 1fr 1fr; }
+  .ai-coach-plan-editor-duration { grid-column: 1 / -1; min-height: 0; padding: 0; }
   .ai-page > .page-heading,
   .flashcards-page > .page-heading { display: grid; gap: 16px; }
   .ai-page > .page-heading .tabs { width: 100%; }
@@ -239,6 +378,14 @@
 }
 
 @media (max-width: 440px) {
+  .ai-coach-plan-draft-card footer,
+  .ai-coach-plan-preview-actions { display: grid; grid-template-columns: 1fr; }
+  .ai-coach-plan-preview-actions .button:first-child { margin-right: 0; }
+  .ai-coach-plan-editor-times { grid-template-columns: 1fr; }
+  .ai-coach-plan-editor-duration { grid-column: auto; }
+  .ai-coach-plan-preview-day article { grid-template-columns: 1fr; gap: 5px; }
+  .ai-coach-reschedule-preview-times { grid-template-columns: 1fr; gap: 5px; }
+  .ai-coach-reschedule-preview-times svg { justify-self: start; transform: rotate(-90deg); }
   .ai-manual-task,
   .ai-slot-row { grid-template-columns: 1fr; }
   .ai-manual-task > .field:first-child,

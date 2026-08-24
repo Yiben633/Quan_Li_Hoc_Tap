@@ -120,7 +120,7 @@ describe('AI Coach conversation service', () => {
     });
 
     expect(messageFindMany).toHaveBeenCalledWith({
-      where: { conversationId: conversation.id },
+      where: { conversationId: conversation.id, role: { not: 'system' } },
       orderBy: { createdAt: 'asc' },
       skip: 1,
       take: 1,

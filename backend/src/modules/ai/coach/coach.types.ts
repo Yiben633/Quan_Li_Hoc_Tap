@@ -61,6 +61,7 @@ export type StudyCoachContextOptions = {
   subjectId?: string;
   studyPlanId?: string;
   taskId?: string;
+  eventId?: string;
 };
 
 export type CoachIntent =
@@ -70,8 +71,27 @@ export type CoachIntent =
   | 'reschedule'
   | 'prioritize_tasks'
   | 'create_tasks'
+  | 'create_goal'
+  | 'analytics'
   | 'start_focus'
   | 'clarify';
+
+/**
+ * Bounded, user-visible conversation state used as data for the provider.
+ * It never contains provider reasoning or provider configuration.
+ */
+export type CoachConversationMemory = {
+  summary: string | null;
+  recentMessages: Array<{
+    role: 'user' | 'assistant' | 'tool';
+    content: string;
+    createdAt: string;
+  }>;
+  metrics: {
+    recentMessageCount: number;
+    summarizedMessageCount: number;
+  };
+};
 
 export type ParsedCoachIntent = {
   intent: CoachIntent;
@@ -88,6 +108,12 @@ export type ParsedCoachIntent = {
     preferredStartTime?: string;
     preferredEndTime?: string;
     excludeDays?: number[];
+  };
+  goal?: {
+    name: string;
+    type: 'score' | 'study_time' | 'task_count' | 'course_completion' | 'gpa';
+    targetValue: number;
+    deadline?: string;
   };
   missingInformation: string[];
 };

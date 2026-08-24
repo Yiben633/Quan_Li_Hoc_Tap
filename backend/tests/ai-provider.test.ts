@@ -1,4 +1,4 @@
-import { aiProvider, createAIProvider, normalizeAIProviderError } from '../src/modules/ai/ai.provider.js';
+import { AI_PROVIDER_UNAVAILABLE_MESSAGE, aiProvider, createAIProvider, normalizeAIProviderError } from '../src/modules/ai/ai.provider.js';
 import { MockAIProvider } from '../src/modules/ai/providers/mock-ai.provider.js';
 import { OpenAIAIProvider } from '../src/modules/ai/providers/openai-ai.provider.js';
 
@@ -27,7 +27,7 @@ describe('AI provider selection', () => {
   it('normalizes unexpected provider failures without exposing sensitive details', () => {
     const error = normalizeAIProviderError(new Error('401 Authorization: Bearer sk-sensitive-key'));
 
-    expect(error.message).toBe('AI provider is temporarily unavailable');
+    expect(error.message).toBe(AI_PROVIDER_UNAVAILABLE_MESSAGE);
     expect(error.message).not.toContain('sk-sensitive-key');
     expect(error.statusCode).toBe(503);
   });

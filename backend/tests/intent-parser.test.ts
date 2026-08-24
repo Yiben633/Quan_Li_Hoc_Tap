@@ -2,6 +2,8 @@ import { jest } from '@jest/globals';
 import { parseCoachIntent, validateCoachIntent } from '../src/modules/ai/coach/intentParser.js';
 import type { StudyCoachContext } from '../src/modules/ai/coach/coach.types.js';
 
+const providerUnavailableMessage = 'Trợ lý AI đang tạm thời không phản hồi. Các chức năng StudyFlow khác vẫn hoạt động bình thường.';
+
 const subjectId = '11111111-1111-4111-8111-111111111111';
 const taskId = '22222222-2222-4222-8222-222222222222';
 const context: StudyCoachContext = {
@@ -50,6 +52,16 @@ describe('Coach intent parser', () => {
       .mockResolvedValueOnce({ intent: 'question', confidence: 0.8 });
 
     await expect(parseCoachIntent('Toi nen hoc gi?', context, { coach })).resolves.toMatchObject({ intent: 'question' });
+    expect(coach).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns the safe provider failure message after both provider attempts fail', async () => {
+    const coach = jest.fn<(prompt: string) => Promise<unknown>>().mockRejectedValue(new Error('OpenAI timeout'));
+
+    await expect(parseCoachIntent('Lap lich cho toi', context, { coach })).resolves.toMatchObject({
+      intent: 'clarify',
+      missingInformation: [providerUnavailableMessage],
+    });
     expect(coach).toHaveBeenCalledTimes(2);
   });
 });

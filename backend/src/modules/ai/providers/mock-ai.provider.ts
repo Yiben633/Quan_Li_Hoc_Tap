@@ -5,6 +5,13 @@ export class MockAIProvider implements AIProvider {
     return `Mock assistant response for: ${prompt}`;
   }
 
+  async *chatStream(prompt: string): AsyncIterable<string> {
+    const response = await this.chat(prompt);
+    for (let index = 0; index < response.length; index += 32) {
+      yield response.slice(index, index + 32);
+    }
+  }
+
   async summarize(text: string): Promise<string> {
     return text.trim().split(/\s+/).slice(0, 80).join(' ');
   }

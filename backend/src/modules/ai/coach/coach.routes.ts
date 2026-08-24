@@ -13,6 +13,7 @@ const chatSchema = z.object({
     subjectId: z.string().uuid().optional(),
     studyPlanId: z.string().uuid().optional(),
     taskId: z.string().uuid().optional(),
+    eventId: z.string().uuid().optional(),
   }).strict().optional(),
 }).strict();
 
@@ -23,3 +24,4 @@ coachRouter.get('/conversations', validateQuery(conversationListQuerySchema), as
 coachRouter.get('/conversations/:id/messages', validateQuery(messageListQuerySchema), asyncHandler(controller.messages));
 coachRouter.delete('/conversations/:id', asyncHandler(controller.removeConversation));
 coachRouter.post('/chat', validateBody(chatSchema), asyncHandler(controller.chat));
+coachRouter.post('/chat/stream', validateBody(chatSchema), asyncHandler(controller.streamChat));

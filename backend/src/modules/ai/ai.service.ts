@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
-import { aiProvider, aiProviderName, normalizeAIProviderError } from './ai.provider.js';
+import { aiProvider, aiProviderName, normalizeAIProviderError, type AIProviderCallResult } from './ai.provider.js';
 import { buildPlan } from './coach/planningEngine.js';
+import { assertAIInputLength, consumeAiDailyRequest } from './aiCostControl.service.js';
 
 type Slot = { startAt: Date; endAt: Date };
 type TaskInput = { id?: string; title: string; estimatedMinutes: number; dueDate?: Date | null };
@@ -56,17 +57,48 @@ export async function suggestSchedule(userId: string, tasks: TaskInput[], slots:
   };
 }
 export async function reschedule(userId: string, tasks: TaskInput[], slots: Slot[]) { return suggestSchedule(userId, tasks, slots); }
-async function runProviderCall<T>(userId: string, action: string, metadata: Record<string, unknown>, operation: () => Promise<T>): Promise<T> {
+function isProviderCallResult<T>(value: T | AIProviderCallResult<T>): value is AIProviderCallResult<T> {
+  return typeof value === 'object' && value !== null && 'value' in value;
+}
+
+async function runProviderCall<T>(userId: string, action: string, metadata: Record<string, unknown>, operation: () => Promise<T | AIProviderCallResult<T>>): Promise<T> {
   const startedAt = performance.now();
   try {
-    const result = await operation();
-    await log(userId, action, { ...metadata, provider: aiProviderName, latencyMs: Math.round(performance.now() - startedAt), success: true });
+    const rawResult = await operation();
+    const result = isProviderCallResult(rawResult) ? rawResult.value : rawResult;
+    const usage = isProviderCallResult(rawResult) ? rawResult.usage : undefined;
+    await log(userId, action, {
+      ...metadata,
+      provider: aiProviderName,
+      ...(usage ? {
+        model: usage.model,
+        ...(usage.inputTokens === undefined ? {} : { inputTokens: usage.inputTokens }),
+        ...(usage.outputTokens === undefined ? {} : { outputTokens: usage.outputTokens }),
+      } : {}),
+      latencyMs: Math.round(performance.now() - startedAt),
+      success: true,
+    });
     return result;
   } catch (error) {
     await log(userId, action, { ...metadata, provider: aiProviderName, latencyMs: Math.round(performance.now() - startedAt), success: false });
     throw normalizeAIProviderError(error);
   }
 }
-export async function chat(userId: string, prompt: string) { const response = await runProviderCall(userId, 'ai.chat', { promptLength: prompt.length }, () => aiProvider.chat(prompt)); return { response, provider: aiProviderName }; }
-export async function summarize(userId: string, text: string) { const summary = await runProviderCall(userId, 'ai.document_summarized', { inputLength: text.length }, () => aiProvider.summarize(text)); return { summary, provider: aiProviderName }; }
-export async function generateFlashcards(userId: string, text: string, count: number) { const cards = await runProviderCall(userId, 'ai.flashcards_generated', { inputLength: text.length }, () => aiProvider.generateFlashcards(text, count)); return { cards, provider: aiProviderName }; }
+export async function chat(userId: string, prompt: string) {
+  assertAIInputLength(prompt);
+  await consumeAiDailyRequest(userId);
+  const response = await runProviderCall(userId, 'ai.chat', { promptLength: prompt.length }, () => aiProvider.chatWithUsage?.(prompt) ?? aiProvider.chat(prompt));
+  return { response, provider: aiProviderName };
+}
+export async function summarize(userId: string, text: string) {
+  assertAIInputLength(text);
+  await consumeAiDailyRequest(userId);
+  const summary = await runProviderCall(userId, 'ai.document_summarized', { inputLength: text.length }, () => aiProvider.summarizeWithUsage?.(text) ?? aiProvider.summarize(text));
+  return { summary, provider: aiProviderName };
+}
+export async function generateFlashcards(userId: string, text: string, count: number) {
+  assertAIInputLength(text);
+  await consumeAiDailyRequest(userId);
+  const cards = await runProviderCall(userId, 'ai.flashcards_generated', { inputLength: text.length }, () => aiProvider.generateFlashcardsWithUsage?.(text, count) ?? aiProvider.generateFlashcards(text, count));
+  return { cards, provider: aiProviderName };
+}

@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, FileText, Gauge, NotebookPen, Play, Plus } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, FileText, Gauge, NotebookPen, Play, Plus, Sparkles } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Button, EmptyState, Skeleton, Tabs } from '../components/ui'
@@ -112,6 +112,7 @@ export function TopicDetailPage() {
       </div>
       <div className="topic-detail-header-actions">
         <StartStudyButton subjectId={id} />
+        <Link className="button secondary" to={`/ai-coach?subjectId=${encodeURIComponent(id)}`}><Sparkles size={16} /> Hỏi AI về môn này</Link>
         <Button onClick={openTaskCreate}><Plus size={16} /> Công việc</Button>
       </div>
       <span className="topic-detail-mark" style={{ background: topic.colorHex }}><BookOpen size={22} /></span>

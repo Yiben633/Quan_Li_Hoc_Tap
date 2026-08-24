@@ -58,6 +58,7 @@ function formatDateChip(value: string) {
 export function TasksPage() {
   const [params, setParams] = useSearchParams()
   const requestedScope = params.get('scope')
+  const requestedTaskId = params.get('taskId')
   const scope = isTaskScope(requestedScope) ? requestedScope : 'all'
   const [filters, setFilters] = useState<TaskFilterState>({ search: '', status: '', priority: '', subjectId: '', studyPlanId: '', dueDate: '', difficulty: '', page: 1 })
   const [sort, setSort] = useState<TaskSort>('custom')
@@ -115,6 +116,18 @@ export function TasksPage() {
     next.set('scope', scope)
     setParams(next, { replace: true })
   }, [params, requestedScope, scope, setParams])
+
+  useEffect(() => {
+    if (requestedTaskId) setDrawerId(requestedTaskId)
+  }, [requestedTaskId])
+
+  const closeDrawer = () => {
+    setDrawerId('')
+    if (!params.has('taskId')) return
+    const next = new URLSearchParams(params)
+    next.delete('taskId')
+    setParams(next, { replace: true })
+  }
 
   const updateFilter = (key: keyof TaskFilterState, value: string) => setFilters((current) => ({ ...current, [key]: value, page: 1 }))
   const clearFilters = () => setFilters((current) => ({ ...current, status: '', priority: '', subjectId: '', studyPlanId: '', dueDate: '', difficulty: '', page: 1 }))
@@ -221,7 +234,7 @@ export function TasksPage() {
     {pagination && pagination.totalPages > 1 && <div className="task-pagination"><Button variant="secondary" disabled={filters.page <= 1} onClick={() => setFilters((current) => ({ ...current, page: current.page - 1 }))}>Trước</Button><span>Trang {filters.page} / {pagination.totalPages}</span><Button variant="secondary" disabled={filters.page >= pagination.totalPages} onClick={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}>Sau</Button></div>}
     <TaskForm open={createOpen} title="Tạo công việc" submitLabel="Lưu công việc" onClose={() => setCreateOpen(false)} topics={topics.data?.items ?? []} plans={plans.data?.items ?? []} loading={createMutation.isPending} onSubmit={(input) => createMutation.mutate(input, { onSuccess: () => { setCreateOpen(false); toast.success('Đã tạo công việc') }, onError: () => toast.error('Không thể tạo công việc') })} />
     <TaskForm open={Boolean(editTask)} title="Chỉnh sửa công việc" submitLabel="Lưu thay đổi" onClose={() => setEditTask(null)} initial={editTask ?? undefined} topics={topics.data?.items ?? []} plans={plans.data?.items ?? []} loading={updateMutation.isPending} onSubmit={(input) => { if (!editTask) return; updateMutation.mutate({ id: editTask.id, input }, { onSuccess: () => { setEditTask(null); toast.success('Đã cập nhật công việc') }, onError: () => toast.error('Không thể cập nhật công việc') }) }} />
-    <TaskDrawer id={drawerId} onClose={() => setDrawerId('')} onDelete={(id) => { setDrawerId(''); setRemoveId(id) }} />
+    <TaskDrawer id={drawerId} onClose={closeDrawer} onDelete={(id) => { closeDrawer(); setRemoveId(id) }} />
     <ConfirmDialog open={Boolean(removeId)} title="Xóa công việc?" description="Công việc sẽ được ẩn khỏi danh sách." onCancel={() => setRemoveId('')} onConfirm={() => deleteMutation.mutate(removeId, { onSuccess: () => { setRemoveId(''); toast.success('Đã xóa công việc') }, onError: () => toast.error('Không thể xóa công việc') })} loading={deleteMutation.isPending} />
     <ConfirmDialog open={bulkRemoveOpen} title={`Xóa ${selected.length} công việc?`} description={`${selected.length} công việc được chọn sẽ bị xóa.`} onCancel={() => setBulkRemoveOpen(false)} onConfirm={bulkDelete} loading={bulkDeleting} />
     <Modal open={bulkMoveKind !== null} title={bulkMoveKind === 'subject' ? 'Chuyển môn học cho công việc' : 'Chuyển kế hoạch cho công việc'} onClose={() => setBulkMoveKind(null)} footer={<><Button variant="secondary" onClick={() => setBulkMoveKind(null)}>Hủy</Button><Button disabled={!bulkTargetId} loading={bulkMoving} onClick={() => void bulkMove()}>Xác nhận chuyển</Button></>}>
