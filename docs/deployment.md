@@ -126,8 +126,8 @@ Biến frontend tối thiểu:
 VITE_API_URL=https://api.example.com/api
 VITE_APP_NAME=StudyFlow
 VITE_VERCEL_ENV=preview hoặc production
-VITE_AI_ENABLED=false
-VITE_AI_PROVIDER=disabled
+VITE_AI_ENABLED=true
+VITE_AI_PROVIDER=mock
 ```
 
 Khai báo giá trị riêng trong Vercel cho Preview và Production. `VITE_API_URL` phải có `/api` và trỏ tới backend tương ứng; không dùng backend production cho preview nếu preview có thể tạo hoặc xóa dữ liệu.

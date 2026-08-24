@@ -21,8 +21,8 @@ Mở `http://localhost:5173`. Vite proxy `/api` và `/uploads` sang backend loca
 VITE_API_URL=/api
 VITE_APP_NAME=StudyFlow
 VITE_VERCEL_ENV=development
-VITE_AI_ENABLED=false
-VITE_AI_PROVIDER=disabled
+VITE_AI_ENABLED=true
+VITE_AI_PROVIDER=mock
 ```
 
 Chỉ bật AI khi backend provider và endpoint tương ứng đã được cấu hình. Không đặt secret trong biến bắt đầu bằng `VITE_` vì chúng được nhúng vào bundle trình duyệt.
