@@ -34,7 +34,7 @@
     "node-cron": "^4.6.0",
     "openai": "^5.23.2",
     "pdfkit": "^0.19.1",
-    "sanitize-html": "2.17.5",
+    "sanitize-html": "2.16.0",
     "winston": "^3.17.0",
     "zod": "^4.0.5"
   },
