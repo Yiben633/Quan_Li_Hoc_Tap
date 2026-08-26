@@ -1,12 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "version": 2,
-  "buildCommand": "npm run build:vercel",
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": ["dist-vercel/**"]
-    }
-  },
-  "routes": [{ "src": "/(.*)", "dest": "api/index.ts" }],
   "crons": [{ "path": "/api/cron/notifications", "schedule": "0 0 * * *" }]
 }
