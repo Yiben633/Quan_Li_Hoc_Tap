@@ -8,12 +8,7 @@
     "backend": {
       "root": "backend/",
       "framework": "express",
-      "entrypoint": "src/app.ts",
-      "functions": {
-        "src/app.ts": {
-          "includeFiles": "src/package.json"
-        }
-      }
+      "entrypoint": "api/index.ts"
     }
   },
   "rewrites": [
