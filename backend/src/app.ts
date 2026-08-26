@@ -2,7 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import { env } from './config/env.js';
 import { requestId } from './middlewares/request-id.js';
 import { requestLogger } from './middlewares/logger.js';
@@ -35,7 +35,10 @@ import { createRateLimitStore } from './lib/redis-rate-limit-store.js';
 
 export const app = express();
 app.set('trust proxy', env.TRUST_PROXY === 'true');
-app.use(helmet());
+// Helmet publishes CommonJS declaration files. The runtime default is callable
+// in both Node ESM and CommonJS, while this narrow cast keeps NodeNext builds
+// portable across local TypeScript and Vercel's resolver.
+app.use((helmet as unknown as () => express.RequestHandler)());
 app.use(cors({ origin: env.FRONTEND_URL.split(',').map((origin) => origin.trim()), credentials: true }));
 app.use(rateLimit({
   windowMs: 60_000,

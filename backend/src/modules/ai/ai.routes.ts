@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import { createRateLimitStore } from '../../lib/redis-rate-limit-store.js';
 import { authenticate } from '../../middlewares/auth.js';
 import { validateBody } from '../../middlewares/validate.js';

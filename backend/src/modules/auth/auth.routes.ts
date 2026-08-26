@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { validateBody } from '../../middlewares/validate.js';
 import { authenticate } from '../../middlewares/auth.js';
 import { asyncHandler } from '../../utils/async-handler.js';
-import rateLimit from 'express-rate-limit';
+import { rateLimit } from 'express-rate-limit';
 import { createRateLimitStore } from '../../lib/redis-rate-limit-store.js';
 import * as controller from './auth.controller.js';
 import { emailSchema, loginSchema, refreshSchema, registerSchema, resetPasswordSchema, verifyOtpSchema } from './auth.schemas.js';
