@@ -2,13 +2,13 @@ import type { Request, Response } from 'express';
 
 type AppHandler = (request: Request, response: Response) => unknown;
 
-let appPromise: Promise<AppHandler> | undefined;
+let app: AppHandler | undefined;
 
 function loadApp() {
-  // Vercel loads the function wrapper as CommonJS in some monorepo builds.
-  // A native dynamic import preserves the ESM boundary used by src/.
-  appPromise ??= import('../src/app.js').then(({ default: app }) => app as AppHandler);
-  return appPromise;
+  // @vercel/node wraps this entrypoint in CommonJS. Load the dedicated
+  // CommonJS artifact rather than the ESM source tree.
+  app ??= require('../dist-vercel/src/app.js').default as AppHandler;
+  return app;
 }
 
 export default async function handler(request: Request, response: Response) {

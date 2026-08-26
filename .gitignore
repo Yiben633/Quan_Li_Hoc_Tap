@@ -3,6 +3,7 @@ node_modules/
 
 # Build outputs
 dist/
+dist-vercel/
 build/
 .next/
 frontend/*.tsbuildinfo
