@@ -7,8 +7,10 @@
     },
     "backend": {
       "root": "backend/",
-      "framework": "express",
-      "entrypoint": "api/index.ts"
+      "framework": null,
+      "entrypoint": "api/index.ts",
+      "buildCommand": "npm run build:vercel",
+      "includeFiles": ["dist-vercel/**"]
     }
   },
   "rewrites": [
