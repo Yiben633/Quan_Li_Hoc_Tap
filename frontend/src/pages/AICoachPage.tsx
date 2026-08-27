@@ -194,7 +194,7 @@ export function AICoachPage() {
     }, {
       onSuccess: handleSuccess,
       onError: (error) => {
-        if (error instanceof CoachStreamingUnavailableError) {
+        if (error instanceof CoachStreamingUnavailableError || error instanceof CoachStreamingResponseError) {
           setStreamingAssistantText(null)
           sendNonStreaming()
           return

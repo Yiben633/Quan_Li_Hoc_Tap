@@ -136,6 +136,11 @@ export async function addMessage(userId: string, conversationId: string, input: 
     });
 
     return message;
+  }, {
+    // A serverless Neon connection can need a little time to wake up. Keep the
+    // ownership check and all writes atomic without failing at Prisma's 5s default.
+    maxWait: 10_000,
+    timeout: 20_000,
   });
 }
 

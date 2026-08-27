@@ -63,6 +63,15 @@
 @keyframes note-breathe { 0%, 100% { transform: translateY(0) rotate(3deg); } 50% { transform: translateY(-4px) rotate(2deg); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }
 
+/* Keep scroll surfaces visible without the bright native scrollbar in dark mode. */
+:root { --scrollbar-track: #e4e9f1; --scrollbar-thumb: #68778b; --scrollbar-thumb-hover: #4d5c71; }
+[data-theme='dark'] { --scrollbar-track: #1a202c; --scrollbar-thumb: #080c12; --scrollbar-thumb-hover: #000; }
+.sidebar, .ai-conversation-list-body, .ai-coach-messages { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
+.sidebar::-webkit-scrollbar, .ai-conversation-list-body::-webkit-scrollbar, .ai-coach-messages::-webkit-scrollbar { width: 10px; height: 10px; }
+.sidebar::-webkit-scrollbar-track, .ai-conversation-list-body::-webkit-scrollbar-track, .ai-coach-messages::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.sidebar::-webkit-scrollbar-thumb, .ai-conversation-list-body::-webkit-scrollbar-thumb, .ai-coach-messages::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border: 2px solid var(--scrollbar-track); border-radius: 10px; }
+.sidebar::-webkit-scrollbar-thumb:hover, .ai-conversation-list-body::-webkit-scrollbar-thumb:hover, .ai-coach-messages::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
+
 /* Shared UI primitives */
 button, input, textarea, select { font: inherit; } button:disabled { cursor: not-allowed; opacity: .55; }
 .button.ghost { color: var(--muted); background: transparent; }.button.danger { color: #fff; background: #d9545d; }.spin { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
