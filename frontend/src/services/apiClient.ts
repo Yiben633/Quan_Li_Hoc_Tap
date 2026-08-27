@@ -12,7 +12,7 @@ apiClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
   if (token) config.headers.Authorization = `Bearer ${token}`
   if (config.data instanceof FormData) delete config.headers['Content-Type']
-  if (config.url?.includes('/auth/refresh') || config.url?.includes('/auth/logout')) { const csrfToken = readCookie('csrfToken'); if (csrfToken) config.headers['x-csrf-token'] = decodeURIComponent(csrfToken) }
+  if (config.url?.includes('/auth/refresh') || config.url?.includes('/auth/logout')) { const csrfToken = useAuthStore.getState().csrfToken ?? readCookie('csrfToken'); if (csrfToken) config.headers['x-csrf-token'] = decodeURIComponent(csrfToken) }
   return config
 })
 
@@ -20,7 +20,7 @@ apiClient.interceptors.response.use((response) => response, async (error: AxiosE
   const original = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined
   if (error.response?.status !== 401 || !original || original._retry || original.url?.includes('/auth/refresh')) throw error
   original._retry = true
-  refreshPromise ??= (async () => { const csrfToken = readCookie('csrfToken'); if (!csrfToken) { useAuthStore.getState().clearSession(); return null } try { const { data } = await apiClient.post<{ data?: { accessToken?: string } }>('/auth/refresh'); const token = data.data?.accessToken ?? null; if (!token) useAuthStore.getState().clearSession(); return token } catch { useAuthStore.getState().clearSession(); return null } })().finally(() => { refreshPromise = null })
+  refreshPromise ??= (async () => { const csrfToken = useAuthStore.getState().csrfToken ?? readCookie('csrfToken'); if (!csrfToken) { useAuthStore.getState().clearSession(); return null } try { const { data } = await apiClient.post<{ data?: { accessToken?: string; csrfToken?: string } }>('/auth/refresh'); const token = data.data?.accessToken ?? null; if (data.data?.csrfToken) useAuthStore.getState().setCsrfToken(data.data.csrfToken); if (!token) useAuthStore.getState().clearSession(); return token } catch { useAuthStore.getState().clearSession(); return null } })().finally(() => { refreshPromise = null })
   const token = await refreshPromise
   if (!token) { useAuthStore.getState().clearSession(); throw error }
   useAuthStore.getState().setSession(token)

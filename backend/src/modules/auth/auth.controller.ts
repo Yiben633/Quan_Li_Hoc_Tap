@@ -26,9 +26,11 @@ function getRefreshToken(req: Request, bodyToken?: string) {
 }
 
 function setAuthCookies(res: Response, refreshToken: string) {
+  const csrfToken = randomBytes(32).toString('hex');
   res.cookie(COOKIE_NAME, refreshToken, cookieOptions);
   res.clearCookie(CSRF_COOKIE_NAME, legacyCsrfCookieOptions);
-  res.cookie(CSRF_COOKIE_NAME, randomBytes(32).toString('hex'), csrfCookieOptions);
+  res.cookie(CSRF_COOKIE_NAME, csrfToken, csrfCookieOptions);
+  return csrfToken;
 }
 
 function assertCsrf(req: Request) {
@@ -71,8 +73,8 @@ export async function register(req: Request, res: Response) {
 export async function login(req: Request, res: Response) {
   try {
     const result = await service.login(req.body.email, req.body.password, context(req));
-    setAuthCookies(res, result.refreshToken);
-    return sendSuccess(res, 'Login successful', { user: result.user, accessToken: result.accessToken });
+    const csrfToken = setAuthCookies(res, result.refreshToken);
+    return sendSuccess(res, 'Login successful', { user: result.user, accessToken: result.accessToken, csrfToken });
   } catch (error) { return handleError(req, res, error); }
 }
 
@@ -82,8 +84,8 @@ export async function refresh(req: Request, res: Response) {
     const rawToken = getRefreshToken(req, req.body.refreshToken);
     if (!rawToken) return sendError(res, 'Refresh token required', undefined, 401);
     const result = await service.refresh(rawToken, context(req));
-    setAuthCookies(res, result.refreshToken);
-    return sendSuccess(res, 'Token refreshed', { user: result.user, accessToken: result.accessToken });
+    const csrfToken = setAuthCookies(res, result.refreshToken);
+    return sendSuccess(res, 'Token refreshed', { user: result.user, accessToken: result.accessToken, csrfToken });
   } catch (error) { return handleError(req, res, error); }
 }
 
