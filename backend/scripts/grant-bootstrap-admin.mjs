@@ -17,6 +17,8 @@ function maskEmail(email) {
 }
 
 async function grantBootstrapAdmin(email) {
+  await prisma.$connect();
+
   return prisma.$transaction(async (tx) => {
     const user = await tx.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
@@ -55,6 +57,9 @@ async function grantBootstrapAdmin(email) {
     });
 
     return { user, granted: true };
+  }, {
+    maxWait: 10_000,
+    timeout: 20_000,
   });
 }
 
