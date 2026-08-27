@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { OpenAI } from 'openai';
 import type { AIProvider, AIProviderCallResult, AIProviderUsage } from '../ai.provider.js';
 import { AIProviderError, normalizeAIProviderError } from '../ai.provider.js';
 
