@@ -123,8 +123,16 @@ export async function register(input: {
   const passwordHash = await bcrypt.hash(input.password, 12);
   try {
     const user = await prisma.$transaction(async (tx) => {
-      const role = await tx.role.findUnique({ where: { name: 'student' } });
-      if (!role) throw new Error('Student role is not configured');
+      // Production databases can be migrated before reference roles are seeded.
+      // Ensure the standard member role exists without creating any demo account.
+      const role = await tx.role.upsert({
+        where: { name: 'student' },
+        update: {},
+        create: {
+          name: 'student',
+          description: 'Default role for standard StudyFlow users',
+        },
+      });
       const created = await tx.user.create({
         data: {
           fullName: input.fullName,
