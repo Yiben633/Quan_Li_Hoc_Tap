@@ -15,7 +15,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "prisma:generate": "node scripts/generate-client.mjs",
-    "prisma:migrate": "prisma migrate deploy --schema ../database/prisma/schema.prisma"
+    "prisma:migrate": "prisma migrate deploy --schema ../database/prisma/schema.prisma",
+    "admin:bootstrap": "node scripts/grant-bootstrap-admin.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1106.0",

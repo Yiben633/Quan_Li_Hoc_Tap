@@ -34,6 +34,7 @@ const envSchema = z.object({
   MAX_CONTEXT_EVENTS: z.coerce.number().int().min(1).max(100).default(40),
   AI_MAX_INPUT_CHARS: z.coerce.number().int().min(1_000).max(200_000).default(24_000),
   AI_DAILY_REQUEST_LIMIT: z.coerce.number().int().min(1).max(1_000).default(50),
+  ADMIN_BOOTSTRAP_EMAIL: z.string().trim().email().optional(),
   VERCEL: z.string().optional(),
 });
 
