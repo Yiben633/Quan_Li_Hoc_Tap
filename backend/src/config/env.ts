@@ -27,9 +27,11 @@ const envSchema = z.object({
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_PUBLIC_BASE_URL: optionalUrl,
   S3_FORCE_PATH_STYLE: z.enum(['true', 'false']).default('false'),
-  AI_PROVIDER: z.enum(['mock', 'openai']).default('mock'),
+  AI_PROVIDER: z.enum(['mock', 'openai', 'gemini']).default('mock'),
   OPENAI_API_KEY: z.string().trim().min(1).optional(),
   OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
+  GEMINI_API_KEY: z.string().trim().min(1).optional(),
+  GEMINI_MODEL: z.string().trim().min(1).default('gemini-2.5-flash'),
   MAX_CONTEXT_TASKS: z.coerce.number().int().min(1).max(100).default(40),
   MAX_CONTEXT_EVENTS: z.coerce.number().int().min(1).max(100).default(40),
   AI_MAX_INPUT_CHARS: z.coerce.number().int().min(1_000).max(200_000).default(24_000),
@@ -49,6 +51,9 @@ const refreshSecret = parsed.data.REFRESH_TOKEN_SECRET ?? parsed.data.JWT_REFRES
 if (!accessSecret || !refreshSecret) throw new Error('JWT secrets are required');
 if (parsed.data.AI_PROVIDER === 'openai' && !parsed.data.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is required when AI_PROVIDER=openai');
+}
+if (parsed.data.AI_PROVIDER === 'gemini' && !parsed.data.GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is required when AI_PROVIDER=gemini');
 }
 if (parsed.data.STORAGE_PROVIDER === 's3-compatible') {
   const requiredStorageVariables = [

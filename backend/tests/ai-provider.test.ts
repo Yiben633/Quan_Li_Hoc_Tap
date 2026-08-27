@@ -1,5 +1,6 @@
 import { AI_PROVIDER_UNAVAILABLE_MESSAGE, aiProvider, createAIProvider, normalizeAIProviderError } from '../src/modules/ai/ai.provider.js';
 import { MockAIProvider } from '../src/modules/ai/providers/mock-ai.provider.js';
+import { GeminiAIProvider } from '../src/modules/ai/providers/gemini-ai.provider.js';
 import { OpenAIAIProvider } from '../src/modules/ai/providers/openai-ai.provider.js';
 
 describe('AI provider selection', () => {
@@ -22,6 +23,22 @@ describe('AI provider selection', () => {
     });
 
     expect(provider).toBeInstanceOf(OpenAIAIProvider);
+  });
+
+  it('returns a clear configuration error when Gemini is selected without a key', () => {
+    expect(() => createAIProvider({ provider: 'gemini' })).toThrow(
+      'GEMINI_API_KEY is required when AI_PROVIDER=gemini',
+    );
+  });
+
+  it('creates a Gemini adapter without performing a network request', () => {
+    const provider = createAIProvider({
+      provider: 'gemini',
+      geminiApiKey: 'test-key-not-used-for-network-calls',
+      geminiModel: 'gemini-2.5-flash',
+    });
+
+    expect(provider).toBeInstanceOf(GeminiAIProvider);
   });
 
   it('normalizes unexpected provider failures without exposing sensitive details', () => {

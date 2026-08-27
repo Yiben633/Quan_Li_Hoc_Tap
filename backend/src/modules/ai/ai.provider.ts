@@ -1,4 +1,5 @@
 import { env } from '../../config/env.js';
+import { GeminiAIProvider } from './providers/gemini-ai.provider.js';
 import { MockAIProvider } from './providers/mock-ai.provider.js';
 import { OpenAIAIProvider } from './providers/openai-ai.provider.js';
 
@@ -25,12 +26,14 @@ export type AIProviderCallResult<T> = {
   usage?: AIProviderUsage;
 };
 
-export type AIProviderName = 'mock' | 'openai';
+export type AIProviderName = 'mock' | 'openai' | 'gemini';
 
 export type AIProviderConfig = {
   provider: AIProviderName;
   openaiApiKey?: string;
-  openaiModel: string;
+  openaiModel?: string;
+  geminiApiKey?: string;
+  geminiModel?: string;
 };
 
 export const AI_PROVIDER_UNAVAILABLE_MESSAGE = 'Trợ lý AI đang tạm thời không phản hồi. Các chức năng StudyFlow khác vẫn hoạt động bình thường.';
@@ -79,13 +82,24 @@ export function normalizeAIProviderError(error: unknown): AIProviderError {
 export function createAIProvider(config: AIProviderConfig): AIProvider {
   if (config.provider === 'mock') return new MockAIProvider();
 
-  if (!config.openaiApiKey) {
-    throw new AIProviderError('OPENAI_API_KEY is required when AI_PROVIDER=openai', 500);
+  if (config.provider === 'openai') {
+    if (!config.openaiApiKey) {
+      throw new AIProviderError('OPENAI_API_KEY is required when AI_PROVIDER=openai', 500);
+    }
+
+    return new OpenAIAIProvider({
+      apiKey: config.openaiApiKey,
+      model: config.openaiModel || 'gpt-4.1-mini',
+    });
   }
 
-  return new OpenAIAIProvider({
-    apiKey: config.openaiApiKey,
-    model: config.openaiModel,
+  if (!config.geminiApiKey) {
+    throw new AIProviderError('GEMINI_API_KEY is required when AI_PROVIDER=gemini', 500);
+  }
+
+  return new GeminiAIProvider({
+    apiKey: config.geminiApiKey,
+    model: config.geminiModel || 'gemini-2.5-flash',
   });
 }
 
@@ -94,4 +108,6 @@ export const aiProvider = createAIProvider({
   provider: aiProviderName,
   openaiApiKey: env.OPENAI_API_KEY,
   openaiModel: env.OPENAI_MODEL,
+  geminiApiKey: env.GEMINI_API_KEY,
+  geminiModel: env.GEMINI_MODEL,
 });

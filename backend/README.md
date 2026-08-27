@@ -188,7 +188,7 @@ GET|POST /api/study-groups
 GET  /api/study-groups/:id/progress
 ```
 
-AI schedule dùng greedy allocation theo các slot rảnh và trả warning khi không đủ phút. Provider AI lấy tên từ `AI_PROVIDER`, hiện adapter mock; mọi AI usage được ghi ActivityLog. Các route `/api/admin/*` bắt buộc role `admin`, gồm user management, feedback, activity logs, statistics và import subject template Excel.
+AI schedule dùng greedy allocation theo các slot rảnh và trả warning khi không đủ phút. Provider AI dùng `AI_PROVIDER=mock|openai|gemini`; API keys và model configuration luôn chỉ ở backend. Mọi AI usage được ghi ActivityLog. Các route `/api/admin/*` bắt buộc role `admin`, gồm user management, feedback, activity logs, statistics và import subject template Excel.
 
 ## User Profile
 

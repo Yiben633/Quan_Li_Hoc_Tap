@@ -167,6 +167,9 @@ S3_SECRET_ACCESS_KEY=<storage-secret-key>
 S3_PUBLIC_BASE_URL=https://<public-cdn-or-bucket-domain>
 S3_FORCE_PATH_STYLE=false
 AI_PROVIDER=mock
+# For Gemini, set AI_PROVIDER=gemini and configure the following backend-only variables:
+# GEMINI_API_KEY=<Google AI Studio key>
+# GEMINI_MODEL=gemini-2.5-flash
 ```
 
 Lưu ý bắt buộc:
