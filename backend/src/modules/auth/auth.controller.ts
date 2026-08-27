@@ -2,14 +2,15 @@ import type { Request, Response } from 'express';
 import { randomBytes } from 'node:crypto';
 import { logger } from '../../middlewares/logger.js';
 import { sendError, sendSuccess } from '../../utils/http.js';
+import { env } from '../../config/env.js';
 import * as service from './auth.service.js';
 
 const COOKIE_NAME = 'refreshToken';
 const CSRF_COOKIE_NAME = 'csrfToken';
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  secure: env.NODE_ENV === 'production',
+  sameSite: env.COOKIE_SAME_SITE,
   path: '/api/auth',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };

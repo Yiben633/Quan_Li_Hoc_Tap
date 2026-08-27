@@ -14,6 +14,7 @@ const envSchema = z.object({
   REFRESH_TOKEN_SECRET: z.string().min(16).optional(),
   CLIENT_ORIGIN: z.string().default('http://localhost:3000'),
   FRONTEND_URL: z.string().optional(),
+  COOKIE_SAME_SITE: z.enum(['lax', 'none', 'strict']).optional(),
   DIRECT_URL: z.string().optional(),
   TRUST_PROXY: z.string().default('false'),
   CRON_SECRET: z.string().default(''),
@@ -66,6 +67,8 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.VERCEL === '1' && !pars
   throw new Error('Vercel production requires a TLS Redis URL beginning with rediss://');
 }
 const frontendUrl = parsed.data.FRONTEND_URL ?? parsed.data.CLIENT_ORIGIN;
+const cookieSameSite = parsed.data.COOKIE_SAME_SITE
+  ?? (parsed.data.NODE_ENV === 'production' ? 'none' : 'lax');
 const storageProvider = parsed.data.NODE_ENV === 'production'
   && parsed.data.VERCEL === '1'
   && parsed.data.STORAGE_PROVIDER === 'local'
@@ -82,5 +85,6 @@ export const env = {
   JWT_REFRESH_SECRET: refreshSecret,
   CLIENT_ORIGIN: frontendUrl,
   FRONTEND_URL: frontendUrl,
+  COOKIE_SAME_SITE: cookieSameSite,
   STORAGE_PROVIDER: storageProvider,
 };
