@@ -24,6 +24,15 @@ function reportCoachFailure(res: Response, operation: string, error: unknown) {
     name: error instanceof Error ? error.name : 'UnknownError',
     message: error instanceof Error ? error.message : 'Unknown AI Coach error',
     ...(coachErrorCode(error) ? { code: coachErrorCode(error) } : {}),
+    ...(error instanceof AIProviderError && error.providerStatusCode !== undefined
+      ? { providerStatusCode: error.providerStatusCode }
+      : {}),
+    ...(error instanceof AIProviderError && error.providerCode
+      ? { providerCode: error.providerCode }
+      : {}),
+    ...(error instanceof AIProviderError && error.providerType
+      ? { providerType: error.providerType }
+      : {}),
   });
 }
 

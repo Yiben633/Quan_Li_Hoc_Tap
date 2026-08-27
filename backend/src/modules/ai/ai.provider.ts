@@ -37,17 +37,43 @@ export const AI_PROVIDER_UNAVAILABLE_MESSAGE = 'Trợ lý AI đang tạm thời 
 
 export class AIProviderError extends Error {
   readonly statusCode: number;
+  readonly providerStatusCode?: number;
+  readonly providerCode?: string;
+  readonly providerType?: string;
 
-  constructor(message = AI_PROVIDER_UNAVAILABLE_MESSAGE, statusCode = 503) {
+  constructor(
+    message = AI_PROVIDER_UNAVAILABLE_MESSAGE,
+    statusCode = 503,
+    details: {
+      providerStatusCode?: number;
+      providerCode?: string;
+      providerType?: string;
+    } = {},
+  ) {
     super(message);
     this.name = 'AIProviderError';
     this.statusCode = statusCode;
+    this.providerStatusCode = details.providerStatusCode;
+    this.providerCode = details.providerCode;
+    this.providerType = details.providerType;
   }
 }
 
 export function normalizeAIProviderError(error: unknown): AIProviderError {
   if (error instanceof AIProviderError) return error;
-  return new AIProviderError();
+
+  const providerError = typeof error === 'object' && error !== null
+    ? error as Record<string, unknown>
+    : undefined;
+  const providerStatusCode = typeof providerError?.status === 'number' ? providerError.status : undefined;
+  const providerCode = typeof providerError?.code === 'string' ? providerError.code : undefined;
+  const providerType = typeof providerError?.type === 'string' ? providerError.type : undefined;
+
+  return new AIProviderError(undefined, 503, {
+    ...(providerStatusCode === undefined ? {} : { providerStatusCode }),
+    ...(providerCode === undefined ? {} : { providerCode }),
+    ...(providerType === undefined ? {} : { providerType }),
+  });
 }
 
 export function createAIProvider(config: AIProviderConfig): AIProvider {
