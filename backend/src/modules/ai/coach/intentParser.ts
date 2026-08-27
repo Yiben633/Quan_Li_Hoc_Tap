@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { aiProvider, AI_PROVIDER_UNAVAILABLE_MESSAGE } from '../ai.provider.js';
+import { aiProvider, aiProviderName, AI_PROVIDER_UNAVAILABLE_MESSAGE, normalizeAIProviderError } from '../ai.provider.js';
 import type { AIProvider, AIProviderCallResult, AIProviderUsage } from '../ai.provider.js';
+import { logger } from '../../../middlewares/logger.js';
 import { buildCoachIntentPrompt } from './coachPrompt.js';
 import { assertAIInputLength } from '../aiCostControl.service.js';
 import type { CoachConversationMemory, CoachIntent, ParsedCoachIntent, StudyCoachContext } from './coach.types.js';
@@ -110,8 +111,16 @@ export async function parseCoachIntent(
       onProviderCall?.({ usage, latencyMs: Math.round(performance.now() - startedAt) });
       const parsed = validateCoachIntent(output, context);
       if (parsed) return parsed;
-    } catch {
+    } catch (error) {
       providerFailed = true;
+      const providerError = normalizeAIProviderError(error);
+      logger.warn('ai_coach_intent_provider_failed', {
+        provider: aiProviderName,
+        attempt: attempt + 1,
+        ...(providerError.providerStatusCode === undefined ? {} : { providerStatusCode: providerError.providerStatusCode }),
+        ...(providerError.providerCode ? { providerCode: providerError.providerCode } : {}),
+        ...(providerError.providerType ? { providerType: providerError.providerType } : {}),
+      });
       // Provider failures cannot authorize a planning action; use a safe clarify response.
     }
   }
