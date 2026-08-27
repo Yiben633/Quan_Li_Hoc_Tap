@@ -4,6 +4,7 @@ import { authenticate } from '../../middlewares/auth.js';
 import { asyncHandler } from '../../utils/async-handler.js';
 import { rateLimit } from 'express-rate-limit';
 import { createRateLimitStore } from '../../lib/redis-rate-limit-store.js';
+import { rateLimitKey } from '../../lib/rate-limit-key.js';
 import * as controller from './auth.controller.js';
 import { emailSchema, loginSchema, refreshSchema, registerSchema, resetPasswordSchema, verifyOtpSchema } from './auth.schemas.js';
 
@@ -13,6 +14,7 @@ authRouter.use(rateLimit({
   limit: 30,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: rateLimitKey,
   store: createRateLimitStore('auth'),
   passOnStoreError: true,
 }));

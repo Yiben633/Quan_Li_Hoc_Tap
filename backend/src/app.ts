@@ -32,6 +32,7 @@ import { groupsRouter } from './modules/groups/groups.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 import { resolve } from 'node:path';
 import { createRateLimitStore } from './lib/redis-rate-limit-store.js';
+import { rateLimitKey } from './lib/rate-limit-key.js';
 
 export const app = express();
 app.set('trust proxy', env.TRUST_PROXY === 'true');
@@ -45,6 +46,7 @@ app.use(rateLimit({
   limit: 120,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: rateLimitKey,
   store: createRateLimitStore('global'),
   passOnStoreError: true,
 }));

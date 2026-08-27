@@ -16,7 +16,7 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().optional(),
   COOKIE_SAME_SITE: z.enum(['lax', 'none', 'strict']).optional(),
   DIRECT_URL: z.string().optional(),
-  TRUST_PROXY: z.string().default('false'),
+  TRUST_PROXY: z.enum(['true', 'false']).optional(),
   CRON_SECRET: z.string().default(''),
   DOCUMENT_MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(20 * 1024 * 1024),
   STORAGE_PROVIDER: z.enum(['local', 's3-compatible', 'disabled']).default('local'),
@@ -68,6 +68,7 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.VERCEL === '1' && !pars
   throw new Error('Vercel production requires a TLS Redis URL beginning with rediss://');
 }
 const frontendUrl = parsed.data.FRONTEND_URL ?? parsed.data.CLIENT_ORIGIN;
+const trustProxy = parsed.data.TRUST_PROXY ?? (parsed.data.VERCEL === '1' ? 'true' : 'false');
 const cookieSameSite = parsed.data.COOKIE_SAME_SITE
   ?? (parsed.data.NODE_ENV === 'production' ? 'none' : 'lax');
 const storageProvider = parsed.data.NODE_ENV === 'production'
@@ -86,6 +87,7 @@ export const env = {
   JWT_REFRESH_SECRET: refreshSecret,
   CLIENT_ORIGIN: frontendUrl,
   FRONTEND_URL: frontendUrl,
+  TRUST_PROXY: trustProxy,
   COOKIE_SAME_SITE: cookieSameSite,
   STORAGE_PROVIDER: storageProvider,
 };

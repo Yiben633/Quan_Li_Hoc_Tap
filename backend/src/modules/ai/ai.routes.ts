@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { createRateLimitStore } from '../../lib/redis-rate-limit-store.js';
+import { rateLimitKey } from '../../lib/rate-limit-key.js';
 import { authenticate } from '../../middlewares/auth.js';
 import { validateBody } from '../../middlewares/validate.js';
 import { asyncHandler } from '../../utils/async-handler.js';
@@ -27,6 +28,7 @@ export const aiRateLimiter = rateLimit({
   limit: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: rateLimitKey,
   store: createRateLimitStore('ai'),
   passOnStoreError: true,
 });
