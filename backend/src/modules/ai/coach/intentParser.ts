@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { aiProvider, aiProviderName, AI_PROVIDER_UNAVAILABLE_MESSAGE, normalizeAIProviderError } from '../ai.provider.js';
+import { aiProvider, aiProviderModel, aiProviderName, AI_PROVIDER_UNAVAILABLE_MESSAGE, normalizeAIProviderError } from '../ai.provider.js';
 import type { AIProvider, AIProviderCallResult, AIProviderUsage } from '../ai.provider.js';
 import { logger } from '../../../middlewares/logger.js';
 import { buildCoachIntentPrompt } from './coachPrompt.js';
@@ -116,6 +116,7 @@ export async function parseCoachIntent(
       const providerError = normalizeAIProviderError(error);
       logger.warn('ai_coach_intent_provider_failed', {
         provider: aiProviderName,
+        providerModel: aiProviderModel,
         attempt: attempt + 1,
         ...(providerError.providerStatusCode === undefined ? {} : { providerStatusCode: providerError.providerStatusCode }),
         ...(providerError.providerCode ? { providerCode: providerError.providerCode } : {}),

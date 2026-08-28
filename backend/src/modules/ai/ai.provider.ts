@@ -104,6 +104,11 @@ export function createAIProvider(config: AIProviderConfig): AIProvider {
 }
 
 export const aiProviderName: AIProviderName = env.AI_PROVIDER;
+export const aiProviderModel = aiProviderName === 'gemini'
+  ? env.GEMINI_MODEL
+  : aiProviderName === 'openai'
+    ? env.OPENAI_MODEL
+    : 'mock';
 export const aiProvider = createAIProvider({
   provider: aiProviderName,
   openaiApiKey: env.OPENAI_API_KEY,
