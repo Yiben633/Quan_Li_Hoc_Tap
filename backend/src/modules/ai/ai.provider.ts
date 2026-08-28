@@ -34,6 +34,7 @@ export type AIProviderConfig = {
   openaiModel?: string;
   geminiApiKey?: string;
   geminiModel?: string;
+  providerTimeoutMs?: number;
 };
 
 export const AI_PROVIDER_UNAVAILABLE_MESSAGE = 'Trợ lý AI đang tạm thời không phản hồi. Các chức năng StudyFlow khác vẫn hoạt động bình thường.';
@@ -100,6 +101,7 @@ export function createAIProvider(config: AIProviderConfig): AIProvider {
   return new GeminiAIProvider({
     apiKey: config.geminiApiKey,
     model: config.geminiModel || 'gemini-2.5-flash',
+    timeoutMs: config.providerTimeoutMs || 25_000,
   });
 }
 
@@ -115,4 +117,5 @@ export const aiProvider = createAIProvider({
   openaiModel: env.OPENAI_MODEL,
   geminiApiKey: env.GEMINI_API_KEY,
   geminiModel: env.GEMINI_MODEL,
+  providerTimeoutMs: env.AI_PROVIDER_TIMEOUT_MS,
 });

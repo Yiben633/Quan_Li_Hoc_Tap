@@ -32,6 +32,7 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().trim().min(1).default('gpt-4.1-mini'),
   GEMINI_API_KEY: z.string().trim().min(1).optional(),
   GEMINI_MODEL: z.string().trim().min(1).default('gemini-2.5-flash'),
+  AI_PROVIDER_TIMEOUT_MS: z.coerce.number().int().min(5_000).max(60_000).default(25_000),
   MAX_CONTEXT_TASKS: z.coerce.number().int().min(1).max(100).default(40),
   MAX_CONTEXT_EVENTS: z.coerce.number().int().min(1).max(100).default(40),
   AI_MAX_INPUT_CHARS: z.coerce.number().int().min(1_000).max(200_000).default(24_000),

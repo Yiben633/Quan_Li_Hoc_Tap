@@ -123,6 +123,7 @@ export async function parseCoachIntent(
         ...(providerError.providerType ? { providerType: providerError.providerType } : {}),
       });
       // Provider failures cannot authorize a planning action; use a safe clarify response.
+      break;
     }
   }
 

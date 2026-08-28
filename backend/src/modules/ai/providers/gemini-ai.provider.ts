@@ -5,6 +5,7 @@ import { AIProviderError, normalizeAIProviderError } from '../ai.provider.js';
 type GeminiProviderOptions = {
   apiKey: string;
   model: string;
+  timeoutMs: number;
 };
 
 type Flashcard = {
@@ -16,7 +17,20 @@ export class GeminiAIProvider implements AIProvider {
   private readonly client: GoogleGenAI;
 
   constructor(private readonly options: GeminiProviderOptions) {
-    this.client = new GoogleGenAI({ apiKey: options.apiKey });
+    this.client = new GoogleGenAI({
+      apiKey: options.apiKey,
+      httpOptions: {
+        timeout: options.timeoutMs,
+        retryOptions: {
+          attempts: 2,
+          initialDelay: 0.5,
+          maxDelay: 1,
+          expBase: 2,
+          jitter: 0.25,
+          httpStatusCodes: [408, 429, 500, 502, 503, 504],
+        },
+      },
+    });
   }
 
   async chat(prompt: string): Promise<string> {
