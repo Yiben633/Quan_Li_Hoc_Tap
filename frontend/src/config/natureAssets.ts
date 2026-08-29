@@ -23,7 +23,9 @@ export const natureAssets = {
   flora: {
     bush: [floraFrame('bush', 1), floraFrame('bush', 2), floraFrame('bush', 3), floraFrame('bush', 4)],
   },
-  effects: {},
+  effects: {
+    cloud01: `${natureBasePath}/effects/cloud-01.png`,
+  },
   icons: {},
 } as const satisfies {
   brand: {

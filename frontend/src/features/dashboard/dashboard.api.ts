@@ -8,6 +8,8 @@ export type DashboardTask = {
   status: string
   dueDate?: string | null
   subjectId?: string | null
+  estimatedMinutes?: number | null
+  priority?: 'low' | 'medium' | 'high' | 'urgent' | null
 }
 
 export type DashboardSubject = {
