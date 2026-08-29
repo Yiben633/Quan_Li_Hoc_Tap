@@ -1,5 +1,5 @@
-import { Bell, LogOut, Menu, Settings, UserRound } from 'lucide-react'
-import { useState } from 'react'
+import { Bell, Leaf, LogOut, Menu, Search, Settings, UserRound } from 'lucide-react'
+import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { notificationRoute, type NotificationItem } from '../features/notifications/notifications.api'
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationsQuery } from '../features/notifications/notifications.hooks'
@@ -16,11 +16,18 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
   const clearSession = useAuthStore((state) => state.clearSession)
   const navigate = useNavigate()
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null)
+  const [subjectSearch, setSubjectSearch] = useState('')
   const avatarSrc = user?.avatarUrl ?? undefined
   const notifications = useNotificationsQuery({ isRead: false, page: 1, limit: 5 })
   const markRead = useMarkNotificationReadMutation()
   const markAllRead = useMarkAllNotificationsReadMutation()
   const unread = notifications.data?.pagination.total ?? 0
+
+  const submitSubjectSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const query = subjectSearch.trim()
+    navigate(query ? `/subjects?search=${encodeURIComponent(query)}` : '/subjects')
+  }
 
   const openNotification = (item: NotificationItem) => {
     const route = notificationRoute(item)
@@ -35,7 +42,11 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
   return <>
     <header className="topbar">
       <button className="icon-button mobile-only" onClick={onMenu} aria-label="Mở menu"><Menu size={20} /></button>
-      <div className="topbar-spacer" />
+      <form className="topbar-search" role="search" onSubmit={submitSubjectSearch}>
+        <Search size={17} aria-hidden="true" />
+        <input value={subjectSearch} onChange={(event) => setSubjectSearch(event.target.value)} placeholder="Tìm môn học..." aria-label="Tìm môn học" />
+      </form>
+      <span className="topbar-leaf-divider" aria-hidden="true"><Leaf size={14} /></span>
       <div className="topbar-actions">
         <ThemeToggle />
         <Dropdown ariaLabel="Thông báo" label={<span className="notification-button"><Bell size={18} />{unread > 0 && <span className="notification-dot" />}</span>}>

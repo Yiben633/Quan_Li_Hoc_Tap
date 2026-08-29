@@ -1,3 +1,7 @@
-import { GraduationCap } from 'lucide-react'
+import { natureAssets } from '../config/natureAssets'
 
-export function Logo() { return <div className="brand"><span className="brand-mark"><GraduationCap size={19} /></span><span>StudyFlow</span></div> }
+export function Logo() {
+  return <div className="brand">
+    <img className="brand-logo" src={natureAssets.brand.logoFull} alt="StudyFlow" />
+  </div>
+}

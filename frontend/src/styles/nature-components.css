@@ -1,0 +1,44 @@
+.nature-mascot {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  overflow: hidden;
+  contain: layout paint;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.nature-mascot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.nature-mascot-sm {
+  max-width: 72px;
+  max-height: 72px;
+}
+
+.nature-mascot-md {
+  max-width: 112px;
+  max-height: 112px;
+}
+
+.nature-mascot-lg {
+  max-width: 160px;
+  max-height: 160px;
+}
+
+.nature-mascot-xl {
+  max-width: 220px;
+  max-height: 220px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nature-mascot img {
+    transition: none !important;
+  }
+}
