@@ -1,25 +1,27 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const prisma = new PrismaClient();
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function readBootstrapEmail() {
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
+export function readBootstrapEmail(environment = process.env) {
+  const email = environment.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase();
   if (!email) throw new Error('ADMIN_BOOTSTRAP_EMAIL is required');
   if (!emailPattern.test(email)) throw new Error('ADMIN_BOOTSTRAP_EMAIL must be a valid email address');
   return email;
 }
 
-function maskEmail(email) {
+export function maskEmail(email) {
   const [localPart, domain] = email.split('@');
   return `${localPart.slice(0, 2)}***@${domain}`;
 }
 
-async function grantBootstrapAdmin(email) {
-  await prisma.$connect();
+export async function grantBootstrapAdmin(client, email) {
+  await client.$connect();
 
-  return prisma.$transaction(async (tx) => {
+  return client.$transaction(async (tx) => {
     const user = await tx.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } },
       select: { id: true, email: true },
@@ -63,9 +65,9 @@ async function grantBootstrapAdmin(email) {
   });
 }
 
-async function main() {
+export async function main() {
   const email = readBootstrapEmail();
-  const result = await grantBootstrapAdmin(email);
+  const result = await grantBootstrapAdmin(prisma, email);
 
   if (!result) {
     throw new Error(`No existing account matches ${maskEmail(email)}. Register that account before granting admin access.`);
@@ -76,11 +78,15 @@ async function main() {
   console.log('Sign out and sign in again to receive an access token with the admin role.');
 }
 
-main()
-  .catch((error) => {
-    console.error(error instanceof Error ? error.message : 'Unable to grant bootstrap admin role');
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : '';
+
+if (import.meta.url === invokedPath) {
+  main()
+    .catch((error) => {
+      console.error(error instanceof Error ? error.message : 'Unable to grant bootstrap admin role');
+      process.exitCode = 1;
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

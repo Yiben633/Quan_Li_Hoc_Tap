@@ -94,13 +94,59 @@ describe('advanced reports, AI, flashcards, groups and admin', () => {
   });
 
   it('requires admin role for admin routes', async () => {
+    const unauthenticated = await request(app).get('/api/admin/users?page=1&limit=5');
+    expect(unauthenticated.status).toBe(401);
     const forbidden = await request(app).get('/api/admin/users?page=1&limit=5').set('Authorization', `Bearer ${token}`);
     expect(forbidden.status).toBe(403);
+    const forbiddenStatistics = await request(app).get('/api/admin/statistics?range=7d').set('Authorization', `Bearer ${token}`);
+    expect(forbiddenStatistics.status).toBe(403);
     const role = await prisma.role.upsert({ where: { name: 'admin' }, create: { name: 'admin' }, update: {} });
     await prisma.userRole.create({ data: { userId, roleId: role.id } });
     const adminLogin = await request(app).post('/api/auth/login').send({ email, password });
-    const allowed = await request(app).get('/api/admin/users?page=1&limit=5').set('Authorization', `Bearer ${adminLogin.body.data.accessToken}`);
+    const adminToken = adminLogin.body.data.accessToken as string;
+    const allowed = await request(app).get(`/api/admin/users?search=${encodeURIComponent(email.toUpperCase())}&page=1&limit=1`).set('Authorization', `Bearer ${adminToken}`);
     expect(allowed.status).toBe(200);
-    expect(allowed.body.data.items.some((item: { id: string }) => item.id === userId)).toBe(true);
+    expect(allowed.body.data.pagination).toMatchObject({ page: 1, limit: 1, total: 1, totalPages: 1 });
+    expect(allowed.body.data.items).toHaveLength(1);
+    expect(allowed.body.data.items[0]).toMatchObject({
+      id: userId,
+      email,
+      status: 'active',
+      isEmailVerified: false,
+      roles: expect.arrayContaining([expect.objectContaining({ role: { name: 'admin' } })]),
+    });
+    expect(allowed.body.data.items[0].createdAt).toEqual(expect.any(String));
+    expect(allowed.body.data.items[0].updatedAt).toEqual(expect.any(String));
+    for (const privateField of ['passwordHash', 'refreshTokens', 'token', 'tasks', 'studyPlans', 'documents', 'notes']) {
+      expect(allowed.body.data.items[0]).not.toHaveProperty(privateField);
+    }
+
+    const selfDeactivate = await request(app).patch(`/api/admin/users/${userId}`).set('Authorization', `Bearer ${adminToken}`).send({ deletedAt: new Date().toISOString() });
+    expect(selfDeactivate.status).toBe(409);
+
+    const invitedUser = await prisma.user.findUniqueOrThrow({ where: { email: invitedEmail } });
+    const verified = await request(app).patch(`/api/admin/users/${invitedUser.id}`).set('Authorization', `Bearer ${adminToken}`).send({ isEmailVerified: true });
+    expect(verified.status).toBe(200);
+    expect(verified.body.data).toMatchObject({ id: invitedUser.id, isEmailVerified: true, status: 'active' });
+    expect(await prisma.activityLog.count({ where: { userId, action: 'admin.user_updated', entityType: 'user', entityId: invitedUser.id } })).toBe(1);
+
+    const statistics = await request(app).get('/api/admin/statistics?range=7d').set('Authorization', `Bearer ${adminToken}`);
+    expect(statistics.status).toBe(200);
+    expect(statistics.body.data).toMatchObject({
+      range: { key: '7d', days: 7 },
+      activeUsers: expect.any(Number),
+      newUsers: expect.any(Number),
+      disabledUsers: expect.any(Number),
+      tasks: expect.any(Number),
+      studyPlans: expect.any(Number),
+      studySessions: expect.any(Number),
+      recentAdminActivity: expect.arrayContaining([
+        expect.objectContaining({ action: 'admin.user_updated', actor: expect.objectContaining({ id: userId }) }),
+      ]),
+    });
+    const serializedStatistics = JSON.stringify(statistics.body.data);
+    for (const privateField of ['passwordHash', 'tokenHash', 'refreshTokens', 'notes', 'documents', 'metadata', 'ipAddress', 'userAgent']) {
+      expect(serializedStatistics).not.toContain(privateField);
+    }
   });
 });

@@ -28,6 +28,7 @@ import './styles/statistics.css'
 import './styles/ai-flashcards.css'
 import './styles/groups-admin.css'
 import './styles/quality.css'
+import './styles/auth-destination.css'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } })
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><AppErrorBoundary><QueryClientProvider client={queryClient}><RouterProvider router={router} /><Toaster position="top-right" /></QueryClientProvider></AppErrorBoundary></React.StrictMode>)

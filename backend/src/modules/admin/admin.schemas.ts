@@ -3,4 +3,5 @@ export const usersQuery = z.object({ search: z.string().trim().max(100).optional
 export const userUpdate = z.object({ deletedAt: z.coerce.date().nullable().optional(), isEmailVerified: z.boolean().optional() }).refine((v) => Object.keys(v).length > 0, { message: 'At least one user field is required' });
 export const feedbackQuery = usersQuery.extend({ status: z.enum(['open', 'in_progress', 'resolved', 'closed']).optional() });
 export const activityLogsQuery = usersQuery;
+export const adminStatisticsQuery = z.object({ range: z.enum(['7d', '30d', '90d']).default('30d') });
 export const feedbackUpdate = z.object({ status: z.enum(['open', 'in_progress', 'resolved', 'closed']), adminReply: z.string().max(10000).nullable().optional() });

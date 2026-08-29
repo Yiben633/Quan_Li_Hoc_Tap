@@ -19,18 +19,41 @@ export function useDialogBehavior(open: boolean, onClose: () => void) {
     if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`
 
     const frame = window.requestAnimationFrame(() => {
-      const firstControl = dialogRef.current?.querySelector<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href]')
+      const firstControl = dialogRef.current?.querySelector<HTMLElement>('[data-dialog-autofocus]')
+        ?? dialogRef.current?.querySelector<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href]')
       ;(firstControl ?? dialogRef.current)?.focus()
     })
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      event.preventDefault()
-      onCloseRef.current()
+    const handleDialogKeyboard = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onCloseRef.current()
+        return
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return
+
+      const controls = Array.from(dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+      )).filter((control) => control.getAttribute('aria-hidden') !== 'true')
+      if (controls.length === 0) {
+        event.preventDefault()
+        dialogRef.current.focus()
+        return
+      }
+
+      const first = controls[0]
+      const last = controls[controls.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
-    document.addEventListener('keydown', closeOnEscape)
+    document.addEventListener('keydown', handleDialogKeyboard)
     return () => {
       window.cancelAnimationFrame(frame)
-      document.removeEventListener('keydown', closeOnEscape)
+      document.removeEventListener('keydown', handleDialogKeyboard)
       document.body.style.overflow = previousBodyOverflow
       root.style.overflow = previousRootOverflow
       document.body.style.paddingRight = previousPadding

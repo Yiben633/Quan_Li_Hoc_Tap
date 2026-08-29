@@ -5,6 +5,22 @@ import { serviceError } from '../../utils/service-error.js';
 
 type PageQuery = { search?: string; page: number; limit: number };
 type FeedbackQuery = PageQuery & { status?: FeedbackStatus };
+type StatisticsQuery = { range: '7d' | '30d' | '90d' };
+
+const adminUserSelect = {
+  id: true,
+  fullName: true,
+  email: true,
+  isEmailVerified: true,
+  deletedAt: true,
+  createdAt: true,
+  updatedAt: true,
+  roles: { select: { role: { select: { name: true } } } },
+} satisfies Prisma.UserSelect;
+
+function withAccountStatus<T extends { deletedAt: Date | null }>(user: T) {
+  return { ...user, status: user.deletedAt ? 'disabled' as const : 'active' as const };
+}
 
 async function audit(adminId: string, action: string, entityType: string, entityId?: string, metadata?: Prisma.InputJsonValue) {
   await prisma.activityLog.create({ data: { userId: adminId, action, entityType, entityId, metadata } });
@@ -13,19 +29,26 @@ async function audit(adminId: string, action: string, entityType: string, entity
 export async function users(query: PageQuery) {
   const where: Prisma.UserWhereInput = query.search ? { OR: [{ email: { contains: query.search, mode: 'insensitive' } }, { fullName: { contains: query.search, mode: 'insensitive' } }] } : {};
   const [items, total] = await Promise.all([
-    prisma.user.findMany({ where, select: { id: true, fullName: true, email: true, studentCode: true, isEmailVerified: true, deletedAt: true, createdAt: true, roles: { include: { role: true } } }, skip: (query.page - 1) * query.limit, take: query.limit, orderBy: { createdAt: 'desc' } }),
+    prisma.user.findMany({ where, select: adminUserSelect, skip: (query.page - 1) * query.limit, take: query.limit, orderBy: { createdAt: 'desc' } }),
     prisma.user.count({ where }),
   ]);
-  return { items, pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+  return { items: items.map(withAccountStatus), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
 }
 
 export async function updateUser(adminId: string, id: string, input: { deletedAt?: Date | null; isEmailVerified?: boolean }) {
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findUnique({ where: { id }, select: { id: true } });
   if (!user) throw serviceError('User not found', 404);
-  if (adminId === id && input.deletedAt) throw serviceError('You cannot deactivate your own administrator account', 409);
-  const updated = await prisma.user.update({ where: { id }, data: input, select: { id: true, fullName: true, email: true, deletedAt: true, isEmailVerified: true } });
-  await audit(adminId, 'admin.user_updated', 'user', id, { isEmailVerified: updated.isEmailVerified, active: !updated.deletedAt });
-  return updated;
+  if (adminId === id && input.deletedAt !== undefined && input.deletedAt !== null) {
+    throw serviceError('You cannot deactivate your own administrator account', 409);
+  }
+  const changes: Record<string, string | boolean> = {};
+  if (input.isEmailVerified !== undefined) changes.isEmailVerified = input.isEmailVerified;
+  if (input.deletedAt !== undefined) changes.status = input.deletedAt === null ? 'active' : 'disabled';
+  const [updated] = await prisma.$transaction([
+    prisma.user.update({ where: { id }, data: input, select: adminUserSelect }),
+    prisma.activityLog.create({ data: { userId: adminId, action: 'admin.user_updated', entityType: 'user', entityId: id, metadata: { changes } } }),
+  ]);
+  return withAccountStatus(updated);
 }
 
 export async function feedback(query: FeedbackQuery) {
@@ -65,16 +88,51 @@ export async function logs(query: PageQuery) {
   return { items, pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
 }
 
-export async function statistics() {
-  const [activeUsers, studyGroups, openFeedback, tasks, completedTasks, studyTime] = await Promise.all([
+export async function statistics(query: StatisticsQuery) {
+  const days = Number.parseInt(query.range, 10);
+  const rangeEnd = new Date();
+  const rangeStart = new Date(rangeEnd);
+  rangeStart.setUTCDate(rangeStart.getUTCDate() - days);
+
+  const [activeUsers, newUsers, disabledUsers, studyGroups, openFeedback, tasks, completedTasks, studyPlans, studySessions, studyTime, activity] = await Promise.all([
     prisma.user.count({ where: { deletedAt: null } }),
+    prisma.user.count({ where: { createdAt: { gte: rangeStart, lte: rangeEnd } } }),
+    prisma.user.count({ where: { deletedAt: { not: null } } }),
     prisma.studyGroup.count(),
     prisma.feedback.count({ where: { status: { in: ['open', 'in_progress'] } } }),
     prisma.task.count({ where: { deletedAt: null } }),
     prisma.task.count({ where: { deletedAt: null, status: 'done' } }),
+    prisma.studyPlan.count({ where: { deletedAt: null } }),
+    prisma.studySession.count(),
     prisma.studySession.aggregate({ _sum: { totalMinutes: true } }),
+    prisma.activityLog.findMany({
+      where: { action: { startsWith: 'admin.' } },
+      select: {
+        id: true,
+        action: true,
+        entityType: true,
+        entityId: true,
+        createdAt: true,
+        user: { select: { id: true, fullName: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 8,
+    }),
   ]);
-  return { activeUsers, studyGroups, openFeedback, tasks, completedTasks, totalStudyMinutes: studyTime._sum.totalMinutes ?? 0 };
+  return {
+    range: { key: query.range, days, from: rangeStart, to: rangeEnd },
+    activeUsers,
+    newUsers,
+    disabledUsers,
+    studyGroups,
+    openFeedback,
+    tasks,
+    completedTasks,
+    studyPlans,
+    studySessions,
+    totalStudyMinutes: studyTime._sum.totalMinutes ?? 0,
+    recentAdminActivity: activity.map(({ user, ...item }) => ({ ...item, actor: user })),
+  };
 }
 
 export async function importTemplates(adminId: string, buffer: Buffer) {

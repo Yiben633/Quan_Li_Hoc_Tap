@@ -88,7 +88,7 @@ describe('auth module', () => {
     expect(me.status).toBe(200);
     expect(me.body.data.email).toBe(email);
 
-    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', `${oldCookie}; ${oldCsrfCookie}`).set('x-csrf-token', csrfValue(oldCsrfCookie)).send({});
+    const refreshed = await request(app).post('/api/auth/refresh').set('Cookie', `${oldCookie}; ${oldCsrfCookie}`).set('x-csrf-token', csrfValue(oldCsrfCookie));
     expect(refreshed.status).toBe(200);
     const nextCookie = refreshCookie(refreshed);
     expect(nextCookie).not.toBe(oldCookie);

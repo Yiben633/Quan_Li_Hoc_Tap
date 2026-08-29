@@ -63,6 +63,26 @@ Không dùng `docker compose down -v` trừ khi chủ động muốn xóa dữ l
 
 Chỉ các biến bắt đầu bằng `VITE_` mới được đưa vào bundle trình duyệt. Không đặt password, token, database URL hoặc API key bí mật trong biến `VITE_*`.
 
+## Cấp quyền quản trị ban đầu
+
+`ADMIN_BOOTSTRAP_EMAIL` là secret chỉ dành cho backend và chỉ dùng trong thao tác cấp quyền quản trị có chủ đích. Ứng dụng không cấp quyền theo email ở frontend hoặc trong mỗi lần đăng nhập.
+
+Quy trình an toàn:
+
+1. Đăng ký tài khoản cần cấp quyền qua luồng đăng ký bình thường trước.
+2. Đặt `ADMIN_BOOTSTRAP_EMAIL` trong môi trường backend đang trỏ đúng database mục tiêu. Trên Vercel hoặc GitHub, lưu biến này dưới dạng **Secret** và chỉ cấp cho job thủ công đã được phê duyệt.
+3. Từ thư mục `backend/`, chạy:
+
+```powershell
+npm run admin:bootstrap
+```
+
+4. Script sẽ dừng nếu tài khoản chưa tồn tại, upsert role `admin`, tạo quan hệ role theo cách idempotent và ghi `admin.bootstrap_granted` đúng một lần.
+5. Xóa `ADMIN_BOOTSTRAP_EMAIL` khỏi runtime environment sau khi hoàn tất nếu không còn nhu cầu vận hành.
+6. Đăng xuất rồi đăng nhập lại để access token mới nhận role `admin`. Token đã phát hành trước đó không tự đổi quyền.
+
+Có thể chạy lại lệnh an toàn: nếu người dùng đã có role `admin`, script không tạo `UserRole` hoặc ActivityLog trùng. Không đặt email thật, database URL hay admin secret trong source, commit, issue hoặc build log. File `.env.example` chỉ để giá trị trống làm hướng dẫn.
+
 ## Deploy một project bằng Vercel Services (khuyến nghị)
 
 Root `vercel.json` định nghĩa hai service độc lập:

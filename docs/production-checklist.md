@@ -157,6 +157,8 @@ Không đặt secret trong query string ở production vì URL có thể xuất 
 - [ ] Error `500` production không trả stack trace, Prisma error hoặc đường dẫn máy chủ cho client.
 - [ ] Validation/sanitize đã bật cho form và upload; không có raw SQL ghép chuỗi trực tiếp.
 - [ ] Activity log tồn tại cho đăng nhập, đổi mật khẩu, xóa tài khoản và hành động quản trị nhạy cảm.
+- [ ] Nếu đã bootstrap admin, `ADMIN_BOOTSTRAP_EMAIL` chỉ từng tồn tại dưới dạng backend secret trong job thủ công; đã xóa khỏi runtime khi không còn cần và không xuất hiện trong frontend/source/log.
+- [ ] Tài khoản vừa được cấp role admin đã đăng xuất rồi đăng nhập lại; `/api/admin/users` trả `200` với admin, `401` khi chưa đăng nhập và `403` với người dùng thường.
 - [ ] Đã có nơi tập trung để xem/cảnh báo error log và có cách tra cứu theo `requestId`.
 
 ## 7. Tách Preview Và Production
@@ -208,6 +210,8 @@ Ghi người thực hiện, thời gian, kết quả và link bằng chứng cho
 | Mở `/login`, refresh trang | Trang tải đúng, không 404 hoặc lỗi console nghiêm trọng | [ ] |
 | Đăng ký tài khoản test | Tạo được user, không bắt buộc thông tin học thuật tùy chọn | [ ] |
 | Đăng nhập | Vào dashboard, access/refresh flow hoạt động | [ ] |
+| Đăng nhập bằng tài khoản admin đã bootstrap | Hiện chooser nội bộ; “Trang quản trị” vào `/admin`, “Trang của tôi” vào `/dashboard` và session vẫn còn hiệu lực | [ ] |
+| Kiểm tra quyền admin API | `/api/admin/users` trả `401` khi chưa đăng nhập, `403` với user thường và dữ liệu phân trang khi dùng admin token mới | [ ] |
 | Đăng xuất rồi đăng nhập lại | Session cũ bị revoke, phiên mới hợp lệ | [ ] |
 | Tạo không gian học/semester | Bản ghi xuất hiện đúng owner | [ ] |
 | Tạo môn học/subject | Liên kết đúng không gian học và hiển thị đúng | [ ] |

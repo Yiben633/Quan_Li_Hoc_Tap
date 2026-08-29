@@ -1,8 +1,8 @@
-import { Activity, Ban, CheckCircle2, FileSpreadsheet, Inbox, LayoutDashboard, MessageSquareText, Search, ShieldCheck, Upload, Users } from 'lucide-react'
+import { Activity, Ban, CheckCircle2, ClipboardList, FileSpreadsheet, Inbox, LayoutDashboard, MessageSquareText, Search, ShieldCheck, Timer, Upload, UserPlus, Users, UserX } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Button, ConfirmDialog, EmptyState, Input, Modal, Pagination, Select, Skeleton, Tabs, Textarea } from '../components/ui'
-import type { AdminFeedback, AdminUser, FeedbackStatus, TopicTemplate } from '../features/admin/admin.api'
+import { Button, ConfirmDialog, EmptyState, Modal, Pagination, Select, Skeleton, Tabs, Textarea } from '../components/ui'
+import type { AdminFeedback, AdminStatisticsRange, AdminUser, FeedbackStatus, TopicTemplate } from '../features/admin/admin.api'
 import { useActivityLogsQuery, useAdminFeedbackQuery, useAdminFeedbackUpdateMutation, useAdminStatisticsQuery, useAdminUsersQuery, useAdminUserUpdateMutation, useSystemContentSupportQuery, useTopicTemplateImportMutation } from '../features/admin/admin.hooks'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
@@ -11,24 +11,52 @@ import { useAuthStore } from '../stores/authStore'
 type AdminTab = 'overview' | 'users' | 'feedback' | 'logs' | 'templates' | 'content'
 const feedbackStatusLabels: Record<FeedbackStatus, string> = { open: 'Mới', in_progress: 'Đang xử lý', resolved: 'Đã giải quyết', closed: 'Đã đóng' }
 const feedbackTypeLabels = { bug: 'Lỗi', feature_request: 'Đề xuất', question: 'Câu hỏi' }
+const adminActionLabels: Record<string, string> = {
+  'admin.bootstrap_granted': 'Cấp quyền quản trị ban đầu',
+  'admin.user_updated': 'Cập nhật tài khoản người dùng',
+  'admin.feedback_updated': 'Cập nhật phản hồi',
+  'admin.topic_templates_imported': 'Nhập TopicTemplate',
+}
 
 function formatDateTime(value: string) { return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(value)) }
 function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) { return <label className="admin-search"><Search size={16} /><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} aria-label={placeholder} /></label> }
 function QueryError({ retry }: { retry: () => void }) { return <EmptyState title="Không thể tải dữ liệu" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={retry}>Thử lại</Button>} /> }
 
 function OverviewPanel() {
-  const query = useAdminStatisticsQuery()
-  if (query.isLoading) return <div className="admin-stat-grid">{Array.from({ length: 6 }, (_, index) => <Skeleton key={index} height={105} />)}</div>
-  if (query.isError || !query.data) return <QueryError retry={() => query.refetch()} />
+  const [range, setRange] = useState<AdminStatisticsRange>('30d')
+  const query = useAdminStatisticsQuery(range)
+  const rangeControl = <Select customMenu aria-label="Khoảng thời gian thống kê người dùng mới" value={range} onChange={(event) => setRange(event.target.value as AdminStatisticsRange)}>
+    <option value="7d">7 ngày gần đây</option>
+    <option value="30d">30 ngày gần đây</option>
+    <option value="90d">90 ngày gần đây</option>
+  </Select>
+
+  if (query.isLoading) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div>{rangeControl}</div><div className="admin-stat-grid">{Array.from({ length: 9 }, (_, index) => <Skeleton key={index} height={105} />)}</div><Skeleton height={230} /></section>
+  if (query.isError || !query.data) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div>{rangeControl}</div><QueryError retry={() => query.refetch()} /></section>
+
   const items = [
     { label: 'Tài khoản hoạt động', value: query.data.activeUsers.toLocaleString('vi-VN'), icon: Users },
-    { label: 'Nhóm riêng tư', value: query.data.studyGroups.toLocaleString('vi-VN'), icon: ShieldCheck },
-    { label: 'Phản hồi cần xử lý', value: query.data.openFeedback.toLocaleString('vi-VN'), icon: MessageSquareText },
+    { label: 'Người dùng mới trong ' + query.data.range.days + ' ngày', value: query.data.newUsers.toLocaleString('vi-VN'), icon: UserPlus },
+    { label: 'Tài khoản bị vô hiệu hóa', value: query.data.disabledUsers.toLocaleString('vi-VN'), icon: UserX },
     { label: 'Tổng công việc', value: query.data.tasks.toLocaleString('vi-VN'), icon: Inbox },
+    { label: 'Tổng kế hoạch', value: query.data.studyPlans.toLocaleString('vi-VN'), icon: ClipboardList },
+    { label: 'Tổng phiên tập trung', value: query.data.studySessions.toLocaleString('vi-VN'), icon: Timer },
     { label: 'Công việc hoàn thành', value: query.data.completedTasks.toLocaleString('vi-VN'), icon: CheckCircle2 },
     { label: 'Phút tập trung', value: query.data.totalStudyMinutes.toLocaleString('vi-VN'), icon: Activity },
+    { label: 'Phản hồi cần xử lý', value: query.data.openFeedback.toLocaleString('vi-VN'), icon: MessageSquareText },
   ]
-  return <div className="admin-stat-grid">{items.map(({ label, value, icon: Icon }) => <article key={label}><span><Icon size={18} /></span><div><strong>{value}</strong><p>{label}</p></div></article>)}</div>
+  return <section className="admin-overview">
+    <div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div>{rangeControl}</div>
+    <div className="admin-stat-grid">{items.map(({ label, value, icon: Icon }) => <article key={label}><span><Icon size={18} /></span><div><strong>{value}</strong><p>{label}</p></div></article>)}</div>
+    <section className="admin-recent-activity" aria-labelledby="recent-admin-activity-title">
+      <div><h2 id="recent-admin-activity-title">Hoạt động quản trị gần đây</h2><p>Tối đa 8 hành động gần nhất, không gồm nội dung riêng tư của người dùng.</p></div>
+      {query.data.recentAdminActivity.length === 0 ? <EmptyState title="Chưa có hoạt động quản trị" description="Các thao tác quản trị có audit sẽ xuất hiện tại đây." /> : <div className="admin-activity-list">{query.data.recentAdminActivity.map((item) => <article key={item.id}>
+        <span className="admin-activity-icon"><ShieldCheck size={16} /></span>
+        <div><strong>{adminActionLabels[item.action] ?? item.action}</strong><p>{[item.actor?.fullName ?? 'Hệ thống', item.entityType].filter(Boolean).join(' · ')}</p></div>
+        <time dateTime={item.createdAt}>{formatDateTime(item.createdAt)}</time>
+      </article>)}</div>}
+    </section>
+  </section>
 }
 
 function UsersPanel() {
@@ -39,10 +67,28 @@ function UsersPanel() {
   const [pendingDeactivate, setPendingDeactivate] = useState<AdminUser | null>(null)
   const debouncedSearch = useDebouncedValue(search, 300)
   const query = useAdminUsersQuery({ search: debouncedSearch || undefined, page, limit: 15 })
-  const patchUser = (user: AdminUser, input: { deletedAt?: string | null; isEmailVerified?: boolean }, message: string) => update.mutate({ id: user.id, input }, { onSuccess: () => { toast.success(message); setPendingDeactivate(null) }, onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể cập nhật tài khoản')) })
+  const updatingUserId = update.isPending ? update.variables?.id : undefined
+  const patchUser = (user: AdminUser, input: { deletedAt?: string | null; isEmailVerified?: boolean }, message: string) => {
+    update.mutate({ id: user.id, input }, {
+      onSuccess: () => { toast.success(message); setPendingDeactivate(null) },
+      onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể cập nhật tài khoản')),
+    })
+  }
   return <section className="admin-panel">
     <div className="admin-toolbar"><SearchBox value={search} onChange={(value) => { setSearch(value); setPage(1) }} placeholder="Tìm theo tên hoặc email..." />{query.data && <span>{query.data.pagination.total} tài khoản</span>}</div>
-    {query.isLoading ? <Skeleton height={360} /> : query.isError ? <QueryError retry={() => query.refetch()} /> : !query.data?.items.length ? <EmptyState title="Không tìm thấy tài khoản" /> : <div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>Người dùng</th><th>Vai trò</th><th>Xác minh</th><th>Trạng thái</th><th>Ngày tạo</th><th><span className="sr-only">Hành động</span></th></tr></thead><tbody>{query.data.items.map((user) => <tr key={user.id}><td><strong>{user.fullName}</strong><span>{user.email}</span></td><td>{user.roles.map((item) => item.role.name).join(', ') || 'student'}</td><td><button className={`admin-state-button ${user.isEmailVerified ? 'success' : ''}`} onClick={() => patchUser(user, { isEmailVerified: !user.isEmailVerified }, user.isEmailVerified ? 'Đã bỏ xác minh email' : 'Đã xác minh email')}><CheckCircle2 size={14} /> {user.isEmailVerified ? 'Đã xác minh' : 'Chưa xác minh'}</button></td><td><span className={`admin-status ${user.deletedAt ? 'disabled' : 'active'}`}>{user.deletedAt ? 'Đã vô hiệu hóa' : 'Đang hoạt động'}</span></td><td>{formatDateTime(user.createdAt)}</td><td>{user.deletedAt ? <Button variant="secondary" onClick={() => patchUser(user, { deletedAt: null }, 'Đã khôi phục tài khoản')}>Khôi phục</Button> : <Button variant="ghost" disabled={user.id === currentUserId} onClick={() => setPendingDeactivate(user)}><Ban size={15} /> Vô hiệu hóa</Button>}</td></tr>)}</tbody></table></div>}
+    {query.isLoading ? <Skeleton height={360} /> : query.isError ? <QueryError retry={() => query.refetch()} /> : !query.data?.items.length ? <EmptyState title="Không tìm thấy tài khoản" description={debouncedSearch ? 'Không có người dùng nào khớp tên hoặc email đang tìm.' : 'Chưa có người dùng nào trong hệ thống.'} /> : <div className="admin-table-wrap"><table className="admin-table admin-users-table"><thead><tr><th>Người dùng</th><th>Vai trò</th><th>Xác minh</th><th>Trạng thái</th><th>Ngày tạo</th><th>Cập nhật gần nhất</th><th><span className="sr-only">Hành động</span></th></tr></thead><tbody>{query.data.items.map((user) => {
+      const isUpdating = updatingUserId === user.id
+      const isSelf = user.id === currentUserId
+      return <tr key={user.id} aria-busy={isUpdating}>
+        <td><strong>{user.fullName}</strong><span>{user.email}</span></td>
+        <td>{user.roles.map((item) => item.role.name).join(', ') || 'Chưa gán'}</td>
+        <td><button className={`admin-state-button ${user.isEmailVerified ? 'success' : ''}`} disabled={update.isPending} aria-label={`${user.isEmailVerified ? 'Bỏ xác minh' : 'Xác minh'} email của ${user.fullName}`} onClick={() => patchUser(user, { isEmailVerified: !user.isEmailVerified }, user.isEmailVerified ? 'Đã bỏ xác minh email' : 'Đã xác minh email')}><CheckCircle2 size={14} /> {user.isEmailVerified ? 'Đã xác minh' : 'Chưa xác minh'}</button></td>
+        <td><span className={`admin-status ${user.status}`}>{user.status === 'disabled' ? 'Đã vô hiệu hóa' : 'Đang hoạt động'}</span></td>
+        <td>{formatDateTime(user.createdAt)}</td>
+        <td>{formatDateTime(user.updatedAt)}</td>
+        <td>{user.status === 'disabled' ? <Button variant="secondary" loading={isUpdating} disabled={update.isPending} onClick={() => patchUser(user, { deletedAt: null }, 'Đã khôi phục tài khoản')}>Khôi phục</Button> : <Button variant="ghost" disabled={isSelf || update.isPending} aria-label={isSelf ? 'Không thể tự vô hiệu hóa tài khoản quản trị' : `Vô hiệu hóa tài khoản ${user.fullName}`} title={isSelf ? 'Bạn không thể tự vô hiệu hóa tài khoản đang dùng' : undefined} onClick={() => setPendingDeactivate(user)}><Ban size={15} /> Vô hiệu hóa</Button>}</td>
+      </tr>
+    })}</tbody></table></div>}
     {(query.data?.pagination.totalPages ?? 0) > 1 && <Pagination page={query.data?.pagination.page ?? page} totalPages={query.data?.pagination.totalPages ?? 1} onChange={setPage} />}
     <ConfirmDialog open={Boolean(pendingDeactivate)} title="Vô hiệu hóa tài khoản?" description={`Tài khoản “${pendingDeactivate?.fullName ?? ''}” sẽ không thể đăng nhập cho đến khi được khôi phục.`} onCancel={() => setPendingDeactivate(null)} onConfirm={() => pendingDeactivate && patchUser(pendingDeactivate, { deletedAt: new Date().toISOString() }, 'Đã vô hiệu hóa tài khoản')} loading={update.isPending} />
   </section>

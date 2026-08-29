@@ -20,7 +20,7 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 
-export const refreshSchema = z.object({ refreshToken: z.string().min(20).optional() });
+export const refreshSchema = z.object({ refreshToken: z.string().min(20).optional() }).default({});
 
 export const emailSchema = z.object({
   email: z.email().transform((value) => value.toLowerCase()),

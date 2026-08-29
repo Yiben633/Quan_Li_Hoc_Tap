@@ -7,5 +7,5 @@ export async function updateUser(req: Request, res: Response) { try { return sen
 export async function feedback(req: Request, res: Response) { try { return sendSuccess(res, 'Feedback fetched', await s.feedback(res.locals.validatedQuery)); } catch (e) { return h(res, e); } }
 export async function reply(req: Request, res: Response) { try { return sendSuccess(res, 'Feedback updated', await s.replyFeedback(req.user!.id, p(req, 'id'), req.body)); } catch (e) { return h(res, e); } }
 export async function logs(req: Request, res: Response) { try { return sendSuccess(res, 'Activity logs fetched', await s.logs(res.locals.validatedQuery)); } catch (e) { return h(res, e); } }
-export async function statistics(_req: Request, res: Response) { try { return sendSuccess(res, 'Admin statistics fetched', await s.statistics()); } catch (e) { return h(res, e); } }
+export async function statistics(_req: Request, res: Response) { try { return sendSuccess(res, 'Admin statistics fetched', await s.statistics(res.locals.validatedQuery)); } catch (e) { return h(res, e); } }
 export async function templates(req: Request, res: Response) { try { if (!req.file) return sendError(res, 'Excel file is required', undefined, 422); return sendSuccess(res, 'Subject templates imported', await s.importTemplates(req.user!.id, req.file.buffer)); } catch (e) { return h(res, e); } }

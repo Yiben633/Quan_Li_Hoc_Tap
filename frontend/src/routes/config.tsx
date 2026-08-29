@@ -40,6 +40,7 @@ export const router = createBrowserRouter([
   { path: '/offline', element: <OfflinePage /> },
   { element: <ProtectedRoute />, children: [{ element: <AppLayout />, errorElement: <RouteErrorPage />, children: [
     { index: true, element: <DashboardPage /> },
+    { path: 'dashboard', element: <DashboardPage /> },
     { path: 'tasks', element: <TasksPage /> },
     { path: 'tasks/kanban', element: <KanbanPage /> },
     { path: 'kanban', element: <Navigate to="/tasks/kanban" replace /> },
