@@ -37,8 +37,429 @@
   max-height: 220px;
 }
 
+@media (max-width: 639px) {
+  .nature-mascot-lg {
+    max-width: 104px;
+    max-height: 104px;
+  }
+
+  .nature-mascot-xl {
+    max-width: 112px;
+    max-height: 112px;
+  }
+}
+
+.empty-icon:has(.nature-empty-mascot) {
+  width: auto;
+  height: auto;
+  margin-bottom: 14px;
+  background: transparent;
+  border-radius: 0;
+}
+
+.nature-empty-mascot {
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 12px 0 0;
+  padding: 0;
+  color: var(--nature-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  list-style: none;
+}
+
+.chart-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend-swatch {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, currentColor 18%, var(--nature-border));
+  border-radius: 2px;
+}
+
+.chart-legend-swatch.primary { background: var(--nature-primary); }
+.chart-legend-swatch.success { background: var(--nature-success); }
+.chart-legend-swatch.pine { background: var(--nature-pine); }
+.chart-legend-swatch.moss { background: var(--nature-moss); }
+.chart-legend-swatch.sage { background: var(--nature-sage); }
+.chart-legend-swatch.amber { background: var(--nature-amber); }
+.chart-legend-swatch.coral { background: var(--nature-coral); }
+.chart-legend-swatch.sky { background: var(--nature-sky); }
+
+.skeleton {
+  background: linear-gradient(100deg, var(--nature-surface-soft) 30%, var(--nature-surface) 50%, var(--nature-surface-soft) 70%);
+  background-size: 200% 100%;
+  animation: nature-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes nature-skeleton-shimmer {
+  to { background-position: -200% 0; }
+}
+
+.empty-state.error-state {
+  min-height: auto;
+  max-width: 440px;
+  padding: 28px 20px;
+  background: var(--nature-surface-soft);
+  border: 1px solid var(--nature-border);
+  border-radius: 8px;
+}
+
+.empty-state.error-state .empty-icon {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  color: var(--nature-moss);
+  background: transparent;
+  border-radius: 0;
+}
+
+.error-state-leaf {
+  opacity: .72;
+  transform: rotate(-20deg);
+}
+
+.empty-state.error-state h3 {
+  color: var(--nature-text);
+  font-size: 15px;
+}
+
+.empty-state.error-state .subtle {
+  max-width: 34ch;
+  margin-top: 6px;
+  color: var(--nature-text-secondary);
+}
+
+.empty-state.error-state.is-compact {
+  justify-items: start;
+  max-width: none;
+  padding: 16px;
+  text-align: left;
+}
+
+.empty-state.error-state.is-compact .empty-icon {
+  margin-bottom: 6px;
+}
+
+.empty-state.error-state.is-compact .empty-action {
+  margin-top: 12px;
+}
+
+/* Shared application primitives: Nature styling lives here, not in page styles. */
+.button {
+  min-height: 40px;
+  color: var(--nature-surface);
+  background: var(--nature-primary);
+  border-color: var(--nature-primary);
+  border-radius: 8px;
+  box-shadow: var(--nature-shadow-sm);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--nature-primary-hover);
+  border-color: var(--nature-primary-hover);
+}
+
+.button.secondary {
+  color: var(--nature-primary);
+  background: var(--nature-surface);
+  border-color: var(--nature-border-strong);
+  box-shadow: none;
+}
+
+.button.secondary:hover:not(:disabled) {
+  color: var(--nature-pine);
+  background: var(--nature-primary-soft);
+  border-color: var(--nature-sage);
+}
+
+.button.ghost {
+  color: var(--nature-text-secondary);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.button.ghost:hover:not(:disabled) {
+  color: var(--nature-primary);
+  background: var(--nature-primary-soft);
+}
+
+.button.danger {
+  color: var(--nature-surface);
+  background: var(--nature-danger);
+  border-color: var(--nature-danger);
+}
+
+.button.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--nature-danger) 86%, var(--nature-pine));
+  border-color: color-mix(in srgb, var(--nature-danger) 86%, var(--nature-pine));
+}
+
+.button:focus-visible,
+.icon-button:focus-visible,
+.select-button:focus-visible,
+.custom-select-trigger:focus-visible,
+.filter-select-trigger:focus-visible,
+.date-picker-trigger:focus-visible,
+.tabs button:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px var(--nature-focus-ring);
+}
+
+.field {
+  color: var(--nature-text-secondary);
+}
+
+.field input,
+.field textarea,
+.field select,
+.custom-select-trigger,
+.filter-select-trigger,
+.select-button,
+.date-picker-trigger {
+  color: var(--nature-text);
+  background: var(--nature-surface);
+  border-color: var(--nature-border-strong);
+  border-radius: 8px;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--nature-text-muted);
+  opacity: 1;
+}
+
+.field input:hover:not(:disabled),
+.field textarea:hover:not(:disabled),
+.field select:hover:not(:disabled),
+.custom-select-trigger:hover:not(:disabled),
+.filter-select-trigger:hover:not(:disabled),
+.select-button:hover:not(:disabled),
+.date-picker-trigger:hover:not(:disabled) {
+  border-color: var(--nature-sage);
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus,
+.custom-select-trigger[aria-expanded='true'],
+.filter-select-trigger[aria-expanded='true'],
+.date-picker-trigger[aria-expanded='true'] {
+  border-color: var(--nature-primary);
+  box-shadow: 0 0 0 3px var(--nature-focus-ring);
+}
+
+.field input.has-error,
+.field textarea.has-error,
+.field select.has-error,
+.custom-select-trigger.has-error {
+  border-color: var(--nature-danger);
+}
+
+.field-error {
+  color: var(--nature-danger);
+}
+
+.field-hint {
+  color: var(--nature-text-secondary);
+}
+
+.field select option {
+  color: var(--nature-text);
+  background: var(--nature-surface);
+}
+
+.custom-select,
+.filter-select {
+  position: relative;
+}
+
+.custom-select-menu,
+.filter-select-menu,
+.date-picker-popover,
+.dropdown-menu {
+  background: var(--nature-surface);
+  border-color: var(--nature-border-strong);
+  border-radius: 8px;
+  box-shadow: var(--nature-shadow-md);
+}
+
+.custom-select-option,
+.filter-select-option {
+  color: var(--nature-text-secondary);
+  border-radius: 6px;
+}
+
+.custom-select-option:hover,
+.custom-select-option.selected,
+.filter-select-option:hover,
+.filter-select-option.selected {
+  color: var(--nature-primary);
+  background: var(--nature-primary-soft);
+}
+
+.filter-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.filter-select-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 100%;
+  padding: 5px;
+}
+
+.filter-select-option {
+  display: flex;
+  width: 100%;
+  min-height: 34px;
+  align-items: center;
+  padding: 7px 9px;
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.tabs {
+  gap: 4px;
+  padding: 4px;
+  background: var(--nature-bg-warm);
+  border: 1px solid var(--nature-border);
+  border-radius: 8px;
+}
+
+.tabs button {
+  color: var(--nature-text-secondary);
+  border-radius: 6px;
+}
+
+.tabs button:hover {
+  color: var(--nature-primary);
+  background: var(--nature-primary-soft);
+}
+
+.tabs button.active {
+  color: var(--nature-surface);
+  background: var(--nature-pine);
+  box-shadow: var(--nature-shadow-sm);
+}
+
+.badge {
+  min-height: 22px;
+  padding-inline: 8px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+.badge.neutral {
+  color: var(--nature-text-secondary);
+  background: var(--nature-surface-soft);
+  border-color: var(--nature-border);
+}
+
+.badge.blue {
+  color: var(--nature-primary);
+  background: var(--nature-primary-soft);
+  border-color: color-mix(in srgb, var(--nature-primary) 26%, var(--nature-border));
+}
+
+.badge.green {
+  color: var(--nature-success);
+  background: var(--nature-success-soft);
+  border-color: color-mix(in srgb, var(--nature-success) 28%, var(--nature-border));
+}
+
+.badge.orange {
+  color: var(--nature-warning);
+  background: var(--nature-warning-soft);
+  border-color: color-mix(in srgb, var(--nature-warning) 28%, var(--nature-border));
+}
+
+.badge.red {
+  color: var(--nature-danger);
+  background: var(--nature-danger-soft);
+  border-color: color-mix(in srgb, var(--nature-danger) 28%, var(--nature-border));
+}
+
+.badge.violet {
+  color: var(--nature-bark);
+  background: color-mix(in srgb, var(--nature-bark) 14%, var(--nature-surface));
+  border-color: color-mix(in srgb, var(--nature-bark) 25%, var(--nature-border));
+}
+
+.panel,
+.stat-card,
+.modal,
+.drawer {
+  background: var(--nature-surface);
+  border-color: var(--nature-border);
+  border-radius: 8px;
+  box-shadow: var(--nature-shadow-sm);
+}
+
+.panel,
+.stat-card {
+  box-shadow: var(--nature-shadow-sm);
+}
+
+.overlay {
+  background: color-mix(in srgb, var(--nature-pine) 38%, transparent);
+}
+
+.modal,
+.drawer {
+  border-color: var(--nature-border-strong);
+  box-shadow: var(--nature-shadow-md);
+}
+
+.drawer {
+  border-radius: 0;
+}
+
+.modal-head,
+.modal-foot {
+  border-color: var(--nature-border);
+}
+
+.modal-foot {
+  background: var(--nature-bg-warm);
+}
+
+[data-theme='dark'] .overlay {
+  background: color-mix(in srgb, var(--nature-bg) 76%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .nature-mascot img {
+  .nature-mascot img,
+  .skeleton,
+  .spin {
     transition: none !important;
+    animation: none !important;
   }
 }

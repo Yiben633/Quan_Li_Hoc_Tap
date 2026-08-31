@@ -1,9 +1,10 @@
 .kanban-quick-form { display: grid; grid-template-columns: minmax(0, 1fr) 32px 32px; gap: 5px; margin-bottom: 10px; }
-.kanban-quick-form input { min-width: 0; min-height: 34px; padding: 0 9px; color: var(--ink); background: var(--surface); border: 1px solid var(--blue); border-radius: 6px; outline: 0; font-size: 11px; }
-.kanban-quick-form button { display: grid; place-items: center; min-height: 34px; padding: 0; color: var(--blue); background: var(--blue-soft); border: 1px solid var(--line); border-radius: 6px; }
-.kanban-quick-form button:hover { border-color: var(--blue); }.kanban-quick-form button:last-child { color: var(--muted); }
-[data-theme='dark'] .kanban-quick-form input { background: #1a2332; border-color: #6688d2; }.kanban-quick-form input::placeholder { color: var(--muted); }
-.kanban-card { position: relative; }
-.kanban-delete-task { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 27px; height: 27px; padding: 0; color: var(--muted); background: transparent; border: 1px solid transparent; border-radius: 6px; }
-.kanban-delete-task:hover { color: #d9545d; background: rgba(217,84,93,.1); border-color: rgba(217,84,93,.28); }
+.kanban-quick-form input { min-width: 0; min-height: 36px; padding: 0 9px; color: var(--nature-text); background: var(--nature-surface); border: 1px solid var(--nature-sage); border-radius: 6px; outline: 0; font-size: 11px; }
+.kanban-quick-form input:focus { border-color: var(--nature-pine); box-shadow: 0 0 0 3px var(--nature-focus-ring); }
+.kanban-quick-form input::placeholder { color: var(--nature-text-muted); }
+.kanban-quick-form button { display: grid; min-height: 36px; place-items: center; padding: 0; color: var(--nature-primary); background: var(--nature-primary-soft); border: 1px solid var(--nature-border); border-radius: 6px; }
+.kanban-quick-form button:hover, .kanban-quick-form button:focus-visible { border-color: var(--nature-primary); box-shadow: 0 0 0 3px var(--nature-focus-ring); outline: 0; }
+.kanban-quick-form button:last-child { color: var(--nature-text-secondary); background: var(--nature-surface); }
+.kanban-delete-task { position: absolute; top: 9px; right: 9px; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; color: var(--nature-text-muted); background: transparent; border: 1px solid transparent; border-radius: 6px; }
+.kanban-delete-task:hover, .kanban-delete-task:focus-visible { color: var(--nature-danger); background: var(--nature-danger-soft); border-color: color-mix(in srgb, var(--nature-danger) 30%, var(--nature-border)); outline: 0; }
 .kanban-delete-task:disabled { opacity: .55; }

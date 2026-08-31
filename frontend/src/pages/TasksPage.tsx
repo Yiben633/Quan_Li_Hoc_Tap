@@ -1,8 +1,8 @@
-import { Check, CheckSquare, ListFilter, ListTodo, Play, Plus, Search, Trash2, X } from 'lucide-react'
+import { Check, CheckSquare, Leaf, ListFilter, Play, Plus, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Button, ConfirmDialog, DatePicker, EmptyState, Input, Modal, Select, Skeleton } from '../components/ui'
+import { Button, ConfirmDialog, DatePicker, EmptyState, ErrorState, Input, Modal, Select, Skeleton } from '../components/ui'
 import { useTopicsQuery } from '../features/learning/learning.hooks'
 import { DIFFICULTY_LABELS, PRIORITY_LABELS, TASK_STATUS_LABELS } from '../features/tasks/task.constants'
 import { TaskDrawer } from '../features/tasks/components/TaskDrawer'
@@ -16,6 +16,7 @@ import { useOverdueTasksQuery, usePlansQuery, useTaskCreateMutation, useTaskDele
 import { formatTaskDeadline } from '../utils/taskDate'
 import { getNextTaskSuggestion } from '../utils/nextTask'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { NatureEmptyMascot } from '../components/nature'
 
 type TaskScope = 'today' | 'upcoming' | 'overdue' | 'all'
 type TaskFilterState = { search: string; status: string; priority: string; subjectId: string; studyPlanId: string; dueDate: string; difficulty: string; page: number }
@@ -194,7 +195,7 @@ export function TasksPage() {
 
   return <div className="tasks-page">
     <div className="page-heading tasks-heading">
-      <div><p className="eyebrow">NHỊP TIẾN ĐỘ CỦA BẠN</p><h1>Công việc</h1><p className="subtle">Tập trung vào việc tiếp theo, dù bạn đang học hay làm một dự án riêng.</p></div>
+      <div className="tasks-heading-copy"><h1>CÔNG VIỆC</h1><p className="subtle">Từng bước nhỏ cho một hành trình dài.</p><span className="tasks-heading-accent" aria-hidden="true"><i /><Leaf size={17} /></span></div>
       <div className="tasks-heading-actions">
         <Button variant="secondary" onClick={() => selectionMode ? exitSelectionMode() : setSelectionMode(true)}><CheckSquare size={16} /> {selectionMode ? 'Thoát chọn' : 'Chọn nhiều'}</Button>
         <Button onClick={() => setCreateOpen(true)}><Plus size={16} /> Tạo công việc</Button>
@@ -230,7 +231,7 @@ export function TasksPage() {
       <Button variant="danger" disabled={selected.length === 0} onClick={() => setBulkRemoveOpen(true)}><Trash2 size={15} /> Xóa</Button>
       <button type="button" className="bulk-exit-selection" onClick={exitSelectionMode} aria-label="Thoát chế độ chọn nhiều"><X size={16} /> Thoát chọn</button>
     </div>}
-    {isLoading ? <div className="task-list-page">{[1, 2, 3].map((item) => <Skeleton key={item} height={116} />)}</div> : isError ? <EmptyState icon={<ListTodo size={24} />} title="Không thể tải công việc" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={retry}>Thử lại</Button>} /> : tasks.length === 0 ? <EmptyState icon={<CheckSquare size={24} />} title={`Chưa có việc ${scopeLabels[scope].toLowerCase()}`} description="Tạo một việc nhỏ để bắt đầu nhịp của bạn." action={<Button onClick={() => setCreateOpen(true)}><Plus size={16} /> Tạo công việc</Button>} /> : <TaskList tasks={tasks} subjectById={subjectById} planById={planById} selectionMode={selectionMode} selectedIds={selected} onSelect={toggleSelected} onOpen={setDrawerId} onEdit={setEditTask} onDuplicate={(task) => duplicateMutation.mutate(task.id, { onSuccess: () => toast.success('Đã nhân bản công việc'), onError: () => toast.error('Không thể nhân bản công việc') })} onStatusChange={(id, status) => statusMutation.mutate({ id, status })} onDelete={setRemoveId} />}
+    {isLoading ? <div className="task-list-page">{[1, 2, 3].map((item) => <Skeleton key={item} height={116} />)}</div> : isError ? <ErrorState title="Không thể tải công việc." action={<Button onClick={retry}>Thử lại</Button>} /> : tasks.length === 0 ? <TaskEmptyState scope={scope} onCreate={() => setCreateOpen(true)} /> : <TaskList tasks={tasks} subjectById={subjectById} planById={planById} selectionMode={selectionMode} selectedIds={selected} onSelect={toggleSelected} onOpen={setDrawerId} onEdit={setEditTask} onDuplicate={(task) => duplicateMutation.mutate(task.id, { onSuccess: () => toast.success('Đã nhân bản công việc'), onError: () => toast.error('Không thể nhân bản công việc') })} onStatusChange={(id, status) => statusMutation.mutate({ id, status })} onDelete={setRemoveId} />}
     {pagination && pagination.totalPages > 1 && <div className="task-pagination"><Button variant="secondary" disabled={filters.page <= 1} onClick={() => setFilters((current) => ({ ...current, page: current.page - 1 }))}>Trước</Button><span>Trang {filters.page} / {pagination.totalPages}</span><Button variant="secondary" disabled={filters.page >= pagination.totalPages} onClick={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}>Sau</Button></div>}
     <TaskForm open={createOpen} title="Tạo công việc" submitLabel="Lưu công việc" onClose={() => setCreateOpen(false)} topics={topics.data?.items ?? []} plans={plans.data?.items ?? []} loading={createMutation.isPending} onSubmit={(input) => createMutation.mutate(input, { onSuccess: () => { setCreateOpen(false); toast.success('Đã tạo công việc') }, onError: () => toast.error('Không thể tạo công việc') })} />
     <TaskForm open={Boolean(editTask)} title="Chỉnh sửa công việc" submitLabel="Lưu thay đổi" onClose={() => setEditTask(null)} initial={editTask ?? undefined} topics={topics.data?.items ?? []} plans={plans.data?.items ?? []} loading={updateMutation.isPending} onSubmit={(input) => { if (!editTask) return; updateMutation.mutate({ id: editTask.id, input }, { onSuccess: () => { setEditTask(null); toast.success('Đã cập nhật công việc') }, onError: () => toast.error('Không thể cập nhật công việc') }) }} />
@@ -241,6 +242,21 @@ export function TasksPage() {
       <p className="subtle">Áp dụng thay đổi cho {selected.length} công việc đã chọn.</p>
       {bulkMoveKind === 'subject' ? <Select label="Môn học mới" customMenu value={bulkTargetId} onChange={(event) => setBulkTargetId(event.target.value)}><option value="">Chọn môn học</option>{topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.name}</option>)}</Select> : <Select label="Kế hoạch mới" customMenu value={bulkTargetId} onChange={(event) => setBulkTargetId(event.target.value)}><option value="">Chọn kế hoạch</option>{plans.data?.items.map((plan) => <option key={plan.id} value={plan.id}>{plan.title}</option>)}</Select>}
     </Modal>
+  </div>
+}
+
+function TaskEmptyState({ scope, onCreate }: { scope: TaskScope; onCreate: () => void }) {
+  const description = scope === 'today'
+    ? 'Bạn chưa có công việc nào cho hôm nay.'
+    : `Bạn chưa có công việc nào ${scopeLabels[scope].toLowerCase()}.`
+
+  return <div className="task-empty-state">
+    <EmptyState
+      icon={<NatureEmptyMascot kind="tasks" size={104} className="task-empty-bunny" />}
+      title="Mọi thứ đang yên ắng."
+      description={description}
+      action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
+    />
   </div>
 }
 

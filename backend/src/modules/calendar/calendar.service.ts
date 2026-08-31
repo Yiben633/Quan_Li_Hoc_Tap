@@ -1,7 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
 
 type CalendarQuery = { view: 'day' | 'week' | 'month'; date: Date };
-type CalendarItem = { type: string; title: string; startAt: Date; endAt: Date; colorHex: string | null; sourceEntity: { type: string; id: string; subjectId?: string | null } };
+type CalendarItem = { type: string; scheduleType?: string; title: string; startAt: Date; endAt: Date; colorHex: string | null; sourceEntity: { type: string; id: string; subjectId?: string | null } };
 
 function dayStart(date: Date) { const value = new Date(date); value.setUTCHours(0, 0, 0, 0); return value; }
 function addDays(date: Date, days: number) { const value = new Date(date); value.setUTCDate(value.getUTCDate() + days); return value; }
@@ -26,7 +26,7 @@ function scheduleOccurrences(schedule: { id: string; type: string; title: string
     const startAt = dateTime(cursor, schedule.startTime);
     let endAt = dateTime(cursor, schedule.endTime);
     if (endAt <= startAt) endAt = addDays(endAt, 1);
-    items.push({ type: 'schedule', title: schedule.title, startAt, endAt, colorHex: schedule.colorHex, sourceEntity: { type: 'schedule', id: schedule.id, subjectId: schedule.subjectId } });
+    items.push({ type: 'schedule', scheduleType: schedule.type, title: schedule.title, startAt, endAt, colorHex: schedule.colorHex, sourceEntity: { type: 'schedule', id: schedule.id, subjectId: schedule.subjectId } });
   }
   return items;
 }

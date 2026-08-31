@@ -1,7 +1,8 @@
 import apiClient from '../../services/apiClient'
 
 export type CalendarView = 'day' | 'week' | 'month'
-export type CalendarItem = { type: 'schedule' | 'event' | 'task_due' | 'exam'; title: string; startAt: string; endAt: string; colorHex?: string | null; sourceEntity: { type: string; id: string; subjectId?: string | null } }
+export type CalendarScheduleType = 'class' | 'self_study' | 'exam' | 'presentation' | 'group_work' | 'personal'
+export type CalendarItem = { type: 'schedule' | 'event' | 'task_due' | 'exam'; scheduleType?: CalendarScheduleType; title: string; startAt: string; endAt: string; colorHex?: string | null; sourceEntity: { type: string; id: string; subjectId?: string | null } }
 export type CalendarResponse = { view: CalendarView; start: string; end: string; items: CalendarItem[]; total: number }
 type ApiResponse<T> = { success: boolean; message: string; data: T }
 

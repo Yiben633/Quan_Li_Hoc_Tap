@@ -1,11 +1,11 @@
 import { DndContext, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
-import { Check, Clock3, GripVertical, Plus, Search, Trash2 } from 'lucide-react'
+import { Check, Clock3, GripVertical, Leaf, Plus, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { getApiErrorMessage } from '../features/auth/auth.api'
-import { Button, ConfirmDialog, EmptyState, Select, Skeleton } from '../components/ui'
+import { Button, ConfirmDialog, ErrorState, Select, Skeleton } from '../components/ui'
 import { useTopicsQuery } from '../features/learning/learning.hooks'
 import type { TaskStatus } from '../features/tasks/tasks.api'
 import type { KanbanTask } from '../features/kanban/kanban.api'
@@ -63,7 +63,7 @@ export function KanbanPage() {
     {query.isLoading
       ? <div className="kanban-board">{columns.map((column) => <Skeleton key={column.status} height={300} />)}</div>
       : query.isError || !filtered
-        ? <EmptyState title="Không thể tải Kanban" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => query.refetch()}>Thử lại</Button>} />
+        ? <ErrorState title="Không thể tải Kanban." action={<Button onClick={() => query.refetch()}>Thử lại</Button>} />
         : <DndContext sensors={sensors} onDragEnd={onDragEnd}><div className="kanban-board">{columns.map((column) => <KanbanColumn key={column.status} column={column} tasks={filtered[column.status]} subjectId={subjectId || undefined} />)}</div></DndContext>}
   </div>
 }
@@ -82,7 +82,7 @@ function KanbanColumn({ column, tasks, subjectId }: { column: { status: TaskStat
   }
 
   return <section ref={setNodeRef} className={`kanban-column kanban-${column.status}${isOver ? ' is-over' : ''}`}>
-    <header><div><span className="kanban-column-dot" /><h2>{column.label}</h2></div><span>{tasks.length}</span></header>
+    <header><div><span className="kanban-column-dot" /><h2>{column.label}</h2>{column.status === 'todo' && <Leaf className="kanban-column-flora" size={14} aria-hidden="true" />}</div><span>{tasks.length}</span></header>
     {quickAdd
       ? <form className="kanban-quick-form" onSubmit={(event) => { event.preventDefault(); createQuickTask() }} onPointerDown={(event) => event.stopPropagation()}><input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên công việc..." aria-label="Tên công việc mới" /><button type="submit" onPointerDown={(event) => event.stopPropagation()} disabled={create.isPending}><Check size={15} /></button><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setQuickAdd(false); setTitle('') }} aria-label="Hủy"><span>×</span></button></form>
       : <button className="kanban-quick-add" onClick={() => setQuickAdd(true)}><Plus size={15} /> Thêm nhanh</button>}
@@ -102,11 +102,11 @@ function KanbanCard({ task }: { task: KanbanTask }) {
     onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể xóa công việc')),
   })
 
-  return <><article ref={setNodeRef} style={style} className={`kanban-card${isDragging ? ' is-dragging' : ''}`}>
+  return <><article ref={setNodeRef} style={style} className={`kanban-card kanban-priority-${task.priority}${isDragging ? ' is-dragging' : ''}`}>
     <button className="kanban-drag-handle" aria-label={`Kéo ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} /></button>
     <strong>{task.title}</strong>
     <button type="button" className="kanban-delete-task" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setConfirmOpen(true) }} disabled={remove.isPending} aria-label={`Xóa ${task.title}`}><Trash2 size={14} /></button>
-    {(task.subject?.name || task.studyPlan?.title) && <span className="kanban-context">{task.subject?.name ?? task.studyPlan?.title}</span>}
+    {(task.subject?.name || task.studyPlan?.title) && <span className="kanban-context">{task.subject?.colorHex && <i className="kanban-subject-dot" style={{ backgroundColor: task.subject.colorHex }} />}{task.subject?.name ?? task.studyPlan?.title}</span>}
     <div className="kanban-card-meta"><span className={`kanban-priority priority-${task.priority}`}>{priorityLabels[task.priority]}</span>{task.dueDate && <span><Clock3 size={12} /> {new Date(task.dueDate).toLocaleDateString('vi-VN')}</span>}{total > 0 && <span><Check size={12} /> {done}/{total}</span>}</div>
   </article><ConfirmDialog open={confirmOpen} title="Xóa công việc?" description={`Công việc “${task.title}” sẽ được ẩn khỏi bảng Kanban.`} onCancel={() => setConfirmOpen(false)} onConfirm={confirmDelete} loading={remove.isPending} /></>
 }

@@ -49,18 +49,36 @@ export type AdminRecentActivity = {
   createdAt: string
   actor?: { id: string; fullName: string; email: string } | null
 }
+export type AdminAnalyticsPoint = { date: string; users: number; sessions: number; taskCompletions: number; plans: number }
+export type AdminPlanRequiringAttention = {
+  id: string
+  title: string
+  status: string
+  progressPercent: number
+  endDate: string | null
+  attention: 'overdue' | 'due_soon'
+  user: { fullName: string; email: string }
+  subject: { code: string; name: string } | null
+}
 export type AdminStatistics = {
   range: { key: AdminStatisticsRange; days: number; from: string; to: string }
+  totalUsers: number
   activeUsers: number
   newUsers: number
   disabledUsers: number
   studyGroups: number
   openFeedback: number
   tasks: number
+  openTasks: number
   completedTasks: number
   studyPlans: number
+  activeStudyPlans: number
   studySessions: number
+  activityToday: number
   totalStudyMinutes: number
+  analytics: AdminAnalyticsPoint[]
+  attention: { overduePlans: number }
+  plansRequiringAttention: AdminPlanRequiringAttention[]
   recentAdminActivity: AdminRecentActivity[]
 }
 export type TopicTemplate = { code: string; name: string; credits: number }

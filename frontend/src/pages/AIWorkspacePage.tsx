@@ -3,7 +3,7 @@ import { AlertTriangle, Bot, CalendarCheck, Check, Clock3, Plus, Send, Sparkles,
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Navigate } from 'react-router-dom'
-import { Button, Checkbox, ConfirmDialog, DatePicker, EmptyState, IconButton, Input, Select, Tabs, Textarea } from '../components/ui'
+import { Button, Checkbox, ConfirmDialog, DatePicker, EmptyState, IconButton, Input, Select, Skeleton, Tabs, Textarea } from '../components/ui'
 import { aiFeaturesEnabled } from '../config/features'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import type { ScheduleSuggestion, ScheduleTaskInput } from '../features/ai/ai.api'
@@ -125,8 +125,8 @@ function ScheduleWorkspace() {
         <option value="">Mọi môn học</option>
         {topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.code ? `${topic.code} · ${topic.name}` : topic.name}</option>)}
       </Select>
-      <div className="ai-task-picker" aria-label="Chọn công việc">
-        {tasksQuery.isLoading ? <p className="subtle">Đang tải công việc...</p> : tasksQuery.isError ? <p className="form-api-error">Chưa thể tải danh sách công việc.</p> : availableTasks.length ? availableTasks.slice(0, 12).map((task) => <Checkbox key={task.id} checked={draftTasks.some((item) => item.id === task.id)} onChange={() => toggleTask(task.id)} label={`${task.title}${task.estimatedMinutes ? ` · ${task.estimatedMinutes} phút` : ''}`} />) : <p className="subtle">Không có công việc đang mở trong phạm vi này.</p>}
+      <div className="ai-task-picker" aria-label="Chọn công việc" aria-busy={tasksQuery.isLoading}>
+        {tasksQuery.isLoading ? <div className="ai-task-picker-skeletons">{[1, 2, 3, 4].map((item) => <Skeleton key={item} height={19} width={item % 2 ? '82%' : '68%'} />)}</div> : tasksQuery.isError ? <p className="form-api-error">Chưa thể tải danh sách công việc.</p> : availableTasks.length ? availableTasks.slice(0, 12).map((task) => <Checkbox key={task.id} checked={draftTasks.some((item) => item.id === task.id)} onChange={() => toggleTask(task.id)} label={`${task.title}${task.estimatedMinutes ? ` · ${task.estimatedMinutes} phút` : ''}`} />) : <p className="subtle">Không có công việc đang mở trong phạm vi này.</p>}
       </div>
       <div className="ai-manual-task">
         <Input label="Công việc tự nhập" value={manualTitle} onChange={(event) => setManualTitle(event.target.value)} placeholder="Ví dụ: Luyện nghe 30 phút" />

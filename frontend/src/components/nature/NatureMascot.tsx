@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { natureAssets, type NatureMascotAnimal } from '../../config/natureAssets'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 
 export type NatureMascotAnimation = 'idle'
 export type NatureMascotSize = 'sm' | 'md' | 'lg' | 'xl' | number
@@ -9,6 +10,7 @@ type NatureMascotBaseProps = {
   animation?: NatureMascotAnimation
   className?: string
   frameDurationMs?: number
+  priority?: boolean
   size?: NatureMascotSize
 }
 
@@ -83,23 +85,18 @@ export function NatureMascot({
   className = '',
   decorative = true,
   frameDurationMs = 900,
+  priority = false,
   size = 'md',
 }: NatureMascotProps) {
   const frames = natureAssets.mascots[animal]
   const [frameIndex, setFrameIndex] = useState(0)
   const reducedMotion = usePrefersReducedMotion()
+  const isMobileViewport = useMediaQuery('(max-width: 639px)')
   const documentVisible = useDocumentVisible()
   const [rootRef, inViewport] = useInViewport<HTMLSpanElement>()
   const pixelSize = typeof size === 'number' ? size : sizeMap[size]
-  const shouldAnimate = animation === 'idle' && !reducedMotion && documentVisible && inViewport
+  const shouldAnimate = animation === 'idle' && !reducedMotion && !isMobileViewport && documentVisible && inViewport
   const classNames = ['nature-mascot', `nature-mascot-${typeof size === 'number' ? 'custom' : size}`, className].filter(Boolean).join(' ')
-
-  useEffect(() => {
-    frames.forEach((src) => {
-      const image = new Image()
-      image.src = src
-    })
-  }, [frames])
 
   useEffect(() => {
     if (!shouldAnimate) {
@@ -131,7 +128,8 @@ export function NatureMascot({
         src={frames[frameIndex]}
         width={pixelSize}
         height={pixelSize}
-        loading="lazy"
+        fetchPriority={priority ? 'high' : 'auto'}
+        loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         draggable={false}
         {...accessibilityProps}

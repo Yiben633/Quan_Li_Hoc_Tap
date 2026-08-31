@@ -2,6 +2,7 @@ import { ArrowRight, CalendarDays, Clock3, Edit3, MoreHorizontal, Pause, Trash2 
 import { Dropdown, Tooltip } from '../../../components/ui'
 import { formatTaskDate, formatTaskDeadline } from '../../../utils/taskDate'
 import { getPlanHealth } from '../../../utils/planHealth'
+import { natureAssets } from '../../../config/natureAssets'
 import { PLAN_STATUS_LABELS } from '../task.constants'
 import type { StudyPlan } from '../tasks.api'
 
@@ -44,6 +45,7 @@ export function StudyPlanCard({ plan, onView, onEdit, onPause, onDelete }: { pla
     {(range || plan.endDate) && <p className="plan-card-date"><CalendarDays size={14} /> {range}{plan.endDate && <><span>·</span><strong>{formatTaskDeadline(plan.endDate)}</strong></>}</p>}
     <div className="plan-card-progress"><div className="progress-line" aria-label={`${progressPercent}% tiến độ`}><span style={{ width: `${progressPercent}%` }} /></div><strong>{progressPercent}%</strong></div>
     {(taskTotal > 0 || estimate) && <p className="plan-card-meta">{taskTotal > 0 && <span>{taskDone}/{taskTotal} công việc</span>}{taskTotal > 0 && estimate && <i>·</i>}{estimate && <span><Clock3 size={13} /> {estimate}</span>}</p>}
+    <img className="plan-card-flora" src={natureAssets.flora.bush[0]} width={36} height={36} loading="lazy" decoding="async" alt="" aria-hidden="true" />
     <footer className="plan-card-footer">{health ? <Tooltip label="Đánh giá dựa trên thời gian đã trôi qua và tiến độ công việc."><span className={`plan-health plan-health-${health.status}`}>{health.label}</span></Tooltip> : <span />}<button type="button" onClick={onView}>Tiếp tục <ArrowRight size={15} /></button></footer>
   </article>
 }

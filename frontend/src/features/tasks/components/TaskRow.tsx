@@ -1,4 +1,4 @@
-import { Check, Copy, Edit3, MoreHorizontal, Paperclip, Trash2 } from 'lucide-react'
+import { Check, Copy, Edit3, Leaf, MoreHorizontal, Paperclip, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Dropdown } from '../../../components/ui'
 import { formatTaskDeadline, isTaskDeadlineOverdue } from '../../../utils/taskDate'
@@ -39,13 +39,13 @@ export function TaskRow({ task, subject, studyPlan, mode = 'default', selectionM
   const progress = task.subTaskProgress
   const progressPercent = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
 
-  return <article className={`task-list-row task-status-${task.status}`}>
+  return <article className={`task-list-row task-status-${task.status} task-priority-${task.priority}`}>
     {selectionMode
       ? <input type="checkbox" checked={selected} onChange={onSelect} aria-label={`Chọn ${task.title} để thao tác hàng loạt`} />
       : <button type="button" className={`task-complete-toggle${isDone ? ' is-done' : ''}`} onClick={() => { if (!isDone) onStatusChange('done') }} disabled={isDone} aria-label={isDone ? `${task.title} đã hoàn thành` : `Đánh dấu hoàn thành ${task.title}`} title={isDone ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}><Check size={13} /></button>}
     <div className="task-row-content">
       <div className="task-row-primary"><button type="button" className="task-row-main" onClick={onOpen}><span className="task-row-title">{task.title}</span></button></div>
-      {(subject || studyPlan) && <p className="task-row-context">{subject && <Link to={`/topics/${subject.id}`}>{subject.code ? `${subject.code} · ${subject.name}` : subject.name}</Link>}{subject && studyPlan && <span aria-hidden="true"> · </span>}{studyPlan && <Link to={`/study-plans/${studyPlan.id}`}>{studyPlan.title}</Link>}</p>}
+      {(subject || studyPlan) && <p className="task-row-context"><Leaf className="task-context-leaf" size={13} aria-hidden="true" />{subject && <Link to={`/topics/${subject.id}`}><i className="task-subject-dot" style={{ background: subject.colorHex }} aria-hidden="true" />{subject.code ? `${subject.code} · ${subject.name}` : subject.name}</Link>}{subject && studyPlan && <span aria-hidden="true"> · </span>}{studyPlan && <Link to={`/study-plans/${studyPlan.id}`}>{studyPlan.title}</Link>}</p>}
       {metadata.length > 0 && <p className="task-row-meta">{task.dueDate && <span className={deadlineIsOverdue ? 'task-deadline-overdue' : undefined}>{deadline}</span>}{task.estimatedMinutes !== null && task.estimatedMinutes !== undefined && <span> · {task.estimatedMinutes} phút</span>}{task.difficulty && <span> · {DIFFICULTY_LABELS[task.difficulty as keyof typeof DIFFICULTY_LABELS]}</span>}<span> · {PRIORITY_LABELS[task.priority]}</span></p>}
       <span className={`status-label task-row-status task-pill-${task.status}`} aria-label={`Trạng thái: ${TASK_STATUS_LABELS[task.status]}`}>{TASK_STATUS_LABELS[task.status]}</span>
       {progress && progress.total > 0 && <div className="task-row-progress" aria-label={`Checklist ${progress.done}/${progress.total}, ${progressPercent}% hoàn thành`}><span>Checklist {progress.done}/{progress.total}</span><div><i style={{ width: `${progressPercent}%` }} /></div><strong>{progressPercent}%</strong></div>}

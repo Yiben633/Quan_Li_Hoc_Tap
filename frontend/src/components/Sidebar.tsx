@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router-dom'
 import { BarChart3, BookOpen, BookOpenCheck, BrainCircuit, CalendarDays, CheckSquare, FileText, LayoutDashboard, ListTodo, NotebookPen, Settings, ShieldCheck, Target, Timer, Users, X } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { Logo } from './Logo'
 import { useAuthStore } from '../stores/authStore'
 import { aiFeaturesEnabled } from '../config/features'
 import { useGroupInvitationsQuery } from '../features/groups/groups.hooks'
 import { natureAssets } from '../config/natureAssets'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 
 type SidebarLink = { to: string; label: string; icon: LucideIcon; invitationCount?: boolean }
 
@@ -40,9 +42,26 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const isAdmin = roles.includes('admin')
   const invitations = useGroupInvitationsQuery()
   const invitationCount = invitations.data?.length ?? 0
-  return <aside className={`sidebar ${open ? 'sidebar-open' : ''}`}>
+  const isDrawerViewport = useMediaQuery('(max-width: 1024px)')
+  const sidebarRef = useRef<HTMLElement>(null)
+  const navigationRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const sidebar = sidebarRef.current
+    if (!sidebar) return
+
+    if (isDrawerViewport && !open) {
+      sidebar.setAttribute('inert', '')
+      return
+    }
+
+    sidebar.removeAttribute('inert')
+    if (isDrawerViewport && open) navigationRef.current?.querySelector<HTMLAnchorElement>('a[href]')?.focus()
+  }, [isDrawerViewport, open])
+
+  return <aside ref={sidebarRef} id="app-navigation" className={`sidebar ${open ? 'sidebar-open' : ''}`} aria-hidden={isDrawerViewport && !open ? true : undefined}>
     <div className="sidebar-head"><Logo /><button className="icon-button mobile-only" onClick={onClose} aria-label="Đóng menu"><X size={18} /></button></div>
-    <nav className="sidebar-navigation" aria-label="Điều hướng chính">
+    <nav ref={navigationRef} className="sidebar-navigation" aria-label="Điều hướng chính">
       {navigationSections.map((section) => <section className="nav-section" key={section.label} aria-label={section.label}>
         <p className="nav-section-label">{section.label}</p>
         <div className="nav-list">
@@ -60,7 +79,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
       </section>
     </nav>
     <div className="sidebar-footer">
-      <div className="sidebar-forest-decoration" aria-hidden="true"><img src={natureAssets.flora.bush[0]} alt="" /></div>
+      <div className="sidebar-forest-decoration" aria-hidden="true"><img src={natureAssets.flora.bush[0]} alt="" width={543} height={724} loading="lazy" decoding="async" /></div>
       <div className="study-tip"><span className="tip-dot" /><div><strong>Giữ nhịp học tập</strong><p>Tiến từng bước nhỏ hôm nay.</p></div></div>
     </div>
   </aside>

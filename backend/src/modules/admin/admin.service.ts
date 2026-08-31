@@ -7,6 +7,38 @@ type PageQuery = { search?: string; page: number; limit: number };
 type FeedbackQuery = PageQuery & { status?: FeedbackStatus };
 type StatisticsQuery = { range: '7d' | '30d' | '90d' };
 
+const VIETNAM_OFFSET_MS = 7 * 60 * 60 * 1000;
+
+function startOfVietnamDay(date = new Date()) {
+  const shifted = new Date(date.getTime() + VIETNAM_OFFSET_MS);
+  return new Date(Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate()) - VIETNAM_OFFSET_MS);
+}
+
+function addDays(date: Date, days: number) {
+  const next = new Date(date);
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+function vietnamDateKey(date: Date) {
+  const shifted = new Date(date.getTime() + VIETNAM_OFFSET_MS);
+  const year = shifted.getUTCFullYear();
+  const month = String(shifted.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(shifted.getUTCDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+type AnalyticsPoint = { date: string; users: number; sessions: number; taskCompletions: number; plans: number };
+
+function createAnalyticsPoints(start: Date, end: Date) {
+  const points = new Map<string, AnalyticsPoint>();
+  for (let cursor = new Date(start); cursor < end; cursor = addDays(cursor, 1)) {
+    const date = vietnamDateKey(cursor);
+    points.set(date, { date, users: 0, sessions: 0, taskCompletions: 0, plans: 0 });
+  }
+  return points;
+}
+
 const adminUserSelect = {
   id: true,
   fullName: true,
@@ -93,18 +125,33 @@ export async function statistics(query: StatisticsQuery) {
   const rangeEnd = new Date();
   const rangeStart = new Date(rangeEnd);
   rangeStart.setUTCDate(rangeStart.getUTCDate() - days);
+  const today = startOfVietnamDay();
+  const tomorrow = addDays(today, 1);
+  const dueSoonEnd = addDays(today, 8);
+  const analyticsStart = addDays(today, -(days - 1));
+  const analyticsEnd = tomorrow;
+  const overduePlansWhere: Prisma.StudyPlanWhereInput = {
+    deletedAt: null,
+    status: { not: 'completed' },
+    OR: [{ status: 'overdue' }, { endDate: { lt: today } }],
+  };
 
-  const [activeUsers, newUsers, disabledUsers, studyGroups, openFeedback, tasks, completedTasks, studyPlans, studySessions, studyTime, activity] = await Promise.all([
+  const [totalUsers, activeUsers, newUsers, disabledUsers, studyGroups, openFeedback, tasks, openTasks, completedTasks, studyPlans, activeStudyPlans, studySessions, studyTime, sessionsToday, tasksCompletedToday, activity, overduePlans, attentionPlans, analyticsUsers, analyticsSessions, analyticsTaskCompletions, analyticsPlans] = await Promise.all([
+    prisma.user.count(),
     prisma.user.count({ where: { deletedAt: null } }),
     prisma.user.count({ where: { createdAt: { gte: rangeStart, lte: rangeEnd } } }),
     prisma.user.count({ where: { deletedAt: { not: null } } }),
     prisma.studyGroup.count(),
     prisma.feedback.count({ where: { status: { in: ['open', 'in_progress'] } } }),
     prisma.task.count({ where: { deletedAt: null } }),
+    prisma.task.count({ where: { deletedAt: null, status: { not: 'done' } } }),
     prisma.task.count({ where: { deletedAt: null, status: 'done' } }),
     prisma.studyPlan.count({ where: { deletedAt: null } }),
+    prisma.studyPlan.count({ where: { deletedAt: null, status: 'in_progress' } }),
     prisma.studySession.count(),
     prisma.studySession.aggregate({ _sum: { totalMinutes: true } }),
+    prisma.studySession.count({ where: { startedAt: { gte: today, lt: tomorrow } } }),
+    prisma.task.count({ where: { deletedAt: null, status: 'done', completedAt: { gte: today, lt: tomorrow } } }),
     prisma.activityLog.findMany({
       where: { action: { startsWith: 'admin.' } },
       select: {
@@ -118,19 +165,73 @@ export async function statistics(query: StatisticsQuery) {
       orderBy: { createdAt: 'desc' },
       take: 8,
     }),
+    prisma.studyPlan.count({ where: overduePlansWhere }),
+    prisma.studyPlan.findMany({
+      where: {
+        deletedAt: null,
+        status: { not: 'completed' },
+        OR: [
+          { status: 'overdue' },
+          { endDate: { lt: today } },
+          { endDate: { gte: today, lt: dueSoonEnd } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        progressPercent: true,
+        endDate: true,
+        user: { select: { fullName: true, email: true } },
+        subject: { select: { code: true, name: true } },
+      },
+      orderBy: { endDate: 'asc' },
+      take: 8,
+    }),
+    prisma.user.findMany({ where: { createdAt: { gte: analyticsStart, lt: analyticsEnd } }, select: { createdAt: true } }),
+    prisma.studySession.findMany({ where: { startedAt: { gte: analyticsStart, lt: analyticsEnd } }, select: { startedAt: true } }),
+    prisma.task.findMany({ where: { deletedAt: null, status: 'done', completedAt: { gte: analyticsStart, lt: analyticsEnd } }, select: { completedAt: true } }),
+    prisma.studyPlan.findMany({ where: { deletedAt: null, createdAt: { gte: analyticsStart, lt: analyticsEnd } }, select: { createdAt: true } }),
   ]);
+  const analyticsByDate = createAnalyticsPoints(analyticsStart, analyticsEnd);
+  for (const item of analyticsUsers) {
+    const point = analyticsByDate.get(vietnamDateKey(item.createdAt));
+    if (point) point.users += 1;
+  }
+  for (const item of analyticsSessions) {
+    const point = analyticsByDate.get(vietnamDateKey(item.startedAt));
+    if (point) point.sessions += 1;
+  }
+  for (const item of analyticsTaskCompletions) {
+    const point = item.completedAt ? analyticsByDate.get(vietnamDateKey(item.completedAt)) : undefined;
+    if (point) point.taskCompletions += 1;
+  }
+  for (const item of analyticsPlans) {
+    const point = analyticsByDate.get(vietnamDateKey(item.createdAt));
+    if (point) point.plans += 1;
+  }
   return {
     range: { key: query.range, days, from: rangeStart, to: rangeEnd },
+    totalUsers,
     activeUsers,
     newUsers,
     disabledUsers,
     studyGroups,
     openFeedback,
     tasks,
+    openTasks,
     completedTasks,
     studyPlans,
+    activeStudyPlans,
     studySessions,
+    activityToday: sessionsToday + tasksCompletedToday,
     totalStudyMinutes: studyTime._sum.totalMinutes ?? 0,
+    analytics: Array.from(analyticsByDate.values()),
+    attention: { overduePlans },
+    plansRequiringAttention: attentionPlans.map((plan) => ({
+      ...plan,
+      attention: plan.status === 'overdue' || (plan.endDate !== null && plan.endDate < today) ? 'overdue' as const : 'due_soon' as const,
+    })),
     recentAdminActivity: activity.map(({ user, ...item }) => ({ ...item, actor: user })),
   };
 }

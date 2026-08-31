@@ -4,5 +4,6 @@
 .notification-item:hover { background: var(--blue-soft); }
 .notification-item small { display: block; margin-top: 5px; color: var(--muted); font-size: 10px; }
 .notification-empty { padding: 14px 10px; margin: 0; color: var(--muted); font-size: 12px; }
+.notification-loading { display: grid; gap: 8px; min-width: 230px; padding: 14px 10px; }
 
 [data-theme='dark'] .notification-item:hover { background: #2a3954; }

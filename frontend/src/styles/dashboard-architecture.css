@@ -38,10 +38,6 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
 }
 
-.dashboard-bottom-grid-single {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 .dashboard-architecture-grid .panel {
   min-width: 0;
 }
@@ -129,6 +125,119 @@
   min-height: 302px;
 }
 
+.dashboard-weekly-activity .dashboard-activity-chart {
+  height: 164px;
+  margin-bottom: 4px;
+}
+
+.dashboard-chart-tooltip {
+  display: grid;
+  gap: 7px;
+  min-width: 174px;
+  padding: 10px 11px;
+  color: var(--nature-text);
+  background: var(--nature-surface);
+  border: 1px solid var(--nature-sand);
+  border-radius: 8px;
+  box-shadow: var(--nature-shadow-md);
+  font-size: 12px;
+}
+
+.dashboard-chart-tooltip strong {
+  color: var(--nature-text);
+  font-size: 12px;
+}
+
+.dashboard-chart-tooltip span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--nature-text-secondary);
+}
+
+.dashboard-chart-tooltip span b {
+  margin-left: auto;
+  color: var(--nature-text);
+}
+
+.dashboard-chart-tooltip i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dashboard-chart-tooltip-pine {
+  background: var(--nature-pine);
+}
+
+.dashboard-chart-tooltip-moss {
+  background: var(--nature-moss);
+}
+
+.dashboard-activity-heatmap {
+  display: grid;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+.dashboard-activity-heatmap-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--nature-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-activity-heatmap-head > div {
+  display: flex;
+  gap: 4px;
+}
+
+.dashboard-activity-heatmap-head i,
+.dashboard-activity-heatmap-cell {
+  display: block;
+  background: var(--nature-surface-soft);
+  border: 1px solid var(--nature-border);
+  border-radius: 3px;
+}
+
+.dashboard-activity-heatmap-head i {
+  width: 10px;
+  height: 10px;
+}
+
+.dashboard-activity-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.dashboard-activity-heatmap-cell {
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 13px;
+}
+
+.dashboard-activity-heatmap-head .level-1,
+.dashboard-activity-heatmap-cell.level-1 {
+  background: var(--nature-primary-soft);
+  border-color: var(--nature-primary-soft);
+}
+
+.dashboard-activity-heatmap-head .level-2,
+.dashboard-activity-heatmap-cell.level-2 {
+  background: var(--nature-sage);
+  border-color: var(--nature-sage);
+}
+
+.dashboard-activity-heatmap-head .level-3,
+.dashboard-activity-heatmap-cell.level-3 {
+  background: var(--nature-pine);
+  border-color: var(--nature-pine);
+}
+
 .dashboard-subjects-panel,
 .dashboard-ai-panel {
   min-height: 238px;
@@ -140,14 +249,12 @@
   margin-top: 18px;
 }
 
-.dashboard-plan-preview-list,
 .dashboard-subject-list {
   display: grid;
   gap: 7px;
   margin-top: 16px;
 }
 
-.dashboard-plan-preview,
 .dashboard-subject-row {
   display: flex;
   align-items: center;
@@ -160,20 +267,17 @@
   border-radius: 10px;
 }
 
-.dashboard-plan-preview:hover,
 .dashboard-subject-row:hover {
   border-color: var(--nature-border-strong);
   background: var(--nature-surface);
 }
 
-.dashboard-plan-preview > span,
 .dashboard-subject-row > span:nth-child(2) {
   display: grid;
   min-width: 0;
   gap: 3px;
 }
 
-.dashboard-plan-preview strong,
 .dashboard-subject-row strong {
   overflow: hidden;
   font-size: 12px;
@@ -181,7 +285,6 @@
   white-space: nowrap;
 }
 
-.dashboard-plan-preview small,
 .dashboard-subject-row small {
   overflow: hidden;
   color: var(--nature-text-secondary);
@@ -190,10 +293,108 @@
   white-space: nowrap;
 }
 
-.dashboard-plan-preview b {
-  margin-left: auto;
+.dashboard-trail-card {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 17px;
+  color: var(--nature-text);
+  background: var(--nature-surface-soft);
+  border: 1px solid var(--nature-border);
+  border-radius: 12px;
+}
+
+.dashboard-trail-card:hover {
+  background: var(--nature-surface);
+  border-color: var(--nature-border-strong);
+}
+
+.dashboard-trail-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.dashboard-trail-card-heading > div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.dashboard-trail-card-heading span {
+  overflow: hidden;
+  color: var(--nature-text-secondary);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-trail-card-heading h3 {
+  overflow: hidden;
+  margin: 0;
+  color: var(--nature-text);
+  font-size: 16px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-trail-card-heading > strong {
+  flex: 0 0 auto;
   color: var(--nature-primary);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.dashboard-trail-progress {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+
+.dashboard-trail-progress > span {
+  display: block;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  background: var(--nature-surface-muted);
+  border: 1px solid var(--nature-border);
+  border-radius: 999px;
+}
+
+.dashboard-trail-progress > span > i {
+  display: block;
+  width: var(--trail-progress);
+  height: 100%;
+  background: var(--nature-primary);
+  border-radius: inherit;
+}
+
+.dashboard-trail-progress > svg {
+  position: absolute;
+  left: clamp(7px, var(--trail-progress), calc(100% - 7px));
+  padding: 2px;
+  color: var(--nature-moss);
+  background: var(--nature-surface-soft);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.dashboard-trail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: var(--nature-text-secondary);
   font-size: 12px;
+  line-height: 1.4;
+}
+
+.dashboard-trail-meta span + span::before {
+  margin-right: 12px;
+  color: var(--nature-border-strong);
+  content: '·';
 }
 
 .dashboard-subject-dot {
@@ -221,24 +422,54 @@
 .dashboard-ai-panel {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-.dashboard-ai-summary {
+.dashboard-ai-kicker {
+  margin: 0 0 5px;
+  color: var(--nature-moss);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.dashboard-ai-content {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px;
+  align-items: end;
   gap: 8px;
-  margin-top: 16px;
+  flex: 1;
+  margin-top: 14px;
+}
+
+.dashboard-ai-copy {
+  display: grid;
+  align-content: end;
+  gap: 8px;
+  min-width: 0;
+}
+
+.dashboard-ai-copy p {
+  margin: 0;
   color: var(--nature-text-secondary);
   font-size: 12px;
   line-height: 1.5;
 }
 
-.dashboard-ai-summary strong {
+.dashboard-ai-copy p:first-child {
   color: var(--nature-text);
+  font-weight: 700;
+}
+
+.dashboard-ai-owl {
+  align-self: end;
+  justify-self: end;
+  pointer-events: none;
 }
 
 .dashboard-ai-action {
   align-self: flex-start;
-  margin-top: auto;
+  margin-top: 4px;
   padding-inline: 12px;
   color: var(--nature-primary);
   background: var(--nature-primary-soft);
@@ -250,7 +481,30 @@
   background: var(--nature-primary);
 }
 
-@media (max-width: 980px) {
+@media (min-width: 640px) and (max-width: 1024px) {
+  .dashboard-priority-grid {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  }
+
+  .dashboard-progress-grid {
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  }
+
+  .dashboard-bottom-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-next-tasks,
+  .dashboard-today-schedule,
+  .dashboard-plans-panel,
+  .dashboard-weekly-activity,
+  .dashboard-subjects-panel,
+  .dashboard-ai-panel {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 639px) {
   .dashboard-priority-grid,
   .dashboard-progress-grid,
   .dashboard-bottom-grid {
@@ -281,7 +535,6 @@
     margin-bottom: 14px;
   }
 
-  .dashboard-plan-preview,
   .dashboard-subject-row {
     min-height: 46px;
   }
@@ -293,5 +546,14 @@
   .next-task-card-actions .button {
     flex: 1 1 132px;
     justify-content: center;
+  }
+
+  .dashboard-ai-content {
+    grid-template-columns: minmax(0, 1fr) 68px;
+  }
+
+  .dashboard-ai-owl {
+    width: 68px !important;
+    height: 68px !important;
   }
 }

@@ -1,13 +1,15 @@
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckSquare, Clock3, FileText, Gauge, NotebookPen, Play, Plus, Sparkles } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { ArrowLeft, ArrowRight, Check, CheckSquare, Clock3, FileText, Gauge, NotebookPen, Plus, Sparkles } from 'lucide-react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Button, EmptyState, Skeleton, Tabs } from '../components/ui'
+import { NatureEmptyMascot, NatureMascot } from '../components/nature'
+import { Button, EmptyState, ErrorState, Skeleton, Tabs } from '../components/ui'
+import { natureAssets } from '../config/natureAssets'
 import { useTopicQuery } from '../features/learning/learning.hooks'
 import { TaskList } from '../features/tasks/components/TaskList'
 import { TaskQuickCreate } from '../features/tasks/components/TaskQuickCreate'
 import { StartStudyButton } from '../features/study-sessions/StartStudyButton'
-import type { Priority, Task, TaskStatus } from '../features/tasks/tasks.api'
-import { useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
+import type { Priority, StudyPlan, Task, TaskStatus } from '../features/tasks/tasks.api'
+import { usePlansQuery, useTaskStatusMutation, useTasksQuery } from '../features/tasks/tasks.hooks'
 import { formatTaskDeadline } from '../utils/taskDate'
 import { useDocumentsQuery } from '../features/documents/documents.hooks'
 import { useNotesQuery } from '../features/notes/notes.hooks'
@@ -63,6 +65,7 @@ export function TopicDetailPage() {
   const statusTask = useTaskStatusMutation()
   const query = useTopicQuery(id)
   const tasks = useTasksQuery({ subjectId: id, page: 1, limit: 100, sort: 'sortOrder', order: 'asc' })
+  const plans = usePlansQuery({ subjectId: id, status: 'in_progress', limit: '3', sort: 'endDate', order: 'asc' }, { enabled: Boolean(id) })
   const documents = useDocumentsQuery({ subjectId: id, page: 1, limit: 5 })
   const notes = useNotesQuery({ subjectId: id, page: 1, limit: 5 })
 
@@ -72,9 +75,10 @@ export function TopicDetailPage() {
   }, [documents.data?.pagination.total, notes.data?.pagination.total, tab])
 
   if (query.isLoading) return <div className="topic-detail"><Skeleton height={260} /></div>
-  if (query.isError || !query.data) return <EmptyState title="Không thể tải môn học" description="Môn học có thể đã bị xóa hoặc bạn không có quyền truy cập." action={<Link className="button secondary" to="/topics">Quay lại môn học</Link>} />
+  if (query.isError || !query.data) return <ErrorState title="Không thể tải môn học." action={<Link className="button secondary" to="/topics">Quay lại môn học</Link>} />
 
   const topic = query.data
+  const topicAccentStyle = { '--topic-accent': topic.colorHex } as CSSProperties
   const taskItems = tasks.data?.items ?? []
   const totalTasks = topic.statistics.taskTotal
   const completedTasks = topic.statistics.taskDone
@@ -94,16 +98,16 @@ export function TopicDetailPage() {
   const taskList = tasks.isLoading
     ? <Skeleton height={120} />
     : tasks.isError
-      ? <EmptyState title="Không thể tải công việc" description="Hãy thử lại sau." />
+      ? <ErrorState compact title="Không thể tải công việc." action={<Button variant="secondary" onClick={() => void tasks.refetch()}>Thử lại</Button>} />
       : visibleTasks.length
-        ? <TaskList tasks={visibleTasks} mode="compact" onStatusChange={updateStatus} />
-        : <EmptyState title="Chưa có công việc" description="Thêm công việc đầu tiên cho môn học này." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />
+      ? <TaskList tasks={visibleTasks} mode="compact" onStatusChange={updateStatus} />
+        : <SubjectTaskEmptyState onCreate={openTaskCreate} />
 
   return <div className="topic-detail">
-    <Link className="back-link" to="/topics"><ArrowLeft size={15} /> Quay lại môn học</Link>
+    <Link className="back-link" to="/topics"><ArrowLeft size={15} /> Môn học</Link>
 
-    <header className="topic-detail-head" style={{ borderLeftColor: topic.colorHex }}>
-      <div>
+    <header className="topic-detail-head" style={topicAccentStyle}>
+      <div className="topic-detail-copy">
         <p className="eyebrow">{topic.code}</p>
         <h1>{topic.name}</h1>
         <p className="subtle">{topic.credits > 0 && `${topic.credits} tín chỉ`}{topic.credits > 0 && statusLabel && ' · '}{statusLabel}</p>
@@ -111,11 +115,16 @@ export function TopicDetailPage() {
         {topic.targetGrade !== null && topic.targetGrade !== undefined && <p className="topic-detail-field">Mục tiêu: <strong>{Number(topic.targetGrade).toFixed(1)}</strong></p>}
       </div>
       <div className="topic-detail-header-actions">
+        <Button variant="secondary" onClick={openTaskCreate}><Plus size={16} /> Công việc</Button>
         <StartStudyButton subjectId={id} />
-        <Link className="button secondary" to={`/ai-coach?subjectId=${encodeURIComponent(id)}`}><Sparkles size={16} /> Hỏi AI về môn này</Link>
-        <Button onClick={openTaskCreate}><Plus size={16} /> Công việc</Button>
+        <Link className="topic-detail-ai-link" to={`/ai-coach?subjectId=${encodeURIComponent(id)}`}><Sparkles size={15} /> Hỏi AI</Link>
       </div>
-      <span className="topic-detail-mark" style={{ background: topic.colorHex }}><BookOpen size={22} /></span>
+      <div className="topic-detail-scenic" aria-hidden="true">
+        <span className="topic-scenic-pine topic-scenic-pine-left" />
+        <span className="topic-scenic-pine topic-scenic-pine-right" />
+        <img className="topic-scenic-grass" src={natureAssets.flora.bush[0]} alt="" width="90" height="90" />
+        <NatureMascot animal="fox" size={112} className="topic-scenic-fox" />
+      </div>
     </header>
 
     <Tabs value={tab} onChange={setTab} items={tabs} />
@@ -124,7 +133,7 @@ export function TopicDetailPage() {
       ? <>
         <section className="panel topic-overview-progress">
           <div><p className="eyebrow">TIẾN ĐỘ MÔN HỌC</p><h2>{progressPercent}% hoàn thành</h2><p className="subtle">Tiến độ được tính từ các công việc trong môn học.</p></div>
-          <div className="topic-progress-value"><div className="topic-progress-track"><i style={{ width: `${progressPercent}%`, background: topic.colorHex }} /></div><strong>{completedTasks}/{totalTasks}</strong></div>
+          <div className="topic-progress-value"><div className="topic-progress-track"><i style={{ width: `${progressPercent}%` }} /></div><strong>{completedTasks}/{totalTasks}</strong></div>
         </section>
         <section className="topic-stats">
           <Stat label="Việc còn lại" value={remainingTasks} icon={<CheckSquare size={18} />} />
@@ -140,9 +149,10 @@ export function TopicDetailPage() {
               ? <p className="subtle">Chưa thể tải các công việc ưu tiên.</p>
               : topTasks.length
                 ? <div className="topic-priority-list">{topTasks.map((task) => <PriorityTask key={task.id} task={task} onComplete={() => updateStatus(task.id, 'done')} />)}</div>
-                : <EmptyState title="Môn học chưa có việc cần làm" description="Tạo một công việc để bắt đầu theo dõi tiến độ." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />}
+                : <EmptyState icon={<NatureEmptyMascot kind="subject" size={92} className="topic-priority-empty-fox" />} title="Môn học chưa có việc cần làm" description="Tạo một công việc để bắt đầu theo dõi tiến độ." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />}
           {taskItems.length > 0 && <button type="button" className="topic-view-all-tasks" onClick={() => setTab('tasks')}>Xem tất cả công việc <ArrowRight size={15} /></button>}
         </section>
+        <SubjectPlansPanel plans={plans.data?.items ?? []} loading={plans.isLoading} error={plans.isError} onRetry={() => void plans.refetch()} />
       </>
       : tab === 'tasks' ? <section className="panel topic-task-panel">
         <div className="panel-heading"><div><h2>Công việc</h2><p className="subtle">Theo dõi các việc trong môn học này.</p></div><Link className="topic-kanban-link" to={`/kanban?subjectId=${id}`}>Xem trong Kanban <ArrowRight size={15} /></Link></div>
@@ -166,6 +176,44 @@ function PriorityTask({ task, onComplete }: { task: Task; onComplete: () => void
     <div><strong>{task.title}</strong>{task.subject?.name && <small>{task.subject.name}</small>}</div>
     <span>{formatTaskDeadline(task.dueDate)}</span>
   </div>
+}
+
+function SubjectPlansPanel({ plans, loading, error, onRetry }: { plans: StudyPlan[]; loading: boolean; error: boolean; onRetry: () => void }) {
+  return <section className="panel topic-plans-panel">
+    <div className="topic-priority-heading"><div><p className="eyebrow">KẾ HOẠCH CỦA MÔN</p><h2>Lộ trình đang thực hiện</h2></div><Link className="topic-kanban-link" to="/study-plans">Xem tất cả <ArrowRight size={15} /></Link></div>
+    {loading
+      ? <div className="topic-plan-list"><Skeleton height={76} /><Skeleton height={76} /></div>
+      : error
+        ? <ErrorState compact title="Không thể tải kế hoạch của môn học." action={<Button variant="secondary" onClick={onRetry}>Thử lại</Button>} />
+        : plans.length
+          ? <div className="topic-plan-list">{plans.map((plan) => <SubjectPlanPreview key={plan.id} plan={plan} />)}</div>
+          : <EmptyState title="Chưa có kế hoạch đang thực hiện" description="Tạo một lộ trình cho môn học này khi bạn cần chia nhỏ mục tiêu." action={<Link className="button secondary" to="/study-plans"><Plus size={15} /> Tạo kế hoạch</Link>} />}
+  </section>
+}
+
+function SubjectTaskEmptyState({ onCreate }: { onCreate: () => void }) {
+  return <div className="topic-task-empty">
+    <EmptyState
+      icon={<NatureEmptyMascot kind="subject" size={108} className="topic-task-empty-fox" />}
+      title="Môn học này chưa có công việc."
+      description="Thêm một việc để bắt đầu theo dõi tiến độ."
+      action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
+    />
+  </div>
+}
+
+function SubjectPlanPreview({ plan }: { plan: StudyPlan }) {
+  const progress = Math.min(100, Math.max(0, plan.progressPercent))
+  const taskLabel = plan.taskTotal > 0 ? `${plan.taskDone}/${plan.taskTotal} công việc` : null
+  const deadline = plan.endDate ? formatTaskDeadline(plan.endDate) : null
+
+  return <Link className="topic-plan-preview" to={`/study-plans/${plan.id}`}>
+    <span className="topic-plan-accent" aria-hidden="true" />
+    <span className="topic-plan-copy"><strong>{plan.title}</strong>{plan.targetGoal && <small>Mục tiêu {plan.targetGoal}</small>}</span>
+    <span className="topic-plan-progress"><span aria-label={`${progress}% tiến độ`}><i style={{ width: `${progress}%` }} /></span><strong>{progress}%</strong></span>
+    {(taskLabel || deadline) && <span className="topic-plan-meta">{taskLabel}{taskLabel && deadline && <i aria-hidden="true">·</i>}{deadline}</span>}
+    <ArrowRight className="topic-plan-arrow" size={16} aria-hidden="true" />
+  </Link>
 }
 
 function Stat({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {

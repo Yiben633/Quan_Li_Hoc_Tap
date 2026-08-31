@@ -12,10 +12,10 @@ import toast from "react-hot-toast";
 import {
   Button,
   ConfirmDialog,
-  EmptyState,
+  ErrorState,
   Modal,
-  Select,
   Skeleton,
+  Tabs,
 } from "../components/ui";
 import { getApiErrorMessage } from "../features/auth/auth.api";
 import type {
@@ -26,6 +26,7 @@ import {
   useCalendarEventMutation,
   useCalendarQuery,
 } from "../features/calendar/calendar.hooks";
+import { natureEmptyStateAssets } from "../config/natureAssets";
 import { getVietnamDateTimeParts, toVietnamIso } from "../utils/calendarTime";
 
 const labels: Record<CalendarItem["type"], string> = {
@@ -34,7 +35,41 @@ const labels: Record<CalendarItem["type"], string> = {
   task_due: "Hạn công việc",
   exam: "Kỳ thi",
 };
+const scheduleLabels = {
+  class: "Lớp học",
+  self_study: "Tự học",
+  exam: "Lịch thi",
+  presentation: "Thuyết trình",
+  group_work: "Làm nhóm",
+  personal: "Cá nhân",
+} as const;
 const weekdays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+const calendarDayStartMinutes = 7 * 60;
+const calendarDayEndMinutes = 21 * 60;
+const calendarTimeSlots = Array.from({ length: 15 }, (_, index) => `${String(index + 7).padStart(2, "0")}:00`);
+
+function calendarItemLabel(item: CalendarItem) {
+  return item.type === "schedule" && item.scheduleType ? scheduleLabels[item.scheduleType] : labels[item.type];
+}
+
+function timeToMinutes(value: string) {
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function calendarEventTiming(item: CalendarItem) {
+  const start = timeToMinutes(getVietnamDateTimeParts(item.startAt).time);
+  const end = timeToMinutes(getVietnamDateTimeParts(item.endAt).time);
+  const totalMinutes = calendarDayEndMinutes - calendarDayStartMinutes;
+  const duration = end > start ? end - start : item.type === "task_due" ? 45 : 60;
+  const topMinutes = Math.min(Math.max(start - calendarDayStartMinutes, 0), totalMinutes - 30);
+  const visibleDuration = Math.min(duration, totalMinutes - topMinutes);
+
+  return {
+    "--calendar-event-top": `${(topMinutes / totalMinutes) * 100}%`,
+    "--calendar-event-height": `${Math.max(visibleDuration / totalMinutes, 0.06) * 100}%`,
+  } as React.CSSProperties;
+}
 
 function dayKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -180,7 +215,9 @@ export function CalendarPage() {
     end: "10:00",
   });
   const date = dayKey(anchor);
+  const today = dayKey(new Date());
   const query = useCalendarQuery(view, date);
+  const agenda = useCalendarQuery("day", today);
   const mutations = useCalendarEventMutation();
   const cells = useMemo(
     () =>
@@ -300,18 +337,12 @@ export function CalendarPage() {
 
   return (
     <div className="calendar-page">
-      <div className="page-heading">
+      <header className="calendar-heading">
         <div>
-          <p className="eyebrow">LỊCH CỦA BẠN</p>
-          <h1>Lịch</h1>
-          <p className="subtle">
-            Sự kiện, hạn công việc và những mốc quan trọng trong một nơi.
-          </p>
+          <p className="eyebrow">LỊCH HỌC</p>
+          <h1>{anchor.toLocaleDateString("vi-VN", { month: "long", year: "numeric" })}</h1>
         </div>
-        <Button onClick={() => openCreate(anchor)}>
-          <Plus size={16} /> Tạo sự kiện
-        </Button>
-      </div>
+      </header>
       <section className="panel calendar-toolbar">
         <div className="calendar-nav">
           <button
@@ -334,34 +365,27 @@ export function CalendarPage() {
           >
             <ChevronRight size={18} />
           </button>
-          <strong>
-            {anchor.toLocaleDateString("vi-VN", {
-              month: "long",
-              year: "numeric",
-            })}
-          </strong>
         </div>
-        <Select
-          customMenu
+        <Tabs
           value={view}
-          onChange={(event) => setView(event.target.value as CalendarView)}
-          aria-label="Chế độ xem"
-        >
-          <option value="day">Ngày</option>
-          <option value="week">Tuần</option>
-          <option value="month">Tháng</option>
-        </Select>
+          onChange={setView}
+          items={[{ value: "day", label: "Ngày" }, { value: "week", label: "Tuần" }, { value: "month", label: "Tháng" }]}
+        />
+        <Button className="calendar-create-event" onClick={() => openCreate(anchor)}>
+          <Plus size={16} /> Sự kiện
+        </Button>
       </section>
       {query.isLoading ? (
         <Skeleton height={520} />
       ) : query.isError ? (
-        <EmptyState
-          title="Không thể tải lịch"
-          description="Kiểm tra kết nối rồi thử lại."
+        <ErrorState
+          title="Không thể tải lịch."
           action={<Button onClick={() => query.refetch()}>Thử lại</Button>}
         />
       ) : (
+        <div className="calendar-content-layout">
         <section className={`panel calendar-grid calendar-view-${view}`}>
+          {view !== "month" && <div className="calendar-time-axis" aria-hidden="true"><span /><div>{calendarTimeSlots.map((slot, index) => <span key={slot} style={{ "--calendar-slot-position": `${(index / (calendarTimeSlots.length - 1)) * 100}%` } as React.CSSProperties}>{slot}</span>)}</div></div>}
           <div className="calendar-weekdays">
             {(view === "day"
               ? [weekdays[(anchor.getDay() + 6) % 7]]
@@ -375,7 +399,7 @@ export function CalendarPage() {
               const items = byDay.get(dayKey(cell)) ?? [];
               return (
                 <div
-                  className={`calendar-cell${cell.getMonth() !== anchor.getMonth() && view === "month" ? " is-outside" : ""}`}
+                  className={`calendar-cell${cell.getMonth() !== anchor.getMonth() && view === "month" ? " is-outside" : ""}${dayKey(cell) === today ? " is-today" : ""}${view === "month" && (cell.getDay() === 0 || cell.getDay() === 6) ? " is-weekend" : ""}`}
                   key={dayKey(cell)}
                   onDragOver={(event) => {
                     if (draggedEvent) event.preventDefault();
@@ -393,12 +417,8 @@ export function CalendarPage() {
                     {items.map((item) => (
                       <button
                         key={`${item.type}-${item.sourceEntity.id}-${item.startAt}`}
-                        className={`calendar-item calendar-item-${item.type}`}
-                        style={
-                          {
-                            "--item-color": item.colorHex ?? undefined,
-                          } as React.CSSProperties
-                        }
+                        className={`calendar-item calendar-item-${item.type}${item.scheduleType ? ` calendar-item-schedule-${item.scheduleType}` : ""}`}
+                        style={view === "month" ? undefined : calendarEventTiming(item)}
                         draggable={item.type === "event"}
                         onDragStart={() => setDraggedEvent(item)}
                         onClick={(event) => {
@@ -407,10 +427,7 @@ export function CalendarPage() {
                         }}
                       >
                         <span className="calendar-item-dot" />
-                        <span>{item.title}</span>
-                        <small>
-                          {item.type !== "task_due" && timeLabel(item.startAt)}
-                        </small>
+                        <span className="calendar-item-copy"><span className="calendar-item-title">{item.title}</span><small><b>{calendarItemLabel(item)}</b>{item.type !== "task_due" && ` · ${timeLabel(item.startAt)}`}</small></span>
                       </button>
                     ))}
                   </div>
@@ -419,6 +436,8 @@ export function CalendarPage() {
             })}
           </div>
         </section>
+        <TodayAgenda items={agenda.data?.items ?? []} loading={agenda.isLoading} error={agenda.isError} onCreate={() => openCreate(new Date())} onSelect={setSelected} onRetry={() => void agenda.refetch()} />
+        </div>
       )}
       <Modal
         open={modalOpen}
@@ -516,7 +535,7 @@ export function CalendarPage() {
       >
         <div className="calendar-detail">
           <span className={`badge ${selected?.type ?? "blue"}`}>
-            {selected ? labels[selected.type] : ""}
+            {selected ? calendarItemLabel(selected) : ""}
           </span>
           {selected && (
             <p>
@@ -547,4 +566,28 @@ export function CalendarPage() {
       />
     </div>
   );
+}
+
+function TodayAgenda({ items, loading, error, onCreate, onSelect, onRetry }: { items: CalendarItem[]; loading: boolean; error: boolean; onCreate: () => void; onSelect: (item: CalendarItem) => void; onRetry: () => void }) {
+  return <aside className="calendar-agenda" aria-label="Lịch hôm nay">
+    <header><p className="eyebrow">HÔM NAY</p><h2>Lịch trong ngày</h2></header>
+    {loading
+      ? <div className="calendar-agenda-loading"><Skeleton height={48} /><Skeleton height={48} /><Skeleton height={48} /></div>
+      : error
+        ? <ErrorState compact title="Không thể tải lịch hôm nay." action={<Button variant="secondary" onClick={onRetry}>Thử lại</Button>} />
+        : items.length
+          ? <div className="calendar-agenda-list">{items.map((item) => <button key={`${item.type}-${item.sourceEntity.id}-${item.startAt}`} type="button" className={`calendar-agenda-item calendar-agenda-item-${item.type}${item.scheduleType ? ` calendar-agenda-item-schedule-${item.scheduleType}` : ""}`} onClick={() => onSelect(item)}><time>{timeLabel(item.startAt)}</time><span><strong>{item.title}</strong><small>{calendarItemLabel(item)}</small></span></button>)}</div>
+          : <CalendarAgendaEmpty onCreate={onCreate} />}
+    <footer aria-hidden="true"><span className="calendar-agenda-branch" /></footer>
+  </aside>
+}
+
+function CalendarAgendaEmpty({ onCreate }: { onCreate: () => void }) {
+  return <div className="calendar-agenda-empty">
+    <div className="calendar-agenda-empty-art" aria-hidden="true"><img className="calendar-agenda-empty-cloud" src={natureEmptyStateAssets.calendar.cloud} alt="" width={64} height={36} /><img className="calendar-agenda-empty-bush" src={natureEmptyStateAssets.calendar.bush} alt="" width={72} height={72} /></div>
+    <h3>Một ngày khá thoáng.</h3>
+    <p>Chưa có sự kiện trong ngày này.</p>
+    <p>Bạn có thể dành một khoảng cho việc học.</p>
+    <Button onClick={onCreate}><Plus size={16} /> Thêm lịch học</Button>
+  </div>
 }

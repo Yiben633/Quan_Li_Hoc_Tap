@@ -8,7 +8,7 @@ export function AppLayout() {
   const [open, setOpen] = useState(false)
   return <div className="app-shell">
     <Sidebar open={open} onClose={() => setOpen(false)} />
-    <div className="app-main"><Topbar onMenu={() => setOpen(true)} /><NetworkStatusBanner /><main className="page-content"><Outlet /></main></div>
+    <div className="app-main"><Topbar onMenu={() => setOpen(true)} menuOpen={open} /><NetworkStatusBanner /><main className="page-content"><Outlet /></main></div>
     {open && <button className="sidebar-overlay" onClick={() => setOpen(false)} aria-label="Đóng menu" />}
   </div>
 }

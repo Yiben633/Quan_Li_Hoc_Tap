@@ -1,8 +1,9 @@
-import { Bot, List, Sparkles } from 'lucide-react'
+import { CalendarDays, Leaf, List, ListTodo, Moon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useSearchParams } from 'react-router-dom'
-import { Button, ConfirmDialog, Drawer, EmptyState, IconButton, Modal, Skeleton } from '../components/ui'
+import { Button, ConfirmDialog, Drawer, EmptyState, ErrorState, IconButton, Modal, Skeleton } from '../components/ui'
+import { NatureEmptyMascot, NatureMascot } from '../components/nature'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import { CoachStreamingResponseError, CoachStreamingUnavailableError } from '../features/ai-coach/aiCoach.api'
 import { ChatComposer } from '../features/ai-coach/components/ChatComposer'
@@ -15,19 +16,18 @@ import { AnalyticsSummaryCard } from '../features/ai-coach/components/AnalyticsS
 import { PlanDraftCard } from '../features/ai-coach/components/PlanDraftCard'
 import { PlanDraftEditor } from '../features/ai-coach/components/PlanDraftEditor'
 import { PlanDraftPreview } from '../features/ai-coach/components/PlanDraftPreview'
-import { SuggestionChips } from '../features/ai-coach/components/SuggestionChips'
+import { SuggestionChips, type StarterPrompt } from '../features/ai-coach/components/SuggestionChips'
 import { TaskPriorityCards } from '../features/ai-coach/components/TaskPriorityCards'
 import { useApplyCoachDraftMutation, useCoachChatMutation, useCoachChatStreamMutation, useCoachConversationsQuery, useCoachMessagesQuery, useDiscardCoachDraftMutation, useUpdateCoachDraftMutation } from '../features/ai-coach/aiCoach.hooks'
 import type { CoachChatInput, CoachChatResponse, CoachDraft, CoachMessage } from '../features/ai-coach/aiCoach.types'
 import { useTopicsQuery } from '../features/learning/learning.hooks'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 
-const promptSuggestions = [
-  'Hôm nay tôi nên học gì?',
-  'Tuần này tôi học thế nào?',
-  'Lập kế hoạch cho tuần này',
-  'Sắp xếp lại các việc quá hạn',
-  'Tạo lịch ôn thi',
-  'Tôi có 2 tiếng tối nay',
+const promptSuggestions: StarterPrompt[] = [
+  { label: 'Hôm nay nên học gì?', icon: Leaf, tone: 'leaf' },
+  { label: 'Lập kế hoạch tuần này', icon: CalendarDays, tone: 'plan' },
+  { label: 'Sắp xếp việc quá hạn', icon: ListTodo, tone: 'overdue' },
+  { label: 'Tôi có 2 tiếng tối nay', icon: Moon, tone: 'evening' },
 ]
 
 type PendingMessage = Pick<CoachMessage, 'id' | 'role' | 'content'>
@@ -69,6 +69,7 @@ function statusFromError(error: unknown) {
 
 export function AICoachPage() {
   const [searchParams] = useSearchParams()
+  const showHeadingScene = useMediaQuery('(min-width: 640px)')
   const promptFromSearch = searchParams.get('prompt')?.trim().slice(0, 500) ?? ''
   const coachContext = useMemo(() => coachContextFromSearchParams(searchParams), [searchParams])
   const coachContextKey = `${coachContext.subjectId ?? ''}:${coachContext.studyPlanId ?? ''}:${coachContext.taskId ?? ''}`
@@ -220,6 +221,7 @@ export function AICoachPage() {
   const showEmptyChat = !activeConversationId && !pendingMessage
   const showMessageLoading = Boolean(activeConversationId && messagesQuery.isLoading)
   const showMessageError = Boolean(activeConversationId && messagesQuery.isError)
+  const showTypingIndicator = chat.isPending || (streamChat.isPending && streamingAssistantText === '')
 
   const confirmApplyDraft = () => {
     if (!draftToApply) return
@@ -286,15 +288,19 @@ export function AICoachPage() {
   return (
     <main className="ai-coach-page">
       <header className="page-heading ai-coach-heading">
-        <div>
-          <p className="eyebrow">AI COACH</p>
-          <h1>Trợ lý AI</h1>
-          <p className="subtle">{contextLabel ?? 'Tập trung vào việc cần làm, rồi xem trước mọi kế hoạch trước khi áp dụng.'}</p>
+        <div className="ai-coach-heading-copy">
+          <h1>AI COACH</h1>
+          <p className="subtle">Người bạn đồng hành trong hành trình học tập.</p>
+          {contextLabel && <p className="ai-coach-heading-context">{contextLabel}</p>}
         </div>
         <div className="ai-coach-heading-actions">
           <IconButton label="Mở danh sách hội thoại" className="ai-coach-mobile-list-button" onClick={() => setMobileListOpen(true)}><List size={19} /></IconButton>
-          <div className="ai-coach-heading-icon" aria-hidden="true"><Sparkles size={21} /></div>
         </div>
+        {showHeadingScene && <div className="ai-coach-heading-scene" aria-hidden="true">
+          <span className="ai-coach-heading-moon" />
+          <span className="ai-coach-heading-branch" />
+          <NatureMascot animal="owl" size={104} className="ai-coach-heading-owl" />
+        </div>}
       </header>
 
       <section className="ai-coach-shell" aria-label="Trợ lý AI">
@@ -307,12 +313,12 @@ export function AICoachPage() {
             onScroll={(event) => { shouldAutoScrollRef.current = isNearBottom(event.currentTarget) }}
           >
             {showMessageLoading && <div className="ai-coach-message-skeletons"><Skeleton height={68} width="68%" /><Skeleton height={82} width="76%" /><Skeleton height={62} width="58%" /></div>}
-            {showMessageError && <EmptyState icon={<Bot size={25} />} title="Chưa thể tải tin nhắn" description="Kiểm tra kết nối rồi thử lại." action={<Button type="button" variant="secondary" onClick={() => void messagesQuery.refetch()}>Thử lại</Button>} />}
-            {showEmptyChat && <EmptyState icon={<Bot size={27} />} title="Bạn muốn bắt đầu từ đâu?" description="Hãy hỏi về việc cần làm, tiến độ hoặc một kế hoạch bạn muốn xem trước." />}
+            {showMessageError && <ErrorState compact title="Không thể tải tin nhắn." action={<Button type="button" variant="secondary" onClick={() => void messagesQuery.refetch()}>Thử lại</Button>} />}
+            {showEmptyChat && <EmptyState icon={<NatureEmptyMascot kind="ai" size={104} className="ai-coach-empty-owl" />} title="Bạn muốn bắt đầu từ đâu?" description="Hãy hỏi về việc cần làm, tiến độ hoặc một kế hoạch bạn muốn xem trước." />}
             {!showMessageLoading && !showMessageError && messages.map((message) => <ChatMessage key={message.id} message={message} />)}
             {pendingMessage && <ChatMessage message={pendingMessage} pending />}
-            {streamingAssistantText !== null && <ChatMessage message={{ id: 'assistant-streaming', role: 'assistant', content: streamingAssistantText || 'Đang chuẩn bị phản hồi...' }} pending={streamChat.isPending} />}
-            {chat.isPending && <ChatMessage message={{ id: 'assistant-pending', role: 'assistant', content: 'Đang chuẩn bị phản hồi...' }} pending />}
+            {streamingAssistantText && <ChatMessage message={{ id: 'assistant-streaming', role: 'assistant', content: streamingAssistantText }} pending={streamChat.isPending} />}
+            {showTypingIndicator && <div className="ai-coach-typing" role="status"><NatureMascot animal="owl" size={38} frameDurationMs={1100} /><span>AI Coach đang sắp xếp...</span></div>}
             {latestDraft && latestDraft.conversationId === activeConversationId && latestDraft.draft && (
               latestDraft.draft.type === 'goal' && latestDraft.draft.goal
                 ? <GoalDraftCard

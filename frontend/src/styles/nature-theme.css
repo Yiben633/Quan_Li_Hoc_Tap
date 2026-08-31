@@ -19,7 +19,7 @@
   --nature-amber-soft: #f4e5c8;
   --nature-text: #26352c;
   --nature-text-secondary: #5f6c63;
-  --nature-text-muted: #7f8a82;
+  --nature-text-muted: #66736a;
   --nature-border: #d8ded4;
   --nature-border-strong: #c6cfc3;
   --nature-success: #3f6849;
@@ -82,14 +82,14 @@
 }
 
 [data-theme='dark'] {
-  --nature-bg: #16221b;
-  --nature-bg-warm: #1c261f;
-  --nature-surface: #202e25;
-  --nature-surface-soft: #26382c;
-  --nature-surface-sage: #304537;
+  --nature-bg: #142119;
+  --nature-bg-warm: #1a2a20;
+  --nature-surface: #1f3025;
+  --nature-surface-soft: #293b2f;
+  --nature-surface-sage: #344b3a;
   --nature-primary: #91b195;
   --nature-primary-hover: #a7c4aa;
-  --nature-primary-soft: #294234;
+  --nature-primary-soft: #2d4535;
   --nature-sage: #789478;
   --nature-moss: #9aaf8e;
   --nature-pine: #d5e2d4;
@@ -103,8 +103,8 @@
   --nature-text: #eef3ec;
   --nature-text-secondary: #b8c5ba;
   --nature-text-muted: #9baa9e;
-  --nature-border: #34483a;
-  --nature-border-strong: #435a49;
+  --nature-border: #49624e;
+  --nature-border-strong: #607964;
   --nature-success: #94bd98;
   --nature-success-soft: #263d2e;
   --nature-warning: #e1b061;
@@ -114,4 +114,18 @@
   --nature-focus-ring: rgba(145, 177, 149, .28);
   --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, .24);
   --nature-shadow-md: 0 10px 28px rgba(0, 0, 0, .28);
+
+  /* Preserve the generic API while moving legacy controls into night forest. */
+  --canvas: var(--nature-bg);
+  --surface: var(--nature-surface);
+  --ink: var(--nature-text);
+  --muted: var(--nature-text-secondary);
+  --line: var(--nature-border);
+  --blue: var(--nature-primary);
+  --blue-hover: var(--nature-primary-hover);
+  --blue-soft: var(--nature-primary-soft);
+  --green: var(--nature-success);
+  --green-soft: var(--nature-success-soft);
+  --orange: var(--nature-warning);
+  --orange-soft: var(--nature-warning-soft);
 }
