@@ -41,7 +41,7 @@ const resourceLinks: SidebarLink[] = [
   { to: '/groups', label: 'Nhóm chia sẻ', icon: Users, invitationCount: true },
 ]
 
-export function Sidebar({ open, onClose, collapsed, onToggleCollapse }: { open: boolean; onClose: () => void; collapsed: boolean; onToggleCollapse: () => void }) {
+export function Sidebar({ open, onClose, collapsed, collapseLocked = false, onToggleCollapse }: { open: boolean; onClose: () => void; collapsed: boolean; collapseLocked?: boolean; onToggleCollapse: () => void }) {
   const roles = useAuthStore((state) => state.roles)
   const isAdmin = roles.includes('admin')
   const location = useLocation()
@@ -75,7 +75,7 @@ export function Sidebar({ open, onClose, collapsed, onToggleCollapse }: { open: 
     <Icon size={18} aria-hidden="true" /><span>{label}</span>{showsInvitationCount && invitationCount > 0 && <span className="nav-invitation-count" aria-label={`${invitationCount} lời mời đang chờ`}>{invitationCount > 99 ? '99+' : invitationCount}</span>}
   </NavLink>
 
-  return <aside ref={sidebarRef} id="app-navigation" className={`sidebar ${open ? 'sidebar-open' : ''}${isCollapsed ? ' sidebar-collapsed' : ''}`} aria-hidden={isDrawerViewport && !open ? true : undefined}>
+  return <aside ref={sidebarRef} id="app-navigation" className={`sidebar ${open ? 'sidebar-open' : ''}${isCollapsed ? ' sidebar-collapsed' : ''}${collapseLocked ? ' sidebar-collapse-locked' : ''}`} aria-hidden={isDrawerViewport && !open ? true : undefined}>
     <div className="sidebar-head"><Logo collapsed={isCollapsed} /><button className="icon-button sidebar-collapse-button" onClick={onToggleCollapse} aria-label={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'} aria-controls="app-navigation" aria-expanded={!isCollapsed} title={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}>{isCollapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}</button><button className="icon-button mobile-only" onClick={onClose} aria-label="Đóng menu"><X size={18} /></button></div>
     <nav ref={navigationRef} className="sidebar-navigation" aria-label="Điều hướng chính">
       {navigationSections.map((section) => <section className="nav-section" key={section.label} aria-label={section.label}>

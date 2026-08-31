@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Sidebar } from '../components/Sidebar'
 import { Topbar } from '../components/Topbar'
@@ -17,6 +17,9 @@ function readSidebarCollapsed() {
 export function AppLayout() {
   const [open, setOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(readSidebarCollapsed)
+  const location = useLocation()
+  const isAdminRoute = location.pathname === '/admin' || location.pathname.startsWith('/admin/')
+  const effectiveSidebarCollapsed = sidebarCollapsed || isAdminRoute
 
   useEffect(() => {
     try {
@@ -26,8 +29,8 @@ export function AppLayout() {
     }
   }, [sidebarCollapsed])
 
-  return <div className={`app-shell${sidebarCollapsed ? ' sidebar-is-collapsed' : ''}`}>
-    <Sidebar open={open} onClose={() => setOpen(false)} collapsed={sidebarCollapsed} onToggleCollapse={() => setSidebarCollapsed((current) => !current)} />
+  return <div className={`app-shell${effectiveSidebarCollapsed ? ' sidebar-is-collapsed' : ''}${isAdminRoute ? ' admin-navigation-mode' : ''}`}>
+    <Sidebar open={open} onClose={() => setOpen(false)} collapsed={effectiveSidebarCollapsed} collapseLocked={isAdminRoute} onToggleCollapse={() => setSidebarCollapsed((current) => !current)} />
     <div className="app-main"><Topbar onMenu={() => setOpen(true)} menuOpen={open} /><NetworkStatusBanner /><main className="page-content"><Outlet /></main></div>
     {open && <button className="sidebar-overlay" onClick={() => setOpen(false)} aria-label="Đóng menu" />}
   </div>

@@ -1,4 +1,4 @@
-import { Activity, Ban, BarChart3, BookOpen, Bot, CalendarDays, CheckCircle2, ClipboardList, FileSpreadsheet, FileText, LayoutDashboard, Map, MessageSquareText, MoreHorizontal, Search, Settings, ShieldCheck, TriangleAlert, Upload, Users } from 'lucide-react'
+import { Activity, ArrowLeft, Ban, BarChart3, BookOpen, Bot, CalendarDays, CheckCircle2, ClipboardList, FileSpreadsheet, FileText, LayoutDashboard, Map, MessageSquareText, MoreHorizontal, Search, Settings, ShieldCheck, TriangleAlert, Upload, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ComposedChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
@@ -118,7 +118,7 @@ function AdminAIInsightCard() {
 function OverviewPanel() {
   const query = useAdminStatisticsQuery()
 
-  if (query.isLoading) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div></div><div className="admin-stat-grid">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} height={112} />)}</div><Skeleton height={230} /></section>
+  if (query.isLoading) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div></div><div className="admin-stat-grid">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} height={92} />)}</div><Skeleton height={230} /></section>
   if (query.isError || !isAdminOverviewData(query.data)) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div></div><QueryError retry={() => query.refetch()} /></section>
 
   const items = [
@@ -236,6 +236,7 @@ export function AdminPage() {
         <section className="admin-shell-nav-group" aria-label="Quản trị StudyFlow"><p>QUẢN TRỊ</p>{primaryAdminNavigation.map((item) => <AdminShellNavItem key={item.label} item={item} activeTab={tab} onChange={setTab} />)}</section>
         <section className="admin-shell-nav-group" aria-label="Vận hành hiện có"><p>VẬN HÀNH</p>{operationalAdminNavigation.map((item) => <AdminShellNavItem key={item.label} item={item} activeTab={tab} onChange={setTab} />)}</section>
       </nav>
+      <Link className="admin-shell-back" to="/"><ArrowLeft size={15} aria-hidden="true" />Quay lại StudyFlow</Link>
     </aside>
     <section className="admin-shell-content">
       <div className="page-heading admin-heading">

@@ -51,6 +51,10 @@
   flex: 0 0 auto;
 }
 
+.sidebar.sidebar-collapse-locked .sidebar-collapse-button {
+  display: none;
+}
+
 .sidebar-navigation {
   display: grid;
   gap: 17px;
