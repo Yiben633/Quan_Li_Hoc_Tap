@@ -7,7 +7,7 @@
   overflow: hidden;
   isolation: isolate;
   padding: 32px 38px;
-  background: linear-gradient(118deg, var(--nature-surface) 0%, var(--nature-bg-warm) 56%, var(--nature-surface-sage) 100%);
+  background: linear-gradient(118deg, var(--nature-surface) 0%, var(--nature-bg-warm) 54%, var(--nature-surface-sage) 100%);
   border: 1px solid var(--nature-border);
   border-radius: 16px;
   box-shadow: var(--nature-shadow-sm), var(--nature-shadow-md);
@@ -49,6 +49,40 @@
   line-height: 1.55;
 }
 
+.dashboard-hero-metrics {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  margin-top: 18px;
+  padding: 6px 10px 6px 7px;
+  color: var(--nature-text-secondary);
+  background: color-mix(in srgb, var(--nature-surface) 76%, transparent);
+  border: 1px solid var(--nature-border);
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-hero-streak-icon {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: var(--nature-amber);
+  background: var(--nature-amber-soft);
+  border-radius: 5px;
+}
+
+.dashboard-hero-metrics strong {
+  color: var(--nature-pine);
+  font-size: 12px;
+}
+
+.dashboard-hero-metrics .skeleton {
+  margin-left: 2px;
+}
+
 .dashboard-hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -83,23 +117,36 @@
 
 .dashboard-hero-cloud {
   position: absolute;
-  top: 12px;
-  right: 30px;
-  width: 176px;
-  opacity: .42;
+  z-index: 2;
+  top: 16px;
+  right: 58px;
+  width: 166px;
+  height: auto;
+  opacity: .38;
 }
 
-.dashboard-hero-hills {
+.dashboard-hero-mist {
   position: absolute;
-  right: -7%;
+  z-index: 1;
+  top: 0;
+  right: 0;
   bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nature-bg-warm) 82%, transparent), transparent 58%);
+}
+
+.dashboard-hero-mountains {
+  position: absolute;
+  z-index: 0;
+  right: -7%;
+  bottom: 32px;
   width: 118%;
-  height: 70%;
-  background: color-mix(in srgb, var(--nature-sage) 33%, transparent);
+  height: 62%;
+  background: color-mix(in srgb, var(--nature-sage) 42%, transparent);
   clip-path: polygon(0 71%, 22% 37%, 41% 57%, 61% 18%, 100% 62%, 100% 100%, 0 100%);
 }
 
-.dashboard-hero-hills::after {
+.dashboard-hero-mountains::after {
   position: absolute;
   right: -4%;
   bottom: 0;
@@ -110,8 +157,20 @@
   clip-path: polygon(0 74%, 33% 32%, 58% 62%, 78% 25%, 100% 56%, 100% 100%, 0 100%);
 }
 
+.dashboard-hero-lake {
+  position: absolute;
+  z-index: 0;
+  right: -6%;
+  bottom: 0;
+  width: 111%;
+  height: 54px;
+  background: color-mix(in srgb, var(--nature-sage) 30%, var(--nature-surface));
+  border-top: 1px solid color-mix(in srgb, var(--nature-pine) 13%, var(--nature-border));
+}
+
 .dashboard-hero-bush {
   position: absolute;
+  z-index: 3;
   bottom: -25px;
   display: block;
   height: auto;
@@ -125,15 +184,15 @@
 
 .dashboard-hero-bush-front {
   right: -24px;
-  z-index: 3;
+  z-index: 5;
   width: 190px;
 }
 
 .dashboard-hero-mascot {
   position: absolute;
-  z-index: 2;
-  right: 106px;
-  bottom: -25px;
+  z-index: 4;
+  right: 110px;
+  bottom: -14px;
 }
 
 .dashboard-hero-skeleton {
@@ -147,6 +206,14 @@
 [data-theme='dark'] .dashboard-hero {
   background: linear-gradient(118deg, var(--nature-surface) 0%, var(--nature-bg-warm) 58%, var(--nature-surface-sage) 100%);
   border-color: var(--nature-border-strong);
+}
+
+[data-theme='dark'] .dashboard-hero-mist {
+  opacity: .78;
+}
+
+[data-theme='dark'] .dashboard-hero-lake {
+  background: color-mix(in srgb, var(--nature-sage) 19%, var(--nature-surface));
 }
 
 [data-theme='dark'] .dashboard-hero-bush-back {
@@ -180,7 +247,7 @@
   }
 }
 
-@media (max-width: 639px) {
+@media (max-width: 767px) {
   .dashboard-hero {
     display: block;
     min-height: 0;
@@ -191,39 +258,6 @@
     max-width: none;
   }
 
-  .dashboard-hero-scene {
-    display: none;
-  }
-
-  .dashboard-hero-cloud {
-    top: 10px;
-    right: 12%;
-    width: 130px;
-    opacity: .3;
-  }
-
-  .dashboard-hero-hills {
-    right: -10%;
-    width: 112%;
-    height: 75%;
-  }
-
-  .dashboard-hero-bush-back {
-    right: 155px;
-    width: 182px;
-  }
-
-  .dashboard-hero-bush-front {
-    right: -18px;
-    width: 150px;
-  }
-
-  .dashboard-hero-mascot {
-    right: 63px;
-    bottom: -37px;
-    transform: scale(.76);
-    transform-origin: bottom right;
-  }
 }
 
 @media (max-width: 560px) {
@@ -249,25 +283,7 @@
     width: 100%;
   }
 
-  .dashboard-hero-scene {
-    height: 138px;
-  }
-
-  .dashboard-hero-cloud {
-    display: none;
-  }
-
-  .dashboard-hero-bush-back {
-    right: 118px;
-    width: 160px;
-  }
-
-  .dashboard-hero-bush-front {
-    width: 132px;
-  }
-
-  .dashboard-hero-mascot {
-    right: 46px;
-    transform: scale(.68);
+  .dashboard-hero-metrics {
+    margin-top: 16px;
   }
 }

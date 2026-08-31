@@ -1,28 +1,12 @@
 import { Bell, Clock3, Coffee, Minus, Pause, Play, Plus, Settings2, Square, TimerReset, Volume2 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Button, Switch } from '../../components/ui'
 import { getApiErrorMessage } from '../auth/auth.api'
 import type { ActivePomodoro, ActiveStudySession, PomodoroType, StudySessionState } from './studySessions.api'
 import { useEndPomodoroMutation, useEndStudySessionMutation, usePauseStudySessionMutation, useResumeStudySessionMutation, useStartPomodoroMutation } from './studySessions.hooks'
 import { useStudyTimerStore } from '../../stores/studyTimerStore'
-
-function formatElapsed(seconds: number) {
-  const safeSeconds = Math.max(0, Math.floor(seconds))
-  const hours = Math.floor(safeSeconds / 3600)
-  const minutes = Math.floor((safeSeconds % 3600) / 60)
-  const remainder = safeSeconds % 60
-  return [hours, minutes, remainder].map((value) => String(value).padStart(2, '0')).join(':')
-}
-
-function elapsedSince(startedAt: string, tick: number) {
-  return Math.max(0, Math.floor((tick - new Date(startedAt).getTime()) / 1000))
-}
-
-function sessionSeconds(state: StudySessionState, tick: number) {
-  if (state.status !== 'running' || !state.lastStartedAt) return state.elapsedSeconds
-  return Math.floor((state.accumulatedMs + Math.max(0, tick - new Date(state.lastStartedAt).getTime())) / 1000)
-}
+import { formatStudyClock, useStudySessionClock } from './useStudySessionClock'
 
 const pomodoroLabels: Record<PomodoroType, string> = {
   focus: 'Tập trung',
@@ -79,7 +63,6 @@ type StudyTimerWidgetProps = {
 }
 
 export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded }: StudyTimerWidgetProps) {
-  const [tick, setTick] = useState(Date.now())
   const [pomodoro, setPomodoro] = useState<ActivePomodoro | null>(active.pomodoro)
   const [completedFocusCount, setCompletedFocusCount] = useState(active.completedFocusCount)
   const [lastCompletedType, setLastCompletedType] = useState<PomodoroType | null>(active.lastCompletedPomodoroType)
@@ -94,11 +77,6 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
   const endPomodoro = useEndPomodoroMutation()
 
   useEffect(() => {
-    const interval = window.setInterval(() => setTick(Date.now()), 1000)
-    return () => window.clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
     setPomodoro(active.pomodoro)
   }, [active.pomodoro])
 
@@ -107,9 +85,7 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
     setLastCompletedType(active.lastCompletedPomodoroType)
   }, [active.session.id])
 
-  const elapsed = useMemo(() => sessionSeconds(active.state, tick), [active.state, tick])
-  const pomodoroElapsed = pomodoro ? elapsedSince(pomodoro.state.startedAt, tick) : 0
-  const pomodoroRemaining = pomodoro ? Math.max(0, pomodoro.plannedMinutes * 60 - pomodoroElapsed) : 0
+  const { elapsedSeconds: elapsed, pomodoroRemainingSeconds: pomodoroRemaining } = useStudySessionClock(active.state, pomodoro)
   const nextPomodoroType: PomodoroType = lastCompletedType === 'focus' ? (completedFocusCount % 4 === 0 ? 'long_break' : 'short_break') : 'focus'
   const nextPomodoroMinutes = nextPomodoroType === 'focus' ? settings.focusMinutes : nextPomodoroType === 'short_break' ? settings.shortBreakMinutes : settings.longBreakMinutes
 
@@ -179,7 +155,7 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
       <div><p className="eyebrow">PHIÊN TẬP TRUNG</p><h2>{subjectName ?? 'Phiên học tự do'}</h2></div>
       <span className={`study-session-state ${active.state.status}`}>{active.state.status === 'running' ? 'Đang học' : 'Đang tạm dừng'}</span>
     </div>
-    <strong className="study-timer"><Clock3 size={22} /> {formatElapsed(elapsed)}</strong>
+    <strong className="study-timer"><Clock3 size={22} /> {formatStudyClock(elapsed)}</strong>
     <p className="subtle">Phiên đang chạy được xác nhận bởi máy chủ và sẽ tiếp tục đúng thời gian sau khi bạn tải lại trang.</p>
     <div className="study-session-actions">
       {active.state.status === 'running'
@@ -189,7 +165,7 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
     </div>
 
     <section className="pomodoro-panel" aria-label="Pomodoro">
-      <div className="pomodoro-head"><div><span><TimerReset size={17} /> Pomodoro</span><p>{pomodoro ? pomodoroLabels[pomodoro.sessionType] : `Sẵn sàng ${pomodoroLabels[nextPomodoroType].toLowerCase()}`}</p></div>{pomodoro && <strong>{formatElapsed(pomodoroRemaining)}</strong>}</div>
+      <div className="pomodoro-head"><div><span><TimerReset size={17} /> Pomodoro</span><p>{pomodoro ? pomodoroLabels[pomodoro.sessionType] : `Sẵn sàng ${pomodoroLabels[nextPomodoroType].toLowerCase()}`}</p></div>{pomodoro && <strong>{formatStudyClock(pomodoroRemaining)}</strong>}</div>
       {pomodoro ? <Button variant="secondary" onClick={() => finishPomodoro(pomodoro)} loading={endPomodoro.isPending}>Hoàn thành {pomodoroLabels[pomodoro.sessionType].toLowerCase()}</Button> : <Button variant="secondary" onClick={() => startPomodoro.mutate({ sessionId: active.session.id, input: { sessionType: nextPomodoroType, plannedMinutes: nextPomodoroMinutes } }, { onSuccess: (next) => { autoEndingPomodoro.current = null; setPomodoro(next); toast.success(`Bắt đầu ${pomodoroLabels[nextPomodoroType].toLowerCase()}`) }, onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể bắt đầu Pomodoro')) })} loading={startPomodoro.isPending}><Coffee size={16} /> {pomodoroLabels[nextPomodoroType]} {nextPomodoroMinutes} phút</Button>}
       <small>{completedFocusCount} lượt tập trung đã hoàn thành trong phiên này. Nghỉ dài sau mỗi 4 lượt.</small>
     </section>

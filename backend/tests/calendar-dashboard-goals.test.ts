@@ -75,6 +75,7 @@ describe('calendar, dashboard and goals', () => {
     expect(summary.body.data.tasksToday.length).toBeGreaterThan(0);
     expect(summary.body.data.studyMinutesThisWeek).toBeGreaterThanOrEqual(30);
     expect(summary.body.data.activeSubjects.length).toBe(1);
+    expect(summary.body.data.activeSubjects[0].taskProgress).toEqual({ taskTotal: 1, taskDone: 1, progressPercent: 100 });
 
     const chart = await request(app).get('/api/dashboard/progress-chart?range=week').set('Authorization', `Bearer ${accessToken}`);
     expect(chart.status).toBe(200);

@@ -17,6 +17,11 @@ export type DashboardSubject = {
   name: string
   code?: string | null
   colorHex?: string | null
+  taskProgress?: {
+    taskTotal: number
+    taskDone: number
+    progressPercent: number
+  } | null
 }
 
 export type DashboardSchedule = {

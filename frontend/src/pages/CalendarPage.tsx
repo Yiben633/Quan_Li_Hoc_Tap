@@ -8,6 +8,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Button,
@@ -78,6 +79,12 @@ function dayKey(date: Date) {
 function parseDate(value: string) {
   const [year, month, day] = value.split("-").map(Number);
   return new Date(year, month - 1, day);
+}
+
+function dateFromQuery(value: string | null) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = parseDate(value);
+  return Number.isNaN(date.getTime()) || dayKey(date) !== value ? null : date;
 }
 
 function addDays(date: Date, amount: number) {
@@ -201,8 +208,9 @@ function CalendarInput({
 }
 
 export function CalendarPage() {
+  const [searchParams] = useSearchParams();
   const [view, setView] = useState<CalendarView>("month");
-  const [anchor, setAnchor] = useState(() => new Date());
+  const [anchor, setAnchor] = useState(() => dateFromQuery(searchParams.get("date")) ?? new Date());
   const [modalOpen, setModalOpen] = useState(false);
   const [selected, setSelected] = useState<CalendarItem | null>(null);
   const [deletingEvent, setDeletingEvent] = useState<CalendarItem | null>(null);
