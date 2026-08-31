@@ -1,5 +1,5 @@
 import { ArrowLeft, BookOpen, Edit3, Plus, Search, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Button, ConfirmDialog, EmptyState, Input, Modal, Select, Skeleton } from '../components/ui'
@@ -15,7 +15,8 @@ const statusOptions = [
 
 export function TopicsPage() {
   const [params, setParams] = useSearchParams()
-  const [search, setSearch] = useState(params.get('search') ?? '')
+  const requestedSearch = params.get('search') ?? ''
+  const [search, setSearch] = useState(requestedSearch)
   const [modal, setModal] = useState(false)
   const [editing, setEditing] = useState<Topic | null>(null)
   const [remove, setRemove] = useState<Topic | null>(null)
@@ -27,6 +28,7 @@ export function TopicsPage() {
   const update = useUpdateTopicMutation()
   const removeMutation = useDeleteTopicMutation()
   const topics = query.data?.items ?? []
+  useEffect(() => { setSearch(requestedSearch) }, [requestedSearch])
 
   const save = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()

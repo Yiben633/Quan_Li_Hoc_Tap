@@ -60,8 +60,9 @@ export function TasksPage() {
   const [params, setParams] = useSearchParams()
   const requestedScope = params.get('scope')
   const requestedTaskId = params.get('taskId')
-  const scope = isTaskScope(requestedScope) ? requestedScope : 'all'
-  const [filters, setFilters] = useState<TaskFilterState>({ search: '', status: '', priority: '', subjectId: '', studyPlanId: '', dueDate: '', difficulty: '', page: 1 })
+  const requestedSearch = params.get('search') ?? ''
+  const scope = requestedSearch ? 'all' : isTaskScope(requestedScope) ? requestedScope : 'all'
+  const [filters, setFilters] = useState<TaskFilterState>({ search: requestedSearch, status: '', priority: '', subjectId: '', studyPlanId: '', dueDate: '', difficulty: '', page: 1 })
   const [sort, setSort] = useState<TaskSort>('custom')
   const [filterOpen, setFilterOpen] = useState(false)
   const [selectionMode, setSelectionMode] = useState(false)
@@ -75,6 +76,9 @@ export function TasksPage() {
   const [bulkTargetId, setBulkTargetId] = useState('')
   const [bulkMoving, setBulkMoving] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
+  useEffect(() => {
+    setFilters((current) => current.search === requestedSearch ? current : { ...current, search: requestedSearch, page: 1 })
+  }, [requestedSearch])
   const debouncedSearch = useDebouncedValue(filters.search, 300)
   const tomorrow = toDateParam(addDays(new Date(), 1))
   const nextWeek = toDateParam(addDays(new Date(), 7))

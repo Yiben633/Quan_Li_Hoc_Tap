@@ -105,7 +105,8 @@ function NoteCard({ note, onOpen, onPin, onDelete }: { note: Note; onOpen: () =>
 
 export function NotesPage() {
   const [params] = useSearchParams()
-  const [search, setSearch] = useState('')
+  const requestedSearch = params.get('search') ?? ''
+  const [search, setSearch] = useState(requestedSearch)
   const [debouncedSearch, setDebouncedSearch] = useState('')
   const [subjectId, setSubjectId] = useState(params.get('subjectId') ?? '')
   const [taskId, setTaskId] = useState(params.get('taskId') ?? '')
@@ -119,6 +120,7 @@ export function NotesPage() {
   const query = useNotesQuery(filters)
   const pin = useNotePinMutation()
   const remove = useNoteDeleteMutation()
+  useEffect(() => { setSearch(requestedSearch); setPage(1) }, [requestedSearch])
   useEffect(() => { const timer = window.setTimeout(() => { setDebouncedSearch(search.trim()); setPage(1) }, 300); return () => window.clearTimeout(timer) }, [search])
   const setFilter = <T,>(setter: (value: T) => void, value: T) => { setter(value); setPage(1) }
   const openNew = () => { setEditing(null); setEditorOpen(true) }

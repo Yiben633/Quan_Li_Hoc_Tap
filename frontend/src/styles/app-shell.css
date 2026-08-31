@@ -445,6 +445,7 @@
 }
 
 .topbar-actions {
+  margin-left: auto;
   gap: 10px;
   color: var(--nature-text-secondary);
 }

@@ -1,11 +1,19 @@
 import { Bell, Leaf, Menu, Search } from 'lucide-react'
-import { type FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { type FormEvent, useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { notificationRoute, type NotificationItem } from '../features/notifications/notifications.api'
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationsQuery } from '../features/notifications/notifications.hooks'
 import { Dropdown, Modal, Skeleton } from './ui'
 import { ThemeToggle } from './ThemeToggle'
 import { UserAccountMenu } from './UserAccountMenu'
+
+type ContextualSearch = { path: string; placeholder: string; label: string }
+
+const contextualSearches: Record<string, ContextualSearch> = {
+  '/tasks': { path: '/tasks', placeholder: 'Tìm công việc...', label: 'Tìm công việc' },
+  '/notes': { path: '/notes', placeholder: 'Tìm ghi chú...', label: 'Tìm ghi chú' },
+  '/topics': { path: '/topics', placeholder: 'Tìm môn học...', label: 'Tìm môn học' },
+}
 
 function formatNotificationTime(value: string) {
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(value))
@@ -13,17 +21,29 @@ function formatNotificationTime(value: string) {
 
 export function Topbar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null)
-  const [subjectSearch, setSubjectSearch] = useState('')
+  const [contextualQuery, setContextualQuery] = useState('')
   const notifications = useNotificationsQuery({ isRead: false, page: 1, limit: 5 })
   const markRead = useMarkNotificationReadMutation()
   const markAllRead = useMarkAllNotificationsReadMutation()
   const unread = notifications.data?.pagination.total ?? 0
+  const contextualSearch = contextualSearches[location.pathname]
 
-  const submitSubjectSearch = (event: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    setContextualQuery(contextualSearch ? new URLSearchParams(location.search).get('search') ?? '' : '')
+  }, [contextualSearch, location.search])
+
+  const submitContextualSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const query = subjectSearch.trim()
-    navigate(query ? `/subjects?search=${encodeURIComponent(query)}` : '/subjects')
+    if (!contextualSearch) return
+
+    const params = new URLSearchParams(location.search)
+    const query = contextualQuery.trim()
+    if (query) params.set('search', query)
+    else params.delete('search')
+    if (contextualSearch.path === '/tasks' && query) params.delete('scope')
+    navigate({ pathname: contextualSearch.path, search: params.size ? `?${params.toString()}` : '' })
   }
 
   const openNotification = (item: NotificationItem) => {
@@ -39,11 +59,10 @@ export function Topbar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boo
   return <>
     <header className="topbar">
       <button className="icon-button mobile-only" onClick={onMenu} aria-label="Mở menu" aria-controls="app-navigation" aria-expanded={menuOpen}><Menu size={20} /></button>
-      <form className="topbar-search" role="search" onSubmit={submitSubjectSearch}>
+      {contextualSearch && <><form className="topbar-search" role="search" onSubmit={submitContextualSearch}>
         <Search size={17} aria-hidden="true" />
-        <input value={subjectSearch} onChange={(event) => setSubjectSearch(event.target.value)} placeholder="Tìm môn học..." aria-label="Tìm môn học" />
-      </form>
-      <span className="topbar-leaf-divider" aria-hidden="true"><Leaf size={14} /></span>
+        <input value={contextualQuery} onChange={(event) => setContextualQuery(event.target.value)} placeholder={contextualSearch.placeholder} aria-label={contextualSearch.label} />
+      </form><span className="topbar-leaf-divider" aria-hidden="true"><Leaf size={14} /></span></>}
       <div className="topbar-actions">
         <ThemeToggle />
         <Dropdown ariaLabel="Thông báo" label={<span className="notification-button"><Bell size={18} />{unread > 0 && <span className="notification-dot" />}</span>}>
