@@ -1,23 +1,20 @@
-import { Bell, Leaf, LogOut, Menu, Search, Settings, UserRound } from 'lucide-react'
+import { Bell, Leaf, Menu, Search } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { notificationRoute, type NotificationItem } from '../features/notifications/notifications.api'
 import { useMarkAllNotificationsReadMutation, useMarkNotificationReadMutation, useNotificationsQuery } from '../features/notifications/notifications.hooks'
-import { useAuthStore } from '../stores/authStore'
-import { Avatar, Dropdown, Modal, Skeleton } from './ui'
+import { Dropdown, Modal, Skeleton } from './ui'
 import { ThemeToggle } from './ThemeToggle'
+import { UserAccountMenu } from './UserAccountMenu'
 
 function formatNotificationTime(value: string) {
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(value))
 }
 
 export function Topbar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
-  const user = useAuthStore((state) => state.user)
-  const clearSession = useAuthStore((state) => state.clearSession)
   const navigate = useNavigate()
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null)
   const [subjectSearch, setSubjectSearch] = useState('')
-  const avatarSrc = user?.avatarUrl ?? undefined
   const notifications = useNotificationsQuery({ isRead: false, page: 1, limit: 5 })
   const markRead = useMarkNotificationReadMutation()
   const markAllRead = useMarkAllNotificationsReadMutation()
@@ -55,12 +52,7 @@ export function Topbar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boo
           {unread > 0 && <button className="dropdown-link" onClick={() => markAllRead.mutate()}>Đánh dấu tất cả đã đọc</button>}
           <Link className="dropdown-link" to="/notifications">Xem tất cả thông báo</Link>
         </Dropdown>
-        <Dropdown ariaLabel="Tài khoản của bạn" label={<><Avatar name={user?.fullName ?? 'Bạn'} src={avatarSrc} size="sm" /><span className="user-name">{user?.fullName ?? 'Bạn'}</span></>}>
-          <div className="user-menu-head"><Avatar name={user?.fullName ?? 'Bạn'} src={avatarSrc} /><div><strong>{user?.fullName ?? 'Bạn'}</strong><p>{user?.email ?? ''}</p></div></div>
-          <Link className="menu-item" to="/settings"><UserRound size={16} /> Hồ sơ cá nhân</Link>
-          <Link className="menu-item" to="/settings"><Settings size={16} /> Cài đặt</Link>
-          <button className="menu-item danger-text" onClick={clearSession}><LogOut size={16} /> Đăng xuất</button>
-        </Dropdown>
+        <UserAccountMenu variant="topbar" />
       </div>
     </header>
     <Modal open={Boolean(selectedNotification)} title={selectedNotification?.title ?? 'Thông báo'} onClose={() => setSelectedNotification(null)}>
