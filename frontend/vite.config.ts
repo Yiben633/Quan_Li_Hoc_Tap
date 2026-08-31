@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
         workbox: {
           cleanupOutdatedCaches: true,
           navigateFallback: '/index.html',
-          globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+          globPatterns: ['**/*.{js,css,html,svg,woff2,webp,png}'],
           runtimeCaching: [{
             urlPattern: ({ url }) => url.pathname.startsWith('/api/') || url.pathname.startsWith('/uploads/'),
             handler: 'NetworkOnly',
