@@ -235,15 +235,26 @@
   }
 
   .dashboard-hero-scene {
-    width: 47%;
+    width: 42%;
+  }
+
+  .dashboard-hero-cloud {
+    right: 32px;
+    width: 120px;
   }
 
   .dashboard-hero-bush-back {
     right: 128px;
+    width: 160px;
+  }
+
+  .dashboard-hero-bush-front {
+    width: 136px;
   }
 
   .dashboard-hero-mascot {
-    right: 65px;
+    right: 52px;
+    bottom: -6px;
   }
 }
 

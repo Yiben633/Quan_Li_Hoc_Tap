@@ -1,10 +1,10 @@
-import { Activity, ArrowLeft, Ban, BarChart3, BookOpen, Bot, CalendarDays, CheckCircle2, ClipboardList, FileSpreadsheet, FileText, LayoutDashboard, Map, MessageSquareText, MoreHorizontal, Search, Settings, ShieldCheck, TriangleAlert, Upload, Users } from 'lucide-react'
+import { Activity, ArrowLeft, Ban, BarChart3, BookOpen, Bot, CalendarDays, CheckCircle2, ClipboardList, FileSpreadsheet, FileText, LayoutDashboard, Map, MessageSquareText, MoreHorizontal, PanelLeftClose, PanelLeftOpen, Search, Settings, ShieldCheck, TriangleAlert, Upload, Users } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ComposedChart, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Button, ChartLegend, ConfirmDialog, Dropdown, EmptyState, ErrorState, Modal, Pagination, Select, Skeleton, Textarea } from '../components/ui'
+import { Button, ChartLegend, ConfirmDialog, Drawer, Dropdown, EmptyState, ErrorState, Modal, Pagination, Select, Skeleton, Textarea } from '../components/ui'
 import { NatureMascot } from '../components/nature'
 import { aiFeaturesEnabled } from '../config/features'
 import type { AdminAnalyticsPoint, AdminFeedback, AdminUser, FeedbackStatus, TopicTemplate } from '../features/admin/admin.api'
@@ -12,6 +12,7 @@ import { useActivityLogsQuery, useAdminFeedbackQuery, useAdminFeedbackUpdateMuta
 import { formatAdminAnalyticsDate, isAdminOverviewData } from '../features/admin/admin.presentation'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useAuthStore } from '../stores/authStore'
 
 type AdminTab = 'overview' | 'users' | 'feedback' | 'logs' | 'templates' | 'content'
@@ -57,11 +58,22 @@ function AdminShellNavItem({ item, activeTab, onChange }: { item: AdminNavigatio
 
   const Icon = item.icon
   if (item.status !== 'available') {
-    return <div className="admin-shell-nav-item is-coming-soon" aria-label={`${item.label}: Sắp có`}><Icon size={16} aria-hidden="true" /><span>{item.label}</span><span className="admin-shell-nav-soon">Sắp có</span></div>
+    return <div className="admin-shell-nav-item is-coming-soon" title={`${item.label}: Sắp có`} aria-label={`${item.label}: Sắp có`}><Icon size={16} aria-hidden="true" /><span>{item.label}</span><span className="admin-shell-nav-soon">Sắp có</span></div>
   }
 
   const active = item.tab === activeTab
-  return <button type="button" className={`admin-shell-nav-item${active ? ' active' : ''}`} onClick={() => onChange(item.tab)} aria-current={active ? 'page' : undefined}><Icon size={16} aria-hidden="true" /><span>{item.label}</span></button>
+  return <button type="button" className={`admin-shell-nav-item${active ? ' active' : ''}`} title={item.label} onClick={() => onChange(item.tab)} aria-current={active ? 'page' : undefined}><Icon size={16} aria-hidden="true" /><span>{item.label}</span></button>
+}
+
+function AdminNavigation({ activeTab, onChange, onNavigate }: { activeTab: AdminTab; onChange: (tab: AdminTab) => void; onNavigate?: () => void }) {
+  return <>
+    <div className="admin-shell-brand"><span className="admin-shell-brand-mark"><ShieldCheck size={18} aria-hidden="true" /></span><div><strong>STUDYFLOW</strong><span>Admin</span></div></div>
+    <nav className="admin-shell-nav">
+      <section className="admin-shell-nav-group" aria-label="Quản trị StudyFlow"><p>QUẢN TRỊ</p>{primaryAdminNavigation.map((item) => <AdminShellNavItem key={item.label} item={item} activeTab={activeTab} onChange={onChange} />)}</section>
+      <section className="admin-shell-nav-group" aria-label="Vận hành hiện có"><p>VẬN HÀNH</p>{operationalAdminNavigation.map((item) => <AdminShellNavItem key={item.label} item={item} activeTab={activeTab} onChange={onChange} />)}</section>
+    </nav>
+    <Link className="admin-shell-back" to="/" title="Quay lại StudyFlow" onClick={onNavigate}><ArrowLeft size={15} aria-hidden="true" /><span>Quay lại StudyFlow</span></Link>
+  </>
 }
 
 function AdminAnalytics({ points }: { points: AdminAnalyticsPoint[] }) {
@@ -229,18 +241,21 @@ function ContentPanel() {
 
 export function AdminPage() {
   const [tab, setTab] = useState<AdminTab>('overview')
-  return <div className="admin-page">
+  const [navigationOpen, setNavigationOpen] = useState(false)
+  const isMobile = useMediaQuery('(max-width: 639px)')
+  const selectTab = (nextTab: AdminTab) => {
+    setTab(nextTab)
+    setNavigationOpen(false)
+  }
+  const closeNavigation = () => setNavigationOpen(false)
+
+  return <div className={`admin-page${navigationOpen ? ' admin-nav-is-expanded' : ''}`}>
     <aside className="admin-shell-sidebar" aria-label="Điều hướng quản trị">
-      <div className="admin-shell-brand"><span className="admin-shell-brand-mark"><ShieldCheck size={18} aria-hidden="true" /></span><div><strong>STUDYFLOW</strong><span>Admin</span></div></div>
-      <nav className="admin-shell-nav">
-        <section className="admin-shell-nav-group" aria-label="Quản trị StudyFlow"><p>QUẢN TRỊ</p>{primaryAdminNavigation.map((item) => <AdminShellNavItem key={item.label} item={item} activeTab={tab} onChange={setTab} />)}</section>
-        <section className="admin-shell-nav-group" aria-label="Vận hành hiện có"><p>VẬN HÀNH</p>{operationalAdminNavigation.map((item) => <AdminShellNavItem key={item.label} item={item} activeTab={tab} onChange={setTab} />)}</section>
-      </nav>
-      <Link className="admin-shell-back" to="/"><ArrowLeft size={15} aria-hidden="true" />Quay lại StudyFlow</Link>
+      <AdminNavigation activeTab={tab} onChange={selectTab} onNavigate={closeNavigation} />
     </aside>
     <section className="admin-shell-content">
       <div className="page-heading admin-heading">
-        <div><p className="eyebrow">QUẢN TRỊ STUDYFLOW</p><h1>Tổng quan hệ thống</h1><p className="subtle">Theo dõi hoạt động học tập và tình trạng nền tảng.</p></div>
+        <div className="admin-heading-copy"><button type="button" className="admin-shell-nav-toggle" onClick={() => setNavigationOpen((open) => !open)} aria-label={navigationOpen ? 'Thu gọn điều hướng quản trị' : 'Mở điều hướng quản trị'} aria-expanded={navigationOpen}>{navigationOpen ? <PanelLeftClose size={18} aria-hidden="true" /> : <PanelLeftOpen size={18} aria-hidden="true" />}</button><div><p className="eyebrow">QUẢN TRỊ STUDYFLOW</p><h1>Tổng quan hệ thống</h1><p className="subtle">Theo dõi hoạt động học tập và tình trạng nền tảng.</p></div></div>
         <div className="admin-heading-aside">
           <span className="admin-shield"><ShieldCheck size={17} /> Admin only</span>
           <div className="admin-heading-forest" aria-hidden="true"><span className="admin-heading-mountain back" /><span className="admin-heading-mountain front" /><span className="admin-heading-pine tall" /><span className="admin-heading-pine small" /><span className="admin-heading-ground" /></div>
@@ -248,5 +263,6 @@ export function AdminPage() {
       </div>
       {tab === 'overview' && <OverviewPanel />}{tab === 'users' && <UsersPanel />}{tab === 'feedback' && <FeedbackPanel />}{tab === 'logs' && <LogsPanel />}{tab === 'templates' && <TemplatesPanel />}{tab === 'content' && <ContentPanel />}
     </section>
+    {isMobile && <Drawer open={navigationOpen} title="Điều hướng quản trị" onClose={closeNavigation} side="left"><div className="admin-nav-drawer-content"><AdminNavigation activeTab={tab} onChange={selectTab} onNavigate={closeNavigation} /></div></Drawer>}
   </div>
 }

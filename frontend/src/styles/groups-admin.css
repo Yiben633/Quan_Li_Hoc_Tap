@@ -91,6 +91,10 @@
 .admin-shell-back:hover { color: var(--nature-pine); background: color-mix(in srgb, var(--nature-surface) 62%, transparent); }
 .admin-shell-back:focus-visible { outline: 0; box-shadow: 0 0 0 3px var(--nature-focus-ring); }
 .admin-shell-content { display: grid; gap: 20px; min-width: 0; }
+.admin-heading-copy { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+.admin-shell-nav-toggle { display: none; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; place-items: center; color: var(--nature-pine); background: var(--nature-surface); border: 1px solid var(--nature-border-strong); border-radius: 6px; }
+.admin-shell-nav-toggle:hover { background: var(--nature-surface-sage); }
+.admin-shell-nav-toggle:focus-visible { outline: 0; box-shadow: 0 0 0 3px var(--nature-focus-ring); }
 .admin-heading { align-items: flex-start; padding: 2px 0 17px; border-bottom: 1px solid var(--nature-border); }
 .admin-heading .eyebrow { color: var(--nature-moss); }
 .admin-heading h1 { color: var(--nature-pine); font-size: 26px; }
@@ -157,7 +161,7 @@
 .admin-table-section-heading h2 { color: var(--nature-text); }
 .admin-table-section-heading p { color: var(--nature-text-secondary); }
 .admin-table-section .empty-state { margin: 0; border: 0; border-radius: 0; }
-.admin-table-wrap { overflow-x: auto; background: var(--nature-surface); border: 1px solid var(--nature-border); border-radius: 8px; box-shadow: var(--nature-shadow-sm); }
+.admin-table-wrap { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; background: var(--nature-surface); border: 1px solid var(--nature-border); border-radius: 8px; box-shadow: var(--nature-shadow-sm); }
 .admin-table-section .admin-table-wrap { border: 0; border-radius: 0; box-shadow: none; }
 .admin-table { width: 100%; min-width: 0; border-collapse: collapse; text-align: left; }
 .admin-users-table { min-width: 920px; }
@@ -214,25 +218,41 @@
   .admin-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+@media (min-width: 640px) and (max-width: 1024px) {
+  .admin-page { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; transition: grid-template-columns 180ms ease; }
+  .admin-page.admin-nav-is-expanded { grid-template-columns: 224px minmax(0, 1fr); }
+  .admin-shell-sidebar { top: 84px; width: 64px; min-height: calc(100vh - 108px); padding: 12px 8px; overflow: hidden; transition: width 180ms ease, padding 180ms ease; }
+  .admin-page.admin-nav-is-expanded .admin-shell-sidebar { width: 224px; padding: 14px 10px; }
+  .admin-shell-brand { grid-template-columns: 1fr; justify-items: center; padding: 4px; border-bottom: 0; }
+  .admin-shell-brand > div, .admin-shell-nav-group > p, .admin-shell-nav-item > span:not(.admin-shell-nav-soon), .admin-shell-nav-soon, .admin-shell-back > span { display: none; }
+  .admin-shell-nav { gap: 12px; }
+  .admin-shell-nav-item { grid-template-columns: 1fr; justify-items: center; min-height: 38px; padding: 0; }
+  .admin-shell-nav-item.active { box-shadow: inset 0 -2px 0 var(--nature-primary), var(--nature-shadow-sm); }
+  .admin-shell-back { width: 36px; min-height: 36px; justify-content: center; margin: 1px auto 3px; padding: 0; }
+  .admin-page.admin-nav-is-expanded .admin-shell-brand { grid-template-columns: 31px minmax(0, 1fr); justify-items: start; padding: 7px 9px; border-bottom: 1px solid var(--nature-border); }
+  .admin-page.admin-nav-is-expanded .admin-shell-brand > div, .admin-page.admin-nav-is-expanded .admin-shell-nav-group > p, .admin-page.admin-nav-is-expanded .admin-shell-nav-item > span:not(.admin-shell-nav-soon), .admin-page.admin-nav-is-expanded .admin-shell-nav-soon, .admin-page.admin-nav-is-expanded .admin-shell-back > span { display: block; }
+  .admin-page.admin-nav-is-expanded .admin-shell-nav-item { grid-template-columns: 18px minmax(0, 1fr) auto; justify-items: stretch; padding: 0 8px; }
+  .admin-page.admin-nav-is-expanded .admin-shell-nav-item.active { box-shadow: inset 3px 0 0 var(--nature-primary), var(--nature-shadow-sm); }
+  .admin-page.admin-nav-is-expanded .admin-shell-back { width: fit-content; min-height: 0; justify-content: flex-start; margin: 1px 7px 3px; padding: 7px 8px; }
+  .admin-shell-nav-toggle { display: inline-grid; }
+}
+
 @media (max-width: 900px) {
-  .admin-page { grid-template-columns: 1fr; }
-  .admin-shell-sidebar { position: static; grid-template-columns: minmax(180px, .7fr) minmax(0, 1.3fr); align-items: start; }
-  .admin-shell-brand { min-height: 100%; padding: 7px 9px; border-right: 1px solid var(--nature-border); border-bottom: 0; }
-  .admin-shell-nav { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
   .admin-analytics-grid { grid-template-columns: 1fr; }
   .group-detail-hero { grid-template-columns: 1fr; }
   .group-detail-actions { justify-content: flex-start; }
   .group-kanban { grid-template-columns: repeat(4, minmax(280px, 72vw)); }
 }
 
-@media (max-width: 640px) {
-  .admin-shell-sidebar { grid-template-columns: 1fr; padding: 12px; }
-  .admin-shell-brand { min-height: 0; padding: 4px 6px 12px; border-right: 0; border-bottom: 1px solid var(--nature-border); }
-  .admin-shell-nav { grid-template-columns: 1fr; gap: 14px; }
-  .admin-shell-nav-group { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
-  .admin-shell-nav-group > p { grid-column: 1 / -1; }
-  .admin-shell-nav-item { min-height: 38px; padding: 0 7px; }
-  .admin-shell-nav-soon { padding: 2px 4px; font-size: 7px; }
+@media (max-width: 639px) {
+  .admin-page { display: block; }
+  .admin-shell-sidebar { display: none; }
+  .admin-shell-nav-toggle { display: inline-grid; }
+  .admin-nav-drawer-content { display: grid; gap: 16px; }
+  .admin-nav-drawer-content .admin-shell-brand { padding: 4px 6px 12px; border-bottom: 1px solid var(--nature-border); }
+  .admin-nav-drawer-content .admin-shell-nav { gap: 14px; }
+  .admin-nav-drawer-content .admin-shell-nav-group { display: grid; gap: 4px; }
+  .admin-nav-drawer-content .admin-shell-nav-item { min-height: 38px; padding: 0 7px; }
   .groups-heading .button { width: 100%; }
   .group-grid { grid-template-columns: 1fr; }
   .group-card { min-height: 190px; }

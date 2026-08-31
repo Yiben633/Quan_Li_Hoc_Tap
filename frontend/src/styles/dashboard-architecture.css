@@ -783,6 +783,9 @@
     grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
   }
 
+  .dashboard-weekly-calendar { order: 1; }
+  .dashboard-pomodoro-card { order: 2; }
+
   .dashboard-progress-grid {
     grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
   }
@@ -804,6 +807,11 @@
 
   .dashboard-weekly-calendar-grid,
   .dashboard-weekly-calendar-skeleton { min-width: 630px; }
+}
+
+@media (min-width: 1025px) {
+  .dashboard-weekly-calendar { order: 1; }
+  .dashboard-pomodoro-card { order: 2; }
 }
 
 @media (max-width: 639px) {

@@ -66,6 +66,7 @@ export function DashboardPage() {
 
       <div className="dashboard-architecture-grid dashboard-priority-grid">
         <TodayTaskList tasks={todayTaskItems} loading={todayTasks.isLoading || overdueTasks.isLoading} error={todayTasks.isError || overdueTasks.isError} onRetry={() => { void todayTasks.refetch(); void overdueTasks.refetch() }} onStatusChange={(id, status) => taskStatus.mutate({ id, status })} />
+        <DashboardPomodoroCard />
         <DashboardWeeklyCalendar />
       </div>
 
@@ -77,11 +78,9 @@ export function DashboardPage() {
         </section>
       </div>
 
-      <DashboardNextTasksPanel />
-
       <div className="dashboard-architecture-grid dashboard-bottom-grid">
         <ActiveSubjectsPanel subjects={data.activeSubjects} />
-        <DashboardPomodoroCard />
+        <DashboardNextTasksPanel />
         <AICoachPanel briefing={data.dailyBriefing} available={aiFeaturesEnabled} />
       </div>
     </div>
@@ -90,6 +89,7 @@ export function DashboardPage() {
 
 function DashboardHero({ firstName, streak }: { firstName: string; streak: number | null | undefined }) {
   const showScene = useMediaQuery('(min-width: 768px)')
+  const useFullHeroScene = useMediaQuery('(min-width: 1025px)')
 
   return <section className="dashboard-hero">
     <div className="dashboard-hero-content">
@@ -112,7 +112,7 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
       <span className="dashboard-hero-mountains" />
       <span className="dashboard-hero-lake" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-back" />
-      <NatureMascot animal="fox" size={188} priority frameDurationMs={900} className="dashboard-hero-mascot" />
+      <NatureMascot animal="fox" animation={useFullHeroScene ? 'idle' : 'static'} size={useFullHeroScene ? 188 : 132} priority={useFullHeroScene} frameDurationMs={900} className="dashboard-hero-mascot" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-front" />
     </div>}
   </section>
