@@ -16,8 +16,8 @@
 .ai-coach-heading-branch::after { top: 7px; left: 78px; box-shadow: 22px 3px 0 var(--nature-moss); transform: scaleX(-1) rotate(18deg); }
 .ai-coach-heading-owl { position: absolute; z-index: 2; right: 8px; bottom: 2px; filter: drop-shadow(0 6px 8px color-mix(in srgb, var(--nature-pine) 34%, transparent)); }
 .ai-coach-mobile-list-button { display: none; }
-.ai-coach-shell { display: grid; grid-template-columns: 255px minmax(0, 1fr); min-height: min(680px, calc(100vh - 180px)); overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-.ai-coach-sidebar { min-width: 0; background: var(--nature-surface-sage); border-right: 1px solid var(--nature-border); }
+.ai-coach-shell { display: grid; grid-template-columns: 255px minmax(0, 1fr); block-size: min(680px, calc(100dvh - 180px)); min-block-size: 480px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.ai-coach-sidebar { min-width: 0; min-height: 0; overflow: hidden; background: var(--nature-surface-sage); border-right: 1px solid var(--nature-border); }
 .ai-conversation-list { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100%; min-height: 0; }
 .ai-conversation-list-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 66px; padding: 12px 14px; border-bottom: 1px solid var(--nature-border); }
 .ai-conversation-list-head strong { color: var(--nature-pine); font-size: 13px; }
@@ -37,13 +37,20 @@
 .ai-conversation-item:focus-visible { outline: 2px solid var(--nature-primary); outline-offset: 1px; }
 .ai-conversation-item strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .ai-conversation-item span { overflow: hidden; color: var(--nature-text-secondary); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.ai-coach-chat { display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 12px; min-width: 0; padding: 16px; }
-.ai-coach-messages { display: grid; align-content: start; gap: 10px; min-height: 390px; max-height: min(58vh, 610px); padding: 2px 4px 6px; overflow-y: auto; scroll-behavior: smooth; }
+.ai-coach-chat { display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 12px; min-width: 0; min-height: 0; height: 100%; padding: 16px; overflow: hidden; }
+.ai-coach-messages { display: grid; align-content: start; gap: 10px; min-height: 0; padding: 2px 4px 6px; overflow-y: auto; scroll-behavior: smooth; }
 .ai-coach-messages .empty-state { min-height: 330px; }
 .ai-coach-message-skeletons { display: grid; align-content: start; gap: 10px; padding: 14px 0; }
 .ai-coach-message { width: min(82%, 660px); padding: 12px 14px; background: var(--nature-surface-soft); border: 1px solid color-mix(in srgb, var(--nature-sage) 46%, var(--nature-border)); border-radius: 8px; }
 .ai-coach-message.user { justify-self: end; background: color-mix(in srgb, var(--nature-bg-warm) 74%, var(--nature-sand)); border-color: color-mix(in srgb, var(--nature-sand) 68%, var(--nature-border)); }
 .ai-coach-message.pending { opacity: .72; }
+.ai-coach-unavailable { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; width: min(100%, 720px); padding: 14px; color: var(--nature-text); background: var(--nature-surface-soft); border: 1px solid var(--nature-border-strong); border-radius: 8px; }
+.ai-coach-unavailable > svg { color: var(--nature-moss); }
+.ai-coach-unavailable > div:first-of-type { min-width: 0; }
+.ai-coach-unavailable strong { display: block; font-size: 13px; }
+.ai-coach-unavailable p { margin: 4px 0 0; color: var(--nature-text-secondary); font-size: 11px; line-height: 1.45; }
+.ai-coach-unavailable-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
+.ai-coach-unavailable-actions .button { min-height: 32px; padding: 0 9px; font-size: 11px; }
 .ai-coach-message strong { color: var(--nature-moss); font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .ai-coach-message.user strong { color: var(--nature-bark); }
 .ai-coach-message p { margin: 6px 0 0; overflow-wrap: anywhere; color: var(--nature-text); font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
@@ -192,7 +199,7 @@
 .ai-coach-suggestion-card.evening { --suggestion-icon: var(--nature-bark); --suggestion-surface: var(--nature-sky); }
 .ai-coach-suggestion-card:hover:not(:disabled) { color: var(--nature-pine); background: var(--nature-surface-soft); border-color: var(--nature-sage); box-shadow: var(--nature-shadow-sm); }
 .ai-coach-suggestion-card:focus-visible { outline: 0; border-color: var(--nature-primary); box-shadow: 0 0 0 3px var(--nature-focus-ring); }
-.ai-coach-composer { display: grid; gap: 9px; padding-top: 12px; border-top: 1px solid var(--line); }
+.ai-coach-composer { display: grid; gap: 9px; position: sticky; bottom: 0; z-index: 1; padding-top: 12px; background: var(--surface); border-top: 1px solid var(--line); }
 .ai-coach-composer textarea { min-height: 82px; resize: vertical; }
 .ai-coach-composer-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .ai-coach-composer-foot > span { color: var(--muted); font-size: 11px; line-height: 1.45; }
@@ -389,10 +396,13 @@
   .ai-coach-heading-branch { right: -35px; bottom: 13px; width: 120px; }
   .ai-coach-heading-owl { right: -5px; bottom: -9px; transform: scale(.78); transform-origin: right bottom; }
   .ai-coach-mobile-list-button { display: inline-grid; }
-  .ai-coach-shell { display: block; min-height: 0; overflow: visible; }
+  .ai-coach-shell { display: block; block-size: clamp(420px, calc(100dvh - 210px), 640px); min-block-size: 0; overflow: hidden; }
   .ai-coach-sidebar { display: none; }
-  .ai-coach-chat { min-height: min(680px, calc(100vh - 150px)); padding: 13px; }
-  .ai-coach-messages { min-height: 330px; padding: 2px; }
+  .ai-coach-chat { min-height: 0; height: 100%; padding: 13px; padding-bottom: max(13px, env(safe-area-inset-bottom)); }
+  .ai-coach-messages { min-height: 0; padding: 2px; }
+  .ai-coach-composer { padding-bottom: env(safe-area-inset-bottom); }
+  .ai-coach-unavailable { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
+  .ai-coach-unavailable-actions { grid-column: 1 / -1; justify-content: flex-start; }
   .ai-coach-message { width: min(94%, 640px); }
   .ai-coach-composer-foot { align-items: flex-end; flex-direction: column; }
   .ai-coach-composer-foot > span { width: 100%; }

@@ -8,15 +8,25 @@ type ApiResponse<T> = {
   data: T
 }
 
+export const COACH_PROVIDER_UNAVAILABLE_MESSAGE = 'Trợ lý AI đang tạm thời không phản hồi.'
+
+export function isCoachProviderUnavailableMessage(message?: string | null) {
+  return message?.includes(COACH_PROVIDER_UNAVAILABLE_MESSAGE) ?? false
+}
+
 export async function sendCoachMessage(input: CoachChatInput) {
   return (await apiClient.post<ApiResponse<CoachChatResponse>>('/ai/coach/chat', input)).data.data
 }
 
 export class CoachStreamingUnavailableError extends Error {
-  constructor(message = 'Không thể dùng phản hồi theo thời gian thực.') {
+  constructor(message = 'Không thể dùng phản hồi theo thời gian thực.', readonly canFallbackToNonStreaming = false) {
     super(message)
     this.name = 'CoachStreamingUnavailableError'
   }
+}
+
+export function canFallbackToNonStreaming(error: unknown) {
+  return error instanceof CoachStreamingUnavailableError && error.canFallbackToNonStreaming
 }
 
 export class CoachStreamingResponseError extends Error {
@@ -60,7 +70,7 @@ export async function streamCoachMessage(
     body: JSON.stringify(input),
   })
 
-  if (!response.ok) throw new CoachStreamingUnavailableError(await responseMessage(response))
+  if (!response.ok) throw new CoachStreamingUnavailableError(await responseMessage(response), true)
   if (!response.headers.get('content-type')?.includes('text/event-stream') || !response.body) {
     throw new CoachStreamingUnavailableError()
   }

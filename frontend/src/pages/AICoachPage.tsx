@@ -1,11 +1,11 @@
 import { CalendarDays, Leaf, List, ListTodo, Moon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Button, ConfirmDialog, Drawer, EmptyState, ErrorState, IconButton, Modal, Skeleton } from '../components/ui'
 import { NatureEmptyMascot, NatureMascot } from '../components/nature'
 import { getApiErrorMessage } from '../features/auth/auth.api'
-import { CoachStreamingResponseError, CoachStreamingUnavailableError } from '../features/ai-coach/aiCoach.api'
+import { canFallbackToNonStreaming, CoachStreamingResponseError, isCoachProviderUnavailableMessage } from '../features/ai-coach/aiCoach.api'
 import { ChatComposer } from '../features/ai-coach/components/ChatComposer'
 import { ChatMessage } from '../features/ai-coach/components/ChatMessage'
 import { ConversationList } from '../features/ai-coach/components/ConversationList'
@@ -79,6 +79,7 @@ export function AICoachPage() {
   const [pendingMessage, setPendingMessage] = useState<PendingMessage | null>(null)
   const [streamingAssistantText, setStreamingAssistantText] = useState<string | null>(null)
   const [failedMessage, setFailedMessage] = useState<string | null>(null)
+  const [providerUnavailable, setProviderUnavailable] = useState(false)
   const [latestDraft, setLatestDraft] = useState<CoachChatResponse | null>(null)
   const [latestTaskPriority, setLatestTaskPriority] = useState<CoachChatResponse | null>(null)
   const [latestFocusProposal, setLatestFocusProposal] = useState<CoachChatResponse | null>(null)
@@ -103,6 +104,12 @@ export function AICoachPage() {
   const topicsQuery = useTopicsQuery()
   const messages = useMemo(() => messagesQuery.data?.items ?? [], [messagesQuery.data])
   const subjectNames = useMemo(() => new Map((topicsQuery.data?.items ?? []).map((topic) => [topic.id, topic.name])), [topicsQuery.data])
+  const lastAssistantMessage = useMemo(() => [...messages].reverse().find((message) => message.role === 'assistant'), [messages])
+  const lastUserMessage = useMemo(() => [...messages].reverse().find((message) => message.role === 'user'), [messages])
+  const persistedProviderUnavailable = isCoachProviderUnavailableMessage(lastAssistantMessage?.content)
+  const visibleMessages = persistedProviderUnavailable
+    ? messages.filter((message) => message.id !== lastAssistantMessage?.id)
+    : messages
 
   useEffect(() => {
     if (coachContextKey === '::') return
@@ -113,6 +120,7 @@ export function AICoachPage() {
     setLatestAnalytics(null)
     setDraftPreview(null)
     setDraftConflictMessage(null)
+    setProviderUnavailable(false)
   }, [coachContextKey])
 
   useEffect(() => {
@@ -123,6 +131,7 @@ export function AICoachPage() {
     setLatestFocusProposal(null)
     setLatestAnalytics(null)
     setComposerValue(promptFromSearch)
+    setProviderUnavailable(false)
   }, [promptFromSearch])
 
   useEffect(() => {
@@ -134,6 +143,7 @@ export function AICoachPage() {
   const beginNewConversation = () => {
     setSelectedConversationId(null)
     setFailedMessage(null)
+    setProviderUnavailable(false)
     setLatestDraft(null)
     setLatestTaskPriority(null)
     setLatestFocusProposal(null)
@@ -148,6 +158,7 @@ export function AICoachPage() {
   const selectConversation = (conversationId: string) => {
     setSelectedConversationId(conversationId)
     setFailedMessage(null)
+    setProviderUnavailable(false)
     setLatestTaskPriority(null)
     setLatestFocusProposal(null)
     setLatestAnalytics(null)
@@ -162,6 +173,7 @@ export function AICoachPage() {
     setPendingMessage({ id: `pending-${crypto.randomUUID()}`, role: 'user', content: message })
     setComposerValue('')
     setFailedMessage(null)
+    setProviderUnavailable(false)
     setStreamingAssistantText('')
     shouldAutoScrollRef.current = true
 
@@ -171,6 +183,7 @@ export function AICoachPage() {
       ...(contextLabel ? { context: coachContext } : {}),
     }
     const handleSuccess = (response: CoachChatResponse) => {
+      const responseIsProviderUnavailable = isCoachProviderUnavailableMessage(response.message)
       setSelectedConversationId(response.conversationId)
       setPendingMessage(null)
       setStreamingAssistantText(null)
@@ -178,14 +191,19 @@ export function AICoachPage() {
       setLatestTaskPriority(response.taskPriority && response.suggestions ? response : null)
       setLatestFocusProposal(response.focusProposal ? response : null)
       setLatestAnalytics(response.analytics ? response : null)
+      setProviderUnavailable(responseIsProviderUnavailable)
+      if (responseIsProviderUnavailable) setComposerValue(message)
     }
     const handleError = (error: unknown) => {
       setPendingMessage(null)
       setStreamingAssistantText(null)
       setComposerValue(message)
-      setFailedMessage(error instanceof CoachStreamingResponseError
+      const errorMessage = error instanceof CoachStreamingResponseError
         ? error.message
-        : getApiErrorMessage(error, 'Chưa thể gửi tin nhắn. Hãy thử lại nhé.'))
+        : getApiErrorMessage(error, 'Chưa thể gửi tin nhắn. Hãy thử lại nhé.')
+      const errorIsProviderUnavailable = isCoachProviderUnavailableMessage(errorMessage)
+      setFailedMessage(errorIsProviderUnavailable ? null : errorMessage)
+      setProviderUnavailable(errorIsProviderUnavailable)
     }
     const sendNonStreaming = () => chat.mutate(input, { onSuccess: handleSuccess, onError: handleError })
 
@@ -195,7 +213,7 @@ export function AICoachPage() {
     }, {
       onSuccess: handleSuccess,
       onError: (error) => {
-        if (error instanceof CoachStreamingUnavailableError || error instanceof CoachStreamingResponseError) {
+        if (canFallbackToNonStreaming(error)) {
           setStreamingAssistantText(null)
           sendNonStreaming()
           return
@@ -222,6 +240,11 @@ export function AICoachPage() {
   const showMessageLoading = Boolean(activeConversationId && messagesQuery.isLoading)
   const showMessageError = Boolean(activeConversationId && messagesQuery.isError)
   const showTypingIndicator = chat.isPending || (streamChat.isPending && streamingAssistantText === '')
+  const showProviderUnavailable = !pendingMessage && (providerUnavailable || persistedProviderUnavailable)
+  const retryProviderUnavailable = () => {
+    const message = composerValue.trim() || lastUserMessage?.content
+    if (message) sendMessage(message)
+  }
 
   const confirmApplyDraft = () => {
     if (!draftToApply) return
@@ -315,10 +338,22 @@ export function AICoachPage() {
             {showMessageLoading && <div className="ai-coach-message-skeletons"><Skeleton height={68} width="68%" /><Skeleton height={82} width="76%" /><Skeleton height={62} width="58%" /></div>}
             {showMessageError && <ErrorState compact title="Không thể tải tin nhắn." action={<Button type="button" variant="secondary" onClick={() => void messagesQuery.refetch()}>Thử lại</Button>} />}
             {showEmptyChat && <EmptyState icon={<NatureEmptyMascot kind="ai" size={104} className="ai-coach-empty-owl" />} title="Bạn muốn bắt đầu từ đâu?" description="Hãy hỏi về việc cần làm, tiến độ hoặc một kế hoạch bạn muốn xem trước." />}
-            {!showMessageLoading && !showMessageError && messages.map((message) => <ChatMessage key={message.id} message={message} />)}
+            {!showMessageLoading && !showMessageError && visibleMessages.map((message) => <ChatMessage key={message.id} message={message} />)}
             {pendingMessage && <ChatMessage message={pendingMessage} pending />}
             {streamingAssistantText && <ChatMessage message={{ id: 'assistant-streaming', role: 'assistant', content: streamingAssistantText }} pending={streamChat.isPending} />}
             {showTypingIndicator && <div className="ai-coach-typing" role="status"><NatureMascot animal="owl" size={38} frameDurationMs={1100} /><span>AI Coach đang sắp xếp...</span></div>}
+            {showProviderUnavailable && <section className="ai-coach-unavailable" role="alert">
+              <Leaf size={18} aria-hidden="true" />
+              <div>
+                <strong>Trợ lý AI đang tạm thời không phản hồi.</strong>
+                <p>Bạn vẫn có thể tiếp tục sắp xếp việc học trong StudyFlow.</p>
+              </div>
+              <div className="ai-coach-unavailable-actions">
+                <Button type="button" variant="secondary" onClick={retryProviderUnavailable} disabled={!composerValue.trim() && !lastUserMessage?.content} loading={chat.isPending || streamChat.isPending}>Thử lại</Button>
+                <Link className="button secondary" to="/tasks"><ListTodo size={15} /> Công việc</Link>
+                <Link className="button secondary" to="/study-plans"><CalendarDays size={15} /> Kế hoạch</Link>
+              </div>
+            </section>}
             {latestDraft && latestDraft.conversationId === activeConversationId && latestDraft.draft && (
               latestDraft.draft.type === 'goal' && latestDraft.draft.goal
                 ? <GoalDraftCard
