@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useOverdueTasksQuery, usePlansQuery, useTasksQuery, useTaskStatusMutation, useTodayTasksQuery } from '../features/tasks/tasks.hooks'
 import { getVietnamTodayKey } from '../utils/vietnamTime'
 import { formatTaskDeadline, isTaskDeadlineOverdue } from '../utils/taskDate'
-import { NatureMascot } from '../components/nature'
+import { NatureFlora, NatureMascot } from '../components/nature'
 import { natureAssets } from '../config/natureAssets'
 import type { StudyPlan, Task } from '../features/tasks/tasks.api'
 import { TaskList } from '../features/tasks/components/TaskList'
@@ -111,9 +111,9 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
       <span className="dashboard-hero-mist" />
       <span className="dashboard-hero-mountains" />
       <span className="dashboard-hero-lake" />
-      <img className="dashboard-hero-bush dashboard-hero-bush-back" src={natureAssets.flora.bush[2]} alt="" width={543} height={724} />
-      <NatureMascot animal="fox" size={188} priority className="dashboard-hero-mascot" />
-      <img className="dashboard-hero-bush dashboard-hero-bush-front" src={natureAssets.flora.bush[0]} alt="" width={543} height={724} />
+      <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-back" />
+      <NatureMascot animal="fox" size={188} priority frameDurationMs={900} className="dashboard-hero-mascot" />
+      <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-front" />
     </div>}
   </section>
 }
@@ -171,7 +171,7 @@ function AICoachPanel({ briefing, available }: { briefing?: DashboardSummary['da
     briefing.availableSlot ? `Khoảng trống kế tiếp: ${briefing.availableSlot.startTime} - ${briefing.availableSlot.endTime}.` : null,
   ].filter((fact): fact is string => Boolean(fact)) : []
 
-  return <section className="panel dashboard-ai-panel"><div className="panel-heading"><div><p className="dashboard-ai-kicker">AI COACH</p><h2>Lập kế hoạch cùng AI</h2></div><Sparkles size={20} className="panel-icon" /></div><div className="dashboard-ai-content"><div className="dashboard-ai-copy">{available && briefingFacts.length > 0 ? <div className="dashboard-ai-briefing">{briefingFacts.map((fact) => <p key={fact}>{fact}</p>)}</div> : <p>{available ? 'Mở AI Coach để lập kế hoạch từ công việc và lịch học của bạn.' : 'AI Coach chưa khả dụng trong môi trường này.'}</p>}<Link className="button secondary dashboard-ai-action" to="/ai-coach"><Sparkles size={15} /> Lập kế hoạch cùng AI</Link></div><NatureMascot animal="owl" size={88} className="dashboard-ai-owl" /></div></section>
+  return <section className="panel dashboard-ai-panel"><div className="panel-heading"><div><p className="dashboard-ai-kicker">AI COACH</p><h2>Lập kế hoạch cùng AI</h2></div><Sparkles size={20} className="panel-icon" /></div><div className="dashboard-ai-content"><div className="dashboard-ai-copy">{available && briefingFacts.length > 0 ? <div className="dashboard-ai-briefing">{briefingFacts.map((fact) => <p key={fact}>{fact}</p>)}</div> : <p>{available ? 'Mở AI Coach để lập kế hoạch từ công việc và lịch học của bạn.' : 'AI Coach chưa khả dụng trong môi trường này.'}</p>}<Link className="button secondary dashboard-ai-action" to="/ai-coach"><Sparkles size={15} /> Lập kế hoạch cùng AI</Link></div></div></section>
 }
 
 function DashboardTodaySummary({ tasksRemaining, studyMinutes, weeklyTasksDone, streak }: { tasksRemaining: number; studyMinutes: number | null | undefined; weeklyTasksDone: number | null | undefined; streak: number | null | undefined }) {

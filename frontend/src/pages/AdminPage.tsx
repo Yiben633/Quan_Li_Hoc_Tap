@@ -111,7 +111,7 @@ function AdminAIInsightCard() {
   if (!aiFeaturesEnabled) return null
   return <section className="admin-ai-insight" aria-labelledby="admin-ai-insight-title">
     <div className="admin-ai-insight-copy"><p>AI / PHÂN TÍCH</p><h2 id="admin-ai-insight-title">Phân tích quản trị</h2><span>Chưa có insight cấp quản trị được backend cung cấp.</span><Link className="button secondary" to="/ai-coach">Mở AI Coach</Link></div>
-    <NatureMascot animal="owl" size={68} className="admin-ai-insight-owl" />
+    <NatureMascot animal="owl" animation="static" size={68} className="admin-ai-insight-owl" />
   </section>
 }
 

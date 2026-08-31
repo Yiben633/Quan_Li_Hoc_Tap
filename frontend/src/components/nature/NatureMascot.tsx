@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { natureAssets, type NatureMascotAnimal } from '../../config/natureAssets'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 
-export type NatureMascotAnimation = 'idle'
+export type NatureMascotAnimation = 'idle' | 'static'
 export type NatureMascotSize = 'sm' | 'md' | 'lg' | 'xl' | number
+
+export const NATURE_IDLE_FRAME_DURATION_MS = 900
 
 type NatureMascotBaseProps = {
   animal: NatureMascotAnimal
@@ -37,6 +39,7 @@ function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false)
 
   useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
     setReduced(media.matches)
     const onChange = () => setReduced(media.matches)
@@ -78,25 +81,37 @@ function useInViewport<TElement extends Element>() {
   return [ref, inViewport] as const
 }
 
-export function NatureMascot({
-  animal,
-  animation = 'idle',
-  alt = '',
-  className = '',
-  decorative = true,
-  frameDurationMs = 900,
-  priority = false,
-  size = 'md',
-}: NatureMascotProps) {
-  const frames = natureAssets.mascots[animal]
+const preloadedFrameUrls = new Set<string>()
+
+function preloadFrames(frames: readonly string[]) {
+  frames.forEach((frame) => {
+    if (preloadedFrameUrls.has(frame)) return
+    preloadedFrameUrls.add(frame)
+    const image = new Image()
+    image.src = frame
+  })
+}
+
+function getSynchronizedFrameIndex(frameCount: number, frameDurationMs: number) {
+  return Math.floor(Date.now() / frameDurationMs) % frameCount
+}
+
+export function useNatureFrameSequence<TElement extends HTMLElement>(
+  frames: readonly string[],
+  animation: NatureMascotAnimation,
+  frameDurationMs: number,
+) {
   const [frameIndex, setFrameIndex] = useState(0)
   const reducedMotion = usePrefersReducedMotion()
   const isMobileViewport = useMediaQuery('(max-width: 639px)')
   const documentVisible = useDocumentVisible()
-  const [rootRef, inViewport] = useInViewport<HTMLSpanElement>()
-  const pixelSize = typeof size === 'number' ? size : sizeMap[size]
+  const [rootRef, inViewport] = useInViewport<TElement>()
+  const normalizedFrameDurationMs = Math.min(1200, Math.max(700, frameDurationMs))
   const shouldAnimate = animation === 'idle' && !reducedMotion && !isMobileViewport && documentVisible && inViewport
-  const classNames = ['nature-mascot', `nature-mascot-${typeof size === 'number' ? 'custom' : size}`, className].filter(Boolean).join(' ')
+
+  useEffect(() => {
+    if (animation === 'idle') preloadFrames(frames)
+  }, [animation, frames])
 
   useEffect(() => {
     if (!shouldAnimate) {
@@ -104,12 +119,39 @@ export function NatureMascot({
       return
     }
 
-    const intervalId = window.setInterval(() => {
-      setFrameIndex((current) => (current + 1) % frames.length)
-    }, frameDurationMs)
+    const updateFrame = () => setFrameIndex(getSynchronizedFrameIndex(frames.length, normalizedFrameDurationMs))
+    updateFrame()
 
-    return () => window.clearInterval(intervalId)
-  }, [frameDurationMs, frames.length, shouldAnimate])
+    const delay = normalizedFrameDurationMs - (Date.now() % normalizedFrameDurationMs)
+    let intervalId: number | undefined
+    const timeoutId = window.setTimeout(() => {
+      updateFrame()
+      intervalId = window.setInterval(updateFrame, normalizedFrameDurationMs)
+    }, delay)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+      if (intervalId !== undefined) window.clearInterval(intervalId)
+    }
+  }, [frames.length, normalizedFrameDurationMs, shouldAnimate])
+
+  return [rootRef, frameIndex] as const
+}
+
+export function NatureMascot({
+  animal,
+  animation = 'idle',
+  alt = '',
+  className = '',
+  decorative = true,
+  frameDurationMs = NATURE_IDLE_FRAME_DURATION_MS,
+  priority = false,
+  size = 'md',
+}: NatureMascotProps) {
+  const frames = natureAssets.mascots[animal]
+  const [rootRef, frameIndex] = useNatureFrameSequence<HTMLSpanElement>(frames, animation, frameDurationMs)
+  const pixelSize = typeof size === 'number' ? size : sizeMap[size]
+  const classNames = ['nature-mascot', `nature-mascot-${typeof size === 'number' ? 'custom' : size}`, className].filter(Boolean).join(' ')
 
   const accessibilityProps = useMemo(() => {
     if (decorative) return { 'aria-hidden': true, alt: '' }
@@ -128,7 +170,6 @@ export function NatureMascot({
         src={frames[frameIndex]}
         width={pixelSize}
         height={pixelSize}
-        fetchPriority={priority ? 'high' : 'auto'}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         draggable={false}

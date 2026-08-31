@@ -88,7 +88,7 @@ export function StudyPlanDetailPage() {
         <div className="plan-detail-progress"><div className="progress-line" aria-label={`${progressPercent}% hoàn thành`}><i style={{ width: `${progressPercent}%` }} /></div><strong>{progressPercent}%</strong></div>
         <div className="plan-detail-metrics"><span><CheckCircle2 size={15} /> {taskSummary(taskDone, taskTotal)}</span>{plan.endDate && <span><CalendarDays size={15} /> {formatTaskDeadline(plan.endDate)}</span>}{plan.estimatedHours !== null && plan.estimatedHours !== undefined && plan.estimatedHours > 0 && <span><Clock3 size={15} /> {plan.estimatedHours} giờ dự kiến</span>}</div>
       </div>
-      <div className="plan-detail-hero-art" aria-hidden="true"><img className="plan-detail-forest" src={natureAssets.flora.bush[0]} width={84} height={84} loading="lazy" decoding="async" alt="" /><NatureMascot animal="fox" size={136} className="plan-detail-fox" /></div>
+      <div className="plan-detail-hero-art" aria-hidden="true"><img className="plan-detail-forest" src={natureAssets.flora.bush[0]} width={84} height={84} loading="lazy" decoding="async" alt="" /><NatureMascot animal="fox" animation="static" size={136} className="plan-detail-fox" /></div>
       <div className="plan-detail-actions">
         <Button onClick={continuePlan}><Play size={16} /> Tiếp tục</Button>
         <Button onClick={openQuickCreate}><Plus size={16} /> Thêm công việc</Button>

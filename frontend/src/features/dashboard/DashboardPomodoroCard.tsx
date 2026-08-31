@@ -2,7 +2,6 @@ import { ArrowUpRight, Pause, Play, TimerReset } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 import { Button, Skeleton } from '../../components/ui'
-import { NatureMascot } from '../../components/nature'
 import { getApiErrorMessage } from '../auth/auth.api'
 import { useActiveStudySessionQuery, usePauseStudySessionMutation, useResumeStudySessionMutation, useStartFocusPomodoroMutation, useStartPomodoroMutation } from '../study-sessions/studySessions.hooks'
 import { formatStudyClock, useStudySessionClock } from '../study-sessions/useStudySessionClock'
@@ -46,6 +45,6 @@ export function DashboardPomodoroCard() {
     {active && !active.pomodoro && <Button variant="secondary" className="dashboard-pomodoro-start" onClick={beginPomodoro} loading={startPomodoro.isPending}><TimerReset size={15} /> Bắt đầu Pomodoro</Button>}
     <p className="dashboard-pomodoro-mode">Chế độ: <strong>{mode}</strong></p>
     <Link className="dashboard-pomodoro-open" to="/study">Mở tập trung <ArrowUpRight size={14} /></Link>
-    <div className="dashboard-pomodoro-decoration" aria-hidden="true"><span className="dashboard-pomodoro-tree" /><NatureMascot animal="bear" size={58} className="dashboard-pomodoro-bear" /></div>
+    <div className="dashboard-pomodoro-decoration" aria-hidden="true"><span className="dashboard-pomodoro-tree" /></div>
   </section>
 }

@@ -27,6 +27,7 @@ import {
   useCalendarEventMutation,
   useCalendarQuery,
 } from "../features/calendar/calendar.hooks";
+import { NatureFlora } from "../components/nature";
 import { natureEmptyStateAssets } from "../config/natureAssets";
 import { getVietnamDateTimeParts, toVietnamIso } from "../utils/calendarTime";
 
@@ -592,7 +593,7 @@ function TodayAgenda({ items, loading, error, onCreate, onSelect, onRetry }: { i
 
 function CalendarAgendaEmpty({ onCreate }: { onCreate: () => void }) {
   return <div className="calendar-agenda-empty">
-    <div className="calendar-agenda-empty-art" aria-hidden="true"><img className="calendar-agenda-empty-cloud" src={natureEmptyStateAssets.calendar.cloud} alt="" width={64} height={36} /><img className="calendar-agenda-empty-bush" src={natureEmptyStateAssets.calendar.bush} alt="" width={72} height={72} /></div>
+    <div className="calendar-agenda-empty-art" aria-hidden="true"><img className="calendar-agenda-empty-cloud" src={natureEmptyStateAssets.calendar.cloud} alt="" width={64} height={36} /><NatureFlora name="bush" width={72} height={72} className="calendar-agenda-empty-bush" /></div>
     <h3>Chưa có sự kiện trong ngày này.</h3>
     <Button onClick={onCreate}><Plus size={16} /> Thêm lịch học</Button>
   </div>
