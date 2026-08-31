@@ -39,7 +39,6 @@
 .ai-conversation-item span { overflow: hidden; color: var(--nature-text-secondary); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
 .ai-coach-chat { display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 12px; min-width: 0; min-height: 0; height: 100%; padding: 16px; overflow: hidden; }
 .ai-coach-messages { display: grid; align-content: start; gap: 10px; min-height: 0; padding: 2px 4px 6px; overflow-y: auto; scroll-behavior: smooth; }
-.ai-coach-messages .empty-state { min-height: 330px; }
 .ai-coach-message-skeletons { display: grid; align-content: start; gap: 10px; padding: 14px 0; }
 .ai-coach-message { width: min(82%, 660px); padding: 12px 14px; background: var(--nature-surface-soft); border: 1px solid color-mix(in srgb, var(--nature-sage) 46%, var(--nature-border)); border-radius: 8px; }
 .ai-coach-message.user { justify-self: end; background: color-mix(in srgb, var(--nature-bg-warm) 74%, var(--nature-sand)); border-color: color-mix(in srgb, var(--nature-sand) 68%, var(--nature-border)); }

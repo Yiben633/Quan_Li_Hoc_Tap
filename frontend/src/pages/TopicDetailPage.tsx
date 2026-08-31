@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, Check, CheckSquare, Clock3, FileText, Gauge, NotebookPen, Plus, Sparkles } from 'lucide-react'
 import { useEffect, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { NatureEmptyMascot, NatureMascot } from '../components/nature'
+import { NatureEmptyState, NatureMascot } from '../components/nature'
 import { Button, EmptyState, ErrorState, Skeleton, Tabs } from '../components/ui'
 import { natureAssets } from '../config/natureAssets'
 import { useTopicQuery } from '../features/learning/learning.hooks'
@@ -149,7 +149,7 @@ export function TopicDetailPage() {
               ? <p className="subtle">Chưa thể tải các công việc ưu tiên.</p>
               : topTasks.length
                 ? <div className="topic-priority-list">{topTasks.map((task) => <PriorityTask key={task.id} task={task} onComplete={() => updateStatus(task.id, 'done')} />)}</div>
-                : <EmptyState icon={<NatureEmptyMascot kind="subject" size={92} className="topic-priority-empty-fox" />} title="Môn học chưa có việc cần làm" description="Tạo một công việc để bắt đầu theo dõi tiến độ." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />}
+                : <NatureEmptyState mascot="subject" size="sm" title="Môn học chưa có việc cần làm" description="Tạo một công việc để bắt đầu theo dõi tiến độ." action={<Button variant="secondary" onClick={openTaskCreate}><Plus size={15} /> Thêm công việc</Button>} />}
           {taskItems.length > 0 && <button type="button" className="topic-view-all-tasks" onClick={() => setTab('tasks')}>Xem tất cả công việc <ArrowRight size={15} /></button>}
         </section>
         <SubjectPlansPanel plans={plans.data?.items ?? []} loading={plans.isLoading} error={plans.isError} onRetry={() => void plans.refetch()} />
@@ -187,19 +187,18 @@ function SubjectPlansPanel({ plans, loading, error, onRetry }: { plans: StudyPla
         ? <ErrorState compact title="Không thể tải kế hoạch của môn học." action={<Button variant="secondary" onClick={onRetry}>Thử lại</Button>} />
         : plans.length
           ? <div className="topic-plan-list">{plans.map((plan) => <SubjectPlanPreview key={plan.id} plan={plan} />)}</div>
-          : <EmptyState title="Chưa có kế hoạch đang thực hiện" description="Tạo một lộ trình cho môn học này khi bạn cần chia nhỏ mục tiêu." action={<Link className="button secondary" to="/study-plans"><Plus size={15} /> Tạo kế hoạch</Link>} />}
+          : <NatureEmptyState size="sm" title="Chưa có kế hoạch đang thực hiện" description="Tạo một lộ trình cho môn học này khi bạn cần chia nhỏ mục tiêu." action={<Link className="button secondary" to="/study-plans"><Plus size={15} /> Tạo kế hoạch</Link>} />}
   </section>
 }
 
 function SubjectTaskEmptyState({ onCreate }: { onCreate: () => void }) {
-  return <div className="topic-task-empty">
-    <EmptyState
-      icon={<NatureEmptyMascot kind="subject" size={108} className="topic-task-empty-fox" />}
-      title="Môn học này chưa có công việc."
-      description="Thêm một việc để bắt đầu theo dõi tiến độ."
-      action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
-    />
-  </div>
+  return <NatureEmptyState
+    mascot="subject"
+    size="lg"
+    title="Môn học này chưa có công việc."
+    description="Thêm một việc để bắt đầu theo dõi tiến độ."
+    action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
+  />
 }
 
 function SubjectPlanPreview({ plan }: { plan: StudyPlan }) {

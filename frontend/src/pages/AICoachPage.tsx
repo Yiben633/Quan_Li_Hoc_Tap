@@ -2,8 +2,8 @@ import { CalendarDays, Leaf, List, ListTodo, Moon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Button, ConfirmDialog, Drawer, EmptyState, ErrorState, IconButton, Modal, Skeleton } from '../components/ui'
-import { NatureEmptyMascot, NatureMascot } from '../components/nature'
+import { Button, ConfirmDialog, Drawer, ErrorState, IconButton, Modal, Skeleton } from '../components/ui'
+import { NatureEmptyState, NatureMascot } from '../components/nature'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import { canFallbackToNonStreaming, CoachStreamingResponseError, isCoachProviderUnavailableMessage } from '../features/ai-coach/aiCoach.api'
 import { ChatComposer } from '../features/ai-coach/components/ChatComposer'
@@ -337,7 +337,7 @@ export function AICoachPage() {
           >
             {showMessageLoading && <div className="ai-coach-message-skeletons"><Skeleton height={68} width="68%" /><Skeleton height={82} width="76%" /><Skeleton height={62} width="58%" /></div>}
             {showMessageError && <ErrorState compact title="Không thể tải tin nhắn." action={<Button type="button" variant="secondary" onClick={() => void messagesQuery.refetch()}>Thử lại</Button>} />}
-            {showEmptyChat && <EmptyState icon={<NatureEmptyMascot kind="ai" size={104} className="ai-coach-empty-owl" />} title="Bạn muốn bắt đầu từ đâu?" description="Hãy hỏi về việc cần làm, tiến độ hoặc một kế hoạch bạn muốn xem trước." />}
+            {showEmptyChat && <NatureEmptyState mascot="ai" title="Bạn muốn bắt đầu từ đâu?" description="Hãy hỏi về việc cần làm, tiến độ hoặc một kế hoạch bạn muốn xem trước." />}
             {!showMessageLoading && !showMessageError && visibleMessages.map((message) => <ChatMessage key={message.id} message={message} />)}
             {pendingMessage && <ChatMessage message={pendingMessage} pending />}
             {streamingAssistantText && <ChatMessage message={{ id: 'assistant-streaming', role: 'assistant', content: streamingAssistantText }} pending={streamChat.isPending} />}

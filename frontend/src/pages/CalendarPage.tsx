@@ -593,9 +593,7 @@ function TodayAgenda({ items, loading, error, onCreate, onSelect, onRetry }: { i
 function CalendarAgendaEmpty({ onCreate }: { onCreate: () => void }) {
   return <div className="calendar-agenda-empty">
     <div className="calendar-agenda-empty-art" aria-hidden="true"><img className="calendar-agenda-empty-cloud" src={natureEmptyStateAssets.calendar.cloud} alt="" width={64} height={36} /><img className="calendar-agenda-empty-bush" src={natureEmptyStateAssets.calendar.bush} alt="" width={72} height={72} /></div>
-    <h3>Một ngày khá thoáng.</h3>
-    <p>Chưa có sự kiện trong ngày này.</p>
-    <p>Bạn có thể dành một khoảng cho việc học.</p>
+    <h3>Chưa có sự kiện trong ngày này.</h3>
     <Button onClick={onCreate}><Plus size={16} /> Thêm lịch học</Button>
   </div>
 }

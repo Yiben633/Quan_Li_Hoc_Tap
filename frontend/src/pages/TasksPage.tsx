@@ -2,7 +2,7 @@ import { Check, CheckSquare, Leaf, ListFilter, Play, Plus, Search, Trash2, X } f
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { Button, ConfirmDialog, DatePicker, EmptyState, ErrorState, Input, Modal, Select, Skeleton } from '../components/ui'
+import { Button, ConfirmDialog, DatePicker, ErrorState, Input, Modal, Select, Skeleton } from '../components/ui'
 import { useTopicsQuery } from '../features/learning/learning.hooks'
 import { DIFFICULTY_LABELS, PRIORITY_LABELS, TASK_STATUS_LABELS } from '../features/tasks/task.constants'
 import { TaskDrawer } from '../features/tasks/components/TaskDrawer'
@@ -16,7 +16,7 @@ import { useOverdueTasksQuery, usePlansQuery, useTaskCreateMutation, useTaskDele
 import { formatTaskDeadline } from '../utils/taskDate'
 import { getNextTaskSuggestion } from '../utils/nextTask'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { NatureEmptyMascot } from '../components/nature'
+import { NatureEmptyState } from '../components/nature'
 
 type TaskScope = 'today' | 'upcoming' | 'overdue' | 'all'
 type TaskFilterState = { search: string; status: string; priority: string; subjectId: string; studyPlanId: string; dueDate: string; difficulty: string; page: number }
@@ -250,18 +250,20 @@ export function TasksPage() {
 }
 
 function TaskEmptyState({ scope, onCreate }: { scope: TaskScope; onCreate: () => void }) {
+  const title = scope === 'today'
+    ? 'Hôm nay khá nhẹ nhàng.'
+    : `Chưa có công việc ${scopeLabels[scope].toLowerCase()}.`
   const description = scope === 'today'
     ? 'Bạn chưa có công việc nào cho hôm nay.'
     : `Bạn chưa có công việc nào ${scopeLabels[scope].toLowerCase()}.`
 
-  return <div className="task-empty-state">
-    <EmptyState
-      icon={<NatureEmptyMascot kind="tasks" size={104} className="task-empty-bunny" />}
-      title="Mọi thứ đang yên ắng."
-      description={description}
-      action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
-    />
-  </div>
+  return <NatureEmptyState
+    mascot="tasks"
+    size="lg"
+    title={title}
+    description={description}
+    action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
+  />
 }
 
 function NextTaskSuggestion({ task, onStart, loading }: { task: Task; onStart: () => void; loading: boolean }) {

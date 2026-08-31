@@ -2,8 +2,8 @@ import { ArrowLeft, CalendarDays, CheckCircle2, Clock3, ListPlus, ListTodo, More
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Button, ConfirmDialog, Dropdown, EmptyState, ErrorState, Skeleton, Tabs, Tooltip } from '../components/ui'
-import { NatureEmptyMascot, NatureMascot } from '../components/nature'
+import { Button, ConfirmDialog, Dropdown, ErrorState, Skeleton, Tabs, Tooltip } from '../components/ui'
+import { NatureEmptyState, NatureMascot } from '../components/nature'
 import { natureAssets } from '../config/natureAssets'
 import { PLAN_STATUS_LABELS, PRIORITY_LABELS } from '../features/tasks/task.constants'
 import { TaskDrawer } from '../features/tasks/components/TaskDrawer'
@@ -117,14 +117,13 @@ export function StudyPlanDetailPage() {
 }
 
 function PlanTaskEmptyState({ onCreate }: { onCreate: () => void }) {
-  return <div className="plan-task-empty">
-    <EmptyState
-      icon={<NatureEmptyMascot kind="plan" size={112} className="plan-task-empty-fox" />}
-      title="Kế hoạch này chưa có công việc."
-      description="Hãy chia hành trình thành những bước nhỏ."
-      action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc đầu tiên</Button>}
-    />
-  </div>
+  return <NatureEmptyState
+    mascot="plan"
+    size="lg"
+    title="Kế hoạch này chưa có công việc."
+    description="Hãy chia hành trình thành những bước nhỏ."
+    action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc đầu tiên</Button>}
+  />
 }
 
 function NextTask({ task, onOpen }: { task: Task; onOpen: () => void }) {

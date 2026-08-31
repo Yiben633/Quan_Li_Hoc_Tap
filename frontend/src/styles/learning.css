@@ -187,17 +187,9 @@
 .topic-task-row input { accent-color: var(--nature-primary); }
 .topic-task-row strong { color: var(--nature-text); }
 .topic-task-row small { color: var(--nature-text-secondary); }
-.topic-task-empty .empty-state { min-height: 250px; padding: 28px 18px; background: var(--nature-surface-soft); border: 1px dashed var(--nature-border-strong); }
-.topic-task-empty .empty-icon { width: 108px; height: 108px; margin-bottom: 12px; color: inherit; background: transparent; border-radius: 0; }
-.topic-task-empty-fox { display: block; width: 108px; height: 108px; object-fit: contain; }
-.topic-task-empty .empty-state h3 { color: var(--nature-pine); font-size: 16px; }
-.topic-task-empty .empty-state .subtle { max-width: 31ch; margin: 7px 0 0; color: var(--nature-text-secondary); }
-.topic-task-empty .empty-action { margin-top: 18px; }
 
 @media (max-width: 620px) {
   .topic-task-panel .panel-heading { align-items: flex-start; flex-direction: column; }
   .topic-task-scopes { display: flex; grid-template-columns: none; width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
   .topic-task-scopes button { width: auto; flex: 0 0 auto; }
-  .topic-task-empty .empty-state { min-height: 222px; }
-  .topic-task-empty .empty-icon, .topic-task-empty-fox { width: 94px; height: 94px; }
 }
