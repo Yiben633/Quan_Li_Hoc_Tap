@@ -80,11 +80,13 @@
 .admin-shell-nav { display: grid; gap: 16px; }
 .admin-shell-nav-group { display: grid; gap: 3px; }
 .admin-shell-nav-group > p { margin: 0; padding: 0 8px 5px; color: var(--nature-text-muted); font-size: 9px; font-weight: 800; letter-spacing: .08em; }
-.admin-shell-nav-item { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 9px; align-items: center; width: 100%; min-height: 36px; padding: 0 8px; color: var(--nature-text-secondary); background: transparent; border: 1px solid transparent; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: left; }
-.admin-shell-nav-item:hover:not(:disabled) { color: var(--nature-pine); background: color-mix(in srgb, var(--nature-surface) 62%, transparent); border-color: var(--nature-border); }
+.admin-shell-nav-item { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 9px; align-items: center; width: 100%; min-height: 36px; padding: 0 8px; color: var(--nature-text-secondary); background: transparent; border: 1px solid transparent; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: left; }
+.admin-shell-nav-item:hover { color: var(--nature-pine); background: color-mix(in srgb, var(--nature-surface) 62%, transparent); border-color: var(--nature-border); }
 .admin-shell-nav-item.active { color: var(--nature-pine); background: var(--nature-bg-warm); border-color: var(--nature-border-strong); box-shadow: inset 3px 0 0 var(--nature-primary), var(--nature-shadow-sm); }
 .admin-shell-nav-item:focus-visible { outline: 0; border-color: var(--nature-primary); box-shadow: 0 0 0 3px var(--nature-focus-ring); }
-.admin-shell-nav-item:disabled { color: var(--nature-text-muted); cursor: not-allowed; opacity: .62; }
+.admin-shell-nav-item.is-coming-soon { color: var(--nature-text-secondary); cursor: default; }
+.admin-shell-nav-item.is-coming-soon:hover { color: var(--nature-text-secondary); background: transparent; border-color: transparent; }
+.admin-shell-nav-soon { padding: 2px 5px; color: var(--nature-bark); background: color-mix(in srgb, var(--nature-sand) 72%, var(--nature-surface)); border: 1px solid color-mix(in srgb, var(--nature-bark) 24%, var(--nature-border)); border-radius: 999px; font-size: 8px; font-weight: 800; line-height: 1; white-space: nowrap; }
 .admin-shell-content { display: grid; gap: 20px; min-width: 0; }
 .admin-heading { align-items: flex-start; padding: 2px 0 17px; border-bottom: 1px solid var(--nature-border); }
 .admin-heading .eyebrow { color: var(--nature-moss); }
@@ -227,6 +229,7 @@
   .admin-shell-nav-group { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
   .admin-shell-nav-group > p { grid-column: 1 / -1; }
   .admin-shell-nav-item { min-height: 38px; padding: 0 7px; }
+  .admin-shell-nav-soon { padding: 2px 4px; font-size: 7px; }
   .groups-heading .button { width: 100%; }
   .group-grid { grid-template-columns: 1fr; }
   .group-card { min-height: 190px; }

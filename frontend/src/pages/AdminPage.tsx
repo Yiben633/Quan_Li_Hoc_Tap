@@ -9,30 +9,33 @@ import { NatureMascot } from '../components/nature'
 import { aiFeaturesEnabled } from '../config/features'
 import type { AdminAnalyticsPoint, AdminFeedback, AdminUser, FeedbackStatus, TopicTemplate } from '../features/admin/admin.api'
 import { useActivityLogsQuery, useAdminFeedbackQuery, useAdminFeedbackUpdateMutation, useAdminStatisticsQuery, useAdminUsersQuery, useAdminUserUpdateMutation, useSystemContentSupportQuery, useTopicTemplateImportMutation } from '../features/admin/admin.hooks'
+import { formatAdminAnalyticsDate, isAdminOverviewData } from '../features/admin/admin.presentation'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useAuthStore } from '../stores/authStore'
 
 type AdminTab = 'overview' | 'users' | 'feedback' | 'logs' | 'templates' | 'content'
-type AdminNavigationItem = { label: string; icon: LucideIcon; tab?: AdminTab }
+type AdminNavigationItem =
+  | { label: string; icon: LucideIcon; status: 'available'; tab: AdminTab }
+  | { label: string; icon: LucideIcon; status: 'comingSoon' | 'hidden' }
 
 const primaryAdminNavigation: readonly AdminNavigationItem[] = [
-  { label: 'Tổng quan', icon: LayoutDashboard, tab: 'overview' },
-  { label: 'Người dùng', icon: Users, tab: 'users' },
-  { label: 'Môn học', icon: BookOpen, tab: 'templates' },
-  { label: 'Công việc', icon: ClipboardList },
-  { label: 'Kế hoạch', icon: Map },
-  { label: 'Lịch', icon: CalendarDays },
-  { label: 'AI Coach', icon: Bot },
-  { label: 'Phân tích', icon: BarChart3 },
-  { label: 'Báo cáo', icon: FileText },
-  { label: 'Cài đặt', icon: Settings },
+  { label: 'Tổng quan', icon: LayoutDashboard, status: 'available', tab: 'overview' },
+  { label: 'Người dùng', icon: Users, status: 'available', tab: 'users' },
+  { label: 'Môn học', icon: BookOpen, status: 'available', tab: 'templates' },
+  { label: 'Công việc', icon: ClipboardList, status: 'comingSoon' },
+  { label: 'Kế hoạch', icon: Map, status: 'comingSoon' },
+  { label: 'Lịch', icon: CalendarDays, status: 'comingSoon' },
+  { label: 'AI Coach', icon: Bot, status: 'comingSoon' },
+  { label: 'Phân tích', icon: BarChart3, status: 'comingSoon' },
+  { label: 'Báo cáo', icon: FileText, status: 'comingSoon' },
+  { label: 'Cài đặt', icon: Settings, status: 'comingSoon' },
 ]
 
 const operationalAdminNavigation: readonly AdminNavigationItem[] = [
-  { label: 'Phản hồi', icon: MessageSquareText, tab: 'feedback' },
-  { label: 'Nhật ký quản trị', icon: ShieldCheck, tab: 'logs' },
-  { label: 'Nội dung hệ thống', icon: LayoutDashboard, tab: 'content' },
+  { label: 'Phản hồi', icon: MessageSquareText, status: 'available', tab: 'feedback' },
+  { label: 'Nhật ký quản trị', icon: ShieldCheck, status: 'available', tab: 'logs' },
+  { label: 'Nội dung hệ thống', icon: LayoutDashboard, status: 'available', tab: 'content' },
 ]
 const feedbackStatusLabels: Record<FeedbackStatus, string> = { open: 'Mới', in_progress: 'Đang xử lý', resolved: 'Đã giải quyết', closed: 'Đã đóng' }
 const feedbackTypeLabels = { bug: 'Lỗi', feature_request: 'Đề xuất', question: 'Câu hỏi' }
@@ -45,18 +48,24 @@ const adminActionLabels: Record<string, string> = {
 
 function formatDateTime(value: string) { return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(value)) }
 function formatDate(value: string) { return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(value)) }
-function formatAnalyticsDate(value: string) { return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date(`${value}T00:00:00+07:00`)) }
+function formatAnalyticsDate(value: string) { return formatAdminAnalyticsDate(value) }
 function SearchBox({ value, onChange, placeholder }: { value: string; onChange: (value: string) => void; placeholder: string }) { return <label className="admin-search"><Search size={16} /><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} aria-label={placeholder} /></label> }
 function QueryError({ retry }: { retry: () => void }) { return <ErrorState title="Không thể tải dữ liệu." action={<Button onClick={retry}>Thử lại</Button>} /> }
 
 function AdminShellNavItem({ item, activeTab, onChange }: { item: AdminNavigationItem; activeTab: AdminTab; onChange: (tab: AdminTab) => void }) {
+  if (item.status === 'hidden') return null
+
   const Icon = item.icon
+  if (item.status !== 'available') {
+    return <div className="admin-shell-nav-item is-coming-soon" aria-label={`${item.label}: Sắp có`}><Icon size={16} aria-hidden="true" /><span>{item.label}</span><span className="admin-shell-nav-soon">Sắp có</span></div>
+  }
+
   const active = item.tab === activeTab
-  return <button type="button" className={`admin-shell-nav-item${active ? ' active' : ''}`} onClick={() => item.tab && onChange(item.tab)} disabled={!item.tab} aria-current={active ? 'page' : undefined}><Icon size={16} aria-hidden="true" /><span>{item.label}</span></button>
+  return <button type="button" className={`admin-shell-nav-item${active ? ' active' : ''}`} onClick={() => onChange(item.tab)} aria-current={active ? 'page' : undefined}><Icon size={16} aria-hidden="true" /><span>{item.label}</span></button>
 }
 
 function AdminAnalytics({ points }: { points: AdminAnalyticsPoint[] }) {
-  const data = points.map((point) => ({ ...point, label: formatAnalyticsDate(point.date) }))
+  const data = points.map((point) => ({ ...point, label: formatAdminAnalyticsDate(point.date) }))
   const hasUserGrowth = data.some((point) => point.users > 0)
   const hasActivity = data.some((point) => point.sessions > 0 || point.taskCompletions > 0)
   const hasTaskCompletions = data.some((point) => point.taskCompletions > 0)
@@ -110,7 +119,7 @@ function OverviewPanel() {
   const query = useAdminStatisticsQuery()
 
   if (query.isLoading) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div></div><div className="admin-stat-grid">{Array.from({ length: 4 }, (_, index) => <Skeleton key={index} height={112} />)}</div><Skeleton height={230} /></section>
-  if (query.isError || !query.data) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div></div><QueryError retry={() => query.refetch()} /></section>
+  if (query.isError || !isAdminOverviewData(query.data)) return <section className="admin-overview"><div className="admin-overview-heading"><div><h2>Mức độ sử dụng thực tế</h2><p>Tổng hợp trực tiếp từ dữ liệu hệ thống.</p></div></div><QueryError retry={() => query.refetch()} /></section>
 
   const items = [
     { label: 'Tổng người dùng', value: query.data.totalUsers.toLocaleString('vi-VN'), icon: Users },
