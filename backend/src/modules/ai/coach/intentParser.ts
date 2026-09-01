@@ -122,8 +122,7 @@ export async function parseCoachIntent(
         ...(providerError.providerCode ? { providerCode: providerError.providerCode } : {}),
         ...(providerError.providerType ? { providerType: providerError.providerType } : {}),
       });
-      // Provider failures cannot authorize a planning action; use a safe clarify response.
-      break;
+      // Provider failures cannot authorize a planning action; retry once before falling back.
     }
   }
 

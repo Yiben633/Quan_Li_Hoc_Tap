@@ -30,7 +30,6 @@ import { AdminPage } from '../pages/AdminPage'
 import { RouteErrorPage } from '../pages/RouteErrorPage'
 import { OfflinePage } from '../pages/OfflinePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { aiFeaturesEnabled } from '../config/features'
 
 export const routeDefinitions: RouteObject[] = [
   { errorElement: <RouteErrorPage />, children: [
@@ -54,10 +53,8 @@ export const routeDefinitions: RouteObject[] = [
     { path: 'flashcards', element: <FlashcardsPage /> },
     { path: 'groups', element: <StudyGroupsPage /> },
     { path: 'groups/:id', element: <StudyGroupDetailPage /> },
-    ...(aiFeaturesEnabled ? [
-      { path: 'ai-coach', element: <AICoachPage /> },
-      { path: 'assistant', element: <Navigate to="/ai-coach" replace /> },
-    ] : []),
+    { path: 'ai-coach', element: <AICoachPage /> },
+    { path: 'assistant', element: <Navigate to="/ai-coach" replace /> },
     { path: 'calendar', element: <CalendarPage /> },
     { path: 'subjects', element: <LearningSpacesPage /> },
     { path: 'topics', element: <TopicsPage /> },

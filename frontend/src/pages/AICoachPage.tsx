@@ -22,6 +22,7 @@ import { useApplyCoachDraftMutation, useCoachChatMutation, useCoachChatStreamMut
 import type { CoachChatInput, CoachChatResponse, CoachDraft, CoachMessage } from '../features/ai-coach/aiCoach.types'
 import { useTopicsQuery } from '../features/learning/learning.hooks'
 import { useMediaQuery } from '../hooks/useMediaQuery'
+import { aiFeaturesEnabled } from '../config/features'
 
 const promptSuggestions: StarterPrompt[] = [
   { label: 'Hôm nay nên học gì?', icon: BookOpen, tone: 'leaf' },
@@ -68,6 +69,8 @@ function statusFromError(error: unknown) {
 }
 
 export function AICoachPage() {
+  if (!aiFeaturesEnabled) return <AICoachUnavailablePage />
+
   const [searchParams] = useSearchParams()
   const showHeadingScene = useMediaQuery('(min-width: 640px)')
   const promptFromSearch = searchParams.get('prompt')?.trim().slice(0, 500) ?? ''
@@ -434,4 +437,26 @@ export function AICoachPage() {
       </Modal>
     </main>
   )
+}
+
+function AICoachUnavailablePage() {
+  return <main className="ai-coach-page">
+    <header className="page-heading ai-coach-heading">
+      <div className="ai-coach-heading-copy">
+        <h1>AI COACH</h1>
+        <p className="subtle">Người bạn đồng hành trong hành trình học tập.</p>
+      </div>
+    </header>
+    <section className="ai-coach-unavailable ai-coach-feature-unavailable" role="status">
+      <TriangleAlert size={18} aria-hidden="true" />
+      <div>
+        <strong>AI Coach chưa khả dụng trong môi trường này.</strong>
+        <p>Bạn vẫn có thể sắp xếp công việc và kế hoạch học tập trong StudyFlow.</p>
+      </div>
+      <div className="ai-coach-unavailable-actions">
+        <Link className="button secondary" to="/tasks"><ListTodo size={15} /> Công việc</Link>
+        <Link className="button secondary" to="/study-plans"><CalendarDays size={15} /> Kế hoạch</Link>
+      </div>
+    </section>
+  </main>
 }

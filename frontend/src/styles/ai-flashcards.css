@@ -50,6 +50,7 @@
 .ai-coach-unavailable p { margin: 4px 0 0; color: var(--nature-text-secondary); font-size: 11px; line-height: 1.45; }
 .ai-coach-unavailable-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
 .ai-coach-unavailable-actions .button { min-height: 32px; padding: 0 9px; font-size: 11px; }
+.ai-coach-feature-unavailable { grid-template-columns: auto minmax(0, 1fr) auto; min-height: 126px; }
 .ai-coach-message strong { color: var(--nature-moss); font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .ai-coach-message.user strong { color: var(--nature-bark); }
 .ai-coach-message p { margin: 6px 0 0; overflow-wrap: anywhere; color: var(--nature-text); font-size: 13px; line-height: 1.6; white-space: pre-wrap; }

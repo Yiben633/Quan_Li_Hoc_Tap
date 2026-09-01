@@ -16,6 +16,7 @@ vi.mock('../pages/AICoachPage', () => ({ AICoachPage: () => <main data-testid="a
 vi.mock('../pages/AdminPage', () => ({ AdminPage: () => <main data-testid="admin-page">Admin</main> }))
 vi.mock('../pages/LoginPage', () => ({ LoginPage: () => <main data-testid="login-page">Login</main> }))
 vi.mock('../pages/NotFoundPage', () => ({ NotFoundPage: () => <main data-testid="not-found-page">Not found</main> }))
+vi.mock('../config/features', () => ({ aiFeaturesEnabled: false }))
 
 import { routeDefinitions } from './config'
 
