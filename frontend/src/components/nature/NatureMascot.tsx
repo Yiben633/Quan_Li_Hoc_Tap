@@ -53,10 +53,12 @@ export function NatureMascot({
 }: NatureMascotProps) {
   const pixelSize = typeof size === 'number' ? size : sizeMap[size]
   const resolvedMotion = motion ?? (animation === 'idle' ? 'study' : 'none')
+  const shouldShowBearSteam = animal === 'bear' && pixelSize >= 120
   const mascotClassName = [
     'nature-mascot',
     `nature-mascot-${typeof size === 'number' ? 'custom' : size}`,
     `nature-mascot-motion-${resolvedMotion}`,
+    shouldShowBearSteam && 'nature-mascot--steam',
     className,
   ]
     .filter(Boolean)

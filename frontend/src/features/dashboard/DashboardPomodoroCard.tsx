@@ -45,6 +45,7 @@ export function DashboardPomodoroCard() {
     {active && !active.pomodoro && <Button variant="secondary" className="dashboard-pomodoro-start" onClick={beginPomodoro} loading={startPomodoro.isPending}><TimerReset size={15} /> Bắt đầu Pomodoro</Button>}
     <p className="dashboard-pomodoro-mode">Chế độ: <strong>{mode}</strong></p>
     <Link className="dashboard-pomodoro-open" to="/study">Mở tập trung <ArrowUpRight size={14} /></Link>
+    <div className="dashboard-pomodoro-fireflies" aria-hidden="true"><span className="nature-firefly dashboard-pomodoro-firefly-one" /><span className="nature-firefly dashboard-pomodoro-firefly-two" /><span className="nature-firefly dashboard-pomodoro-firefly-three" /></div>
     <div className="dashboard-pomodoro-decoration" aria-hidden="true"><span className="dashboard-pomodoro-tree" /></div>
   </section>
 }

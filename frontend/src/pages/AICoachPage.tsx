@@ -324,8 +324,9 @@ export function AICoachPage() {
         </div>
         {showHeadingScene && <div className="ai-coach-heading-scene" aria-hidden="true">
           <span className="ai-coach-heading-moon" />
+          <span className="ai-coach-fireflies"><span className="nature-firefly ai-coach-firefly-one" /><span className="nature-firefly ai-coach-firefly-two" /><span className="nature-firefly ai-coach-firefly-three" /></span>
           <span className="ai-coach-heading-branch" />
-          {!showEmptyChat && !showTypingIndicator && <NatureMascot animal="owl" motion="observe" size={104} className="ai-coach-heading-owl" />}
+          {!showEmptyChat && !showTypingIndicator && <NatureMascot animal="owl" motion="observe" size={104} className="ai-coach-heading-owl nature-owl--lantern-glow" />}
         </div>}
       </header>
 

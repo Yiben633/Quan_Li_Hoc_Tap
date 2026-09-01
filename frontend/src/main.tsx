@@ -31,6 +31,7 @@ import './styles/quality.css'
 import './styles/auth-destination.css'
 import './styles/nature-theme.css'
 import './styles/nature-components.css'
+import './styles/nature-motion.css'
 import './styles/app-shell.css'
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } })

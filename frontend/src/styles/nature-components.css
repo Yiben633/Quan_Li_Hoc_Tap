@@ -39,55 +39,6 @@
   max-height: 220px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes nature-mascot-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-  }
-
-  @keyframes nature-mascot-breathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.018); }
-  }
-
-  @keyframes nature-mascot-study {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-3px) rotate(-0.6deg); }
-  }
-
-  @keyframes nature-mascot-observe {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(1.5deg); }
-  }
-
-  @keyframes nature-mascot-peek {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(3px); }
-  }
-
-  .nature-mascot-motion-float img,
-  .nature-mascot-motion-perch img {
-    animation: nature-mascot-float 3s ease-in-out infinite;
-  }
-
-  .nature-mascot-motion-breathe img,
-  .nature-mascot-motion-focus img {
-    animation: nature-mascot-breathe 3.6s ease-in-out infinite;
-  }
-
-  .nature-mascot-motion-study img {
-    animation: nature-mascot-study 3.4s ease-in-out infinite;
-  }
-
-  .nature-mascot-motion-observe img {
-    animation: nature-mascot-observe 3.8s ease-in-out infinite;
-  }
-
-  .nature-mascot-motion-peek img {
-    animation: nature-mascot-peek 3.2s ease-in-out infinite;
-  }
-}
-
 @media (max-width: 639px) {
   .nature-mascot-lg {
     max-width: 104px;
@@ -638,7 +589,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nature-mascot img,
   .skeleton,
   .spin {
     transition: none !important;

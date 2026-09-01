@@ -31,4 +31,14 @@ describe('NatureMascot', () => {
     expect(container.querySelector('img')).toHaveAttribute('alt', 'Cú mèo đang đọc sách')
     expect(container.querySelector('img')).toHaveAttribute('loading', 'lazy')
   })
+
+  it('adds mug steam only for a large bear mascot', () => {
+    const { container, rerender } = render(<NatureMascot animal="bear" size={132} />)
+
+    expect(container.querySelector('.nature-mascot')).toHaveClass('nature-mascot--steam')
+
+    rerender(<NatureMascot animal="bear" size="md" />)
+
+    expect(container.querySelector('.nature-mascot')).not.toHaveClass('nature-mascot--steam')
+  })
 })

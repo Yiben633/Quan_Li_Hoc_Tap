@@ -1,0 +1,266 @@
+@keyframes nature-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -4px, 0) rotate(0.35deg);
+  }
+}
+
+@keyframes nature-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(-2px) scale(1.012);
+  }
+}
+
+@keyframes nature-study {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-0.25deg);
+  }
+
+  50% {
+    transform: translate3d(0, -2px, 0) rotate(0.25deg);
+  }
+}
+
+@keyframes nature-focus {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(0, -1px, 0) scale(1.01);
+  }
+}
+
+@keyframes nature-observe {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(-0.4deg);
+  }
+
+  50% {
+    transform: translate3d(0, -2px, 0) rotate(0.4deg);
+  }
+}
+
+@keyframes nature-peek {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(2px, 0, 0) rotate(0.3deg);
+  }
+}
+
+@keyframes nature-perch {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -1.5px, 0);
+  }
+}
+
+@keyframes nature-bush-sway {
+  0%, 100% {
+    transform: rotate(-0.8deg);
+  }
+
+  50% {
+    transform: rotate(0.8deg);
+  }
+}
+
+@keyframes nature-cloud-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(16px, 0, 0);
+  }
+}
+
+@keyframes nature-leaf-drift {
+  from {
+    opacity: 0.7;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  to {
+    opacity: 0.15;
+    transform: translate3d(10px, 18px, 0) rotate(12deg);
+  }
+}
+
+@keyframes nature-firefly {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translate3d(2px, -3px, 0);
+  }
+}
+
+@keyframes nature-bear-steam {
+  0%, 100% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes nature-owl-lantern-glow {
+  0%, 100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.nature-bush--sway {
+  transform-origin: 50% 100%;
+}
+
+.nature-mascot--steam {
+  position: relative;
+  overflow: visible;
+}
+
+.nature-mascot--steam::before,
+.nature-mascot--steam::after {
+  position: absolute;
+  z-index: 1;
+  top: 36%;
+  width: 3px;
+  height: 13%;
+  content: '';
+  border-left: 2px solid color-mix(in srgb, var(--nature-surface) 76%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nature-mascot--steam::before {
+  left: 47%;
+}
+
+.nature-mascot--steam::after {
+  left: 53%;
+  --nature-bear-steam-delay: -2.4s;
+}
+
+.nature-owl--lantern-glow {
+  isolation: isolate;
+  overflow: visible;
+}
+
+.nature-owl--lantern-glow::before {
+  position: absolute;
+  z-index: 0;
+  top: 62%;
+  left: 52%;
+  width: 62%;
+  height: 50%;
+  content: '';
+  background: radial-gradient(circle, color-mix(in srgb, var(--nature-amber) 54%, transparent) 0%, color-mix(in srgb, var(--nature-amber) 18%, transparent) 45%, transparent 72%);
+  border-radius: 50%;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.nature-owl--lantern-glow img {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nature-mascot-motion-float img {
+    animation: nature-float 6.2s ease-in-out infinite;
+  }
+
+  .nature-mascot-motion-breathe img {
+    animation: nature-breathe 5.2s ease-in-out infinite;
+  }
+
+  .nature-mascot-motion-study img {
+    animation: nature-study 7s ease-in-out infinite;
+  }
+
+  .nature-mascot-motion-focus img {
+    animation: nature-focus 5.6s ease-in-out infinite;
+  }
+
+  .nature-mascot-motion-observe img {
+    animation: nature-observe 8s ease-in-out infinite;
+  }
+
+  .nature-mascot-motion-peek img {
+    animation: nature-peek 5.8s ease-in-out infinite;
+  }
+
+  .nature-mascot-motion-perch img {
+    animation: nature-perch 6.5s ease-in-out infinite;
+  }
+
+  .nature-bush--sway {
+    animation: nature-bush-sway 4.8s ease-in-out infinite;
+  }
+
+  .nature-cloud--drift {
+    animation: nature-cloud-drift 32s ease-in-out infinite alternate;
+  }
+
+  .nature-leaf--drift {
+    animation: nature-leaf-drift var(--nature-leaf-drift-duration, 14s) ease-in-out infinite;
+  }
+
+  .nature-firefly {
+    animation: nature-firefly var(--nature-firefly-duration, 8s) ease-in-out infinite;
+  }
+
+  .nature-mascot--steam::before,
+  .nature-mascot--steam::after {
+    animation: nature-bear-steam 4.8s ease-in-out var(--nature-bear-steam-delay, 0s) infinite;
+  }
+
+  .nature-owl--lantern-glow::before {
+    animation: nature-owl-lantern-glow 5s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nature-mascot-motion-float img,
+  .nature-mascot-motion-breathe img,
+  .nature-mascot-motion-study img,
+  .nature-mascot-motion-focus img,
+  .nature-mascot-motion-observe img,
+  .nature-mascot-motion-peek img,
+  .nature-mascot-motion-perch img,
+  .nature-bush--sway,
+  .nature-cloud--drift,
+  .nature-leaf--drift,
+  .nature-firefly,
+  .nature-mascot--steam::before,
+  .nature-mascot--steam::after,
+  .nature-owl--lantern-glow::before {
+    animation: none;
+    transform: none;
+  }
+}

@@ -10,6 +10,11 @@
 .ai-coach-heading-actions { position: absolute; z-index: 4; top: 14px; right: 14px; display: flex; align-items: center; gap: 8px; }
 .ai-coach-heading-scene { position: relative; z-index: 1; align-self: stretch; width: 196px; height: 118px; justify-self: end; }
 .ai-coach-heading-moon { position: absolute; top: 3px; right: 39px; width: 36px; height: 36px; background: var(--nature-sand); border: 2px solid color-mix(in srgb, var(--nature-surface) 26%, transparent); border-radius: 50%; box-shadow: 0 0 0 8px color-mix(in srgb, var(--nature-sand) 11%, transparent); }
+.ai-coach-fireflies { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.ai-coach-fireflies .nature-firefly { position: absolute; width: 4px; height: 4px; background: var(--nature-sand); border-radius: 50%; box-shadow: 0 0 7px color-mix(in srgb, var(--nature-amber) 75%, transparent); }
+.ai-coach-firefly-one { top: 23px; left: 40px; --nature-firefly-duration: 7.8s; }
+.ai-coach-fireflies .ai-coach-firefly-two { top: 47px; right: 20px; width: 3px; height: 3px; --nature-firefly-duration: 9.2s; animation-delay: -2.8s; }
+.ai-coach-firefly-three { right: 63px; bottom: 28px; --nature-firefly-duration: 8.6s; animation-delay: -5.1s; }
 .ai-coach-heading-branch { position: absolute; right: -15px; bottom: 20px; width: 150px; height: 7px; background: var(--nature-bark); border-radius: 999px; opacity: .92; transform: rotate(-8deg); }
 .ai-coach-heading-branch::before, .ai-coach-heading-branch::after { position: absolute; width: 17px; height: 8px; content: ''; background: var(--nature-sage); border-radius: 100% 0 100% 0; }
 .ai-coach-heading-branch::before { top: -10px; left: 42px; box-shadow: 25px -7px 0 var(--nature-moss), 52px -2px 0 var(--nature-sage); transform: rotate(-16deg); }
