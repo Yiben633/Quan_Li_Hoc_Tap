@@ -37,11 +37,6 @@
   font: 700 31px/1.2 'Plus Jakarta Sans', sans-serif;
 }
 
-.dashboard-hero h1 svg {
-  flex: 0 0 auto;
-  color: var(--nature-primary);
-}
-
 .dashboard-hero-content > p:not(.dashboard-hero-eyebrow) {
   margin: 10px 0 0;
   color: var(--nature-text-secondary);
