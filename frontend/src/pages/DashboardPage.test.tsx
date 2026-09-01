@@ -156,6 +156,7 @@ describe('DashboardPage data states', () => {
     expect(screen.getByText('Subject 1')).toBeInTheDocument()
     expect(screen.getByText('Subject 4')).toBeInTheDocument()
     expect(screen.queryByText('Subject 5')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Tiến độ công việc')).toHaveLength(4)
     expect(screen.getByText('40%')).toBeInTheDocument()
   })
 
@@ -164,7 +165,7 @@ describe('DashboardPage data states', () => {
     renderDashboard()
 
     expect(screen.getByText('AI Coach chưa khả dụng trong môi trường này.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Lập kế hoạch cùng AI' })).toHaveAttribute('href', '/ai-coach')
+    expect(screen.getByRole('link', { name: 'Mở kế hoạch' })).toHaveAttribute('href', '/study-plans')
     expect(screen.queryByText(/AI gợi ý/i)).not.toBeInTheDocument()
   })
 })

@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Check, CheckSquare, Clock3, Flame, ListTodo, Plus, Sparkles, Target, TrendingUp } from 'lucide-react'
+import { ArrowUpRight, BookOpen, CalendarDays, Check, CheckSquare, Clock3, Flame, ListTodo, Plus, Sparkles, Target, type LucideIcon } from 'lucide-react'
 import { Area, AreaChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
 import { ChartLegend, EmptyState, ErrorState, Skeleton, Tabs } from '../components/ui'
@@ -22,6 +22,17 @@ import { DashboardNextTasksPanel } from '../features/dashboard/DashboardNextTask
 import { getNextTaskScore } from '../utils/nextTask'
 
 type Range = 'week' | 'month'
+
+type DashboardSummaryMetricTone = 'pine' | 'sage' | 'moss' | 'amber'
+
+const dashboardSummaryMetricMetadata = {
+  tasksRemaining: { icon: CalendarDays, tone: 'pine' },
+  studyTime: { icon: Clock3, tone: 'sage' },
+  weeklyProgress: { icon: CalendarDays, tone: 'moss' },
+  streak: { icon: Flame, tone: 'amber' },
+} as const satisfies Record<string, { icon: LucideIcon; tone: DashboardSummaryMetricTone }>
+
+type DashboardSummaryMetricKind = keyof typeof dashboardSummaryMetricMetadata
 
 export function DashboardPage() {
   const user = useAuthStore((state) => state.user)
@@ -57,32 +68,32 @@ export function DashboardPage() {
 
       {!hasData && <section className="panel dashboard-welcome"><EmptyState icon={<Target size={24} />} title="Bắt đầu xây dựng nhịp của bạn" description="Tạo một việc hoặc một kế hoạch nhỏ. Bạn luôn có thể thêm môn học sau." action={<div className="quick-actions"><Link className="button primary" to="/tasks"><Plus size={16} /> Tạo việc đầu tiên</Link><Link className="button secondary" to="/study-plans"><Plus size={16} /> Tạo kế hoạch</Link></div>} /></section>}
 
-      <DashboardTodaySummary
-        tasksRemaining={todayTasksRemaining}
-        studyMinutes={todayStudy.isLoading ? undefined : todayStudy.isError ? null : todayStudy.data?.totalMinutes ?? 0}
-        weeklyTasksDone={weeklyProgress.isLoading ? undefined : weeklyProgress.isError ? null : weeklyTasksDone ?? 0}
-        streak={streakChart.isLoading ? undefined : streakChart.isError ? null : streak ?? 0}
-      />
-
-      <div className="dashboard-architecture-grid dashboard-priority-grid">
-        <TodayTaskList tasks={todayTaskItems} loading={todayTasks.isLoading || overdueTasks.isLoading} error={todayTasks.isError || overdueTasks.isError} onRetry={() => { void todayTasks.refetch(); void overdueTasks.refetch() }} onStatusChange={(id, status) => taskStatus.mutate({ id, status })} />
+      <div className="dashboard-architecture-grid dashboard-overview-grid">
+        <DashboardTodaySummary
+          tasksRemaining={todayTasksRemaining}
+          studyMinutes={todayStudy.isLoading ? undefined : todayStudy.isError ? null : todayStudy.data?.totalMinutes ?? 0}
+          weeklyTasksDone={weeklyProgress.isLoading ? undefined : weeklyProgress.isError ? null : weeklyTasksDone ?? 0}
+          streak={streakChart.isLoading ? undefined : streakChart.isError ? null : streak ?? 0}
+        />
+        <ActiveSubjectsPanel subjects={data.activeSubjects} />
         <DashboardPomodoroCard />
+      </div>
+
+      <div className="dashboard-architecture-grid dashboard-schedule-grid">
+        <TodayTaskList tasks={todayTaskItems} loading={todayTasks.isLoading || overdueTasks.isLoading} error={todayTasks.isError || overdueTasks.isError} onRetry={() => { void todayTasks.refetch(); void overdueTasks.refetch() }} onStatusChange={(id, status) => taskStatus.mutate({ id, status })} />
         <DashboardWeeklyCalendar />
       </div>
 
       <div className="dashboard-architecture-grid dashboard-progress-grid">
-        <ActivePlansPanel plan={plans.data?.items[0]} loading={plans.isLoading} error={plans.isError} onRetry={() => plans.refetch()} />
         <section className="panel progress-panel dashboard-weekly-activity">
           <div className="panel-heading"><div><h2>Hoạt động tuần</h2><p className="subtle">Thời gian tập trung và việc đã hoàn thành</p></div><Tabs value={range} onChange={setRange} items={[{ value: 'week', label: 'Tuần' }, { value: 'month', label: 'Tháng' }]} /></div>
           {chart.isLoading ? <ChartSkeleton /> : chart.isError ? <InlineError onRetry={() => chart.refetch()} /> : chartData.length ? <><ChartLegend items={[{ label: 'Tập trung', tone: 'pine' }, { label: 'Hoàn thành', tone: 'moss' }]} /><div className="chart-wrap dashboard-activity-chart"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chartData} margin={{ top: 8, right: 6, bottom: 0, left: 0 }}><defs><linearGradient id="studyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--nature-pine)" stopOpacity={0.28} /><stop offset="100%" stopColor="var(--nature-pine)" stopOpacity={0} /></linearGradient></defs><XAxis dataKey="label" interval={range === 'week' ? 0 : 1} minTickGap={range === 'week' ? 0 : 8} axisLine={false} tickLine={false} tick={{ fill: 'var(--nature-text-muted)', fontSize: range === 'week' ? 11 : 10 }} /><YAxis hide /><Tooltip content={<WeeklyActivityTooltip />} cursor={{ stroke: 'var(--nature-sage)', strokeDasharray: '3 3' }} /><Area name="Tập trung" type="monotone" dataKey="studyMinutes" stroke="var(--nature-pine)" strokeWidth={2.5} fill="url(#studyFill)" /><Line name="Hoàn thành" type="monotone" dataKey="taskDone" stroke="var(--nature-moss)" strokeWidth={2.5} dot={{ r: 3, fill: 'var(--nature-moss)', strokeWidth: 0 }} activeDot={{ r: 5, fill: 'var(--nature-sand)', stroke: 'var(--nature-moss)', strokeWidth: 2 }} /></AreaChart></ResponsiveContainer></div><ActivityHeatmap points={chart.data?.points ?? []} /></> : <EmptyState title="Chưa có dữ liệu tiến độ" description="Thời gian học và việc hoàn thành sẽ xuất hiện ở đây." />}
         </section>
+        <DashboardNextTasksPanel />
+        <ActivePlansPanel plan={plans.data?.items[0]} loading={plans.isLoading} error={plans.isError} onRetry={() => plans.refetch()} />
       </div>
 
-      <div className="dashboard-architecture-grid dashboard-bottom-grid">
-        <ActiveSubjectsPanel subjects={data.activeSubjects} />
-        <DashboardNextTasksPanel />
-        <AICoachPanel briefing={data.dailyBriefing} available={aiFeaturesEnabled} />
-      </div>
+      <AICoachPanel briefing={data.dailyBriefing} available={aiFeaturesEnabled} />
     </div>
   )
 }
@@ -155,13 +166,23 @@ function DashboardPlanCard({ plan }: { plan: StudyPlan }) {
   </article>
 }
 
+function getReliableTaskProgress(progress: DashboardSubject['taskProgress']) {
+  if (!progress || !Number.isFinite(progress.taskTotal) || !Number.isFinite(progress.taskDone) || progress.taskTotal <= 0 || progress.taskDone < 0 || progress.taskDone > progress.taskTotal) return null
+
+  return {
+    taskDone: progress.taskDone,
+    taskTotal: progress.taskTotal,
+    progressPercent: Math.round((progress.taskDone / progress.taskTotal) * 100),
+  }
+}
+
 function ActiveSubjectsPanel({ subjects }: { subjects: DashboardSubject[] }) {
   return <section className="panel dashboard-subjects-panel"><div className="panel-heading"><div><h2>Môn học đang học</h2><p className="subtle">Các không gian bạn đang duy trì</p></div><Link className="text-link" to="/subjects">Xem tất cả <ArrowUpRight size={15} /></Link></div>{subjects.length ? <div className="dashboard-subject-list">{subjects.slice(0, 4).map((subject) => {
-    const progress = subject.taskProgress
+    const progress = getReliableTaskProgress(subject.taskProgress)
     const accent = { '--subject-accent': subject.colorHex ?? 'var(--nature-sage)' } as React.CSSProperties
     return <Link className="dashboard-subject-row" key={subject.id} to={`/subjects/${subject.id}`} style={accent}>
       <span className="dashboard-subject-icon" aria-hidden="true"><BookOpen size={15} /></span>
-      <span className="dashboard-subject-copy"><strong>{subject.name}</strong><small>{subject.code ?? 'Đang học'}</small>{progress && <span className="dashboard-subject-progress" aria-label={`${progress.taskDone}/${progress.taskTotal} công việc hoàn thành, ${progress.progressPercent}% tiến độ`}><span><i style={{ width: `${progress.progressPercent}%` }} /></span><b>{progress.progressPercent}%</b></span>}</span>
+      <span className="dashboard-subject-copy"><strong>{subject.name}</strong><small>{subject.code ?? 'Đang học'}</small>{progress && <small className="dashboard-subject-progress-label">Tiến độ công việc</small>}{progress && <span className="dashboard-subject-progress" aria-label={`Tiến độ công việc: ${progress.taskDone}/${progress.taskTotal} công việc hoàn thành, ${progress.progressPercent}%`}><span><i style={{ width: `${progress.progressPercent}%` }} /></span><b>{progress.progressPercent}%</b></span>}</span>
     </Link>
   })}</div> : <EmptyState icon={<BookOpen size={22} />} title="Chưa có môn học đang theo dõi" description="Thêm môn học để theo dõi tiến độ tại đây." action={<Link className="button secondary" to="/subjects"><Plus size={15} /> Thêm môn học</Link>} />}</section>
 }
@@ -171,26 +192,46 @@ function AICoachPanel({ briefing, available }: { briefing?: DashboardSummary['da
     briefing.dueTodayCount > 0 ? `Hôm nay có ${briefing.dueTodayCount} công việc đến hạn.` : briefing.openTaskCount > 0 ? `Có ${briefing.openTaskCount} công việc chưa hoàn thành.` : 'Chưa có công việc đang mở.',
     briefing.availableSlot ? `Khoảng trống kế tiếp: ${briefing.availableSlot.startTime} - ${briefing.availableSlot.endTime}.` : null,
   ].filter((fact): fact is string => Boolean(fact)) : []
+  const action = available
+    ? { icon: Sparkles, label: 'Lập kế hoạch cùng AI', to: '/ai-coach' }
+    : { icon: CalendarDays, label: 'Mở kế hoạch', to: '/study-plans' }
+  const ActionIcon = action.icon
 
-  return <section className="panel dashboard-ai-panel"><div className="panel-heading"><div><p className="dashboard-ai-kicker">AI COACH</p><h2>Lập kế hoạch cùng AI</h2></div><Sparkles size={20} className="panel-icon" /></div><div className="dashboard-ai-content"><div className="dashboard-ai-copy">{available && briefingFacts.length > 0 ? <div className="dashboard-ai-briefing">{briefingFacts.map((fact) => <p key={fact}>{fact}</p>)}</div> : <p>{available ? 'Mở AI Coach để lập kế hoạch từ công việc và lịch học của bạn.' : 'AI Coach chưa khả dụng trong môi trường này.'}</p>}<Link className="button secondary dashboard-ai-action" to="/ai-coach"><Sparkles size={15} /> Lập kế hoạch cùng AI</Link></div></div></section>
+  return (
+    <section className="panel dashboard-ai-panel">
+      <div className="panel-heading">
+        <div><p className="dashboard-ai-kicker">AI COACH</p><h2>Lập kế hoạch cùng AI</h2></div>
+        <Sparkles size={20} className="panel-icon" />
+      </div>
+      <div className="dashboard-ai-content">
+        <div className="dashboard-ai-copy">
+          {available && briefingFacts.length > 0
+            ? <div className="dashboard-ai-briefing">{briefingFacts.map((fact) => <p key={fact}>{fact}</p>)}</div>
+            : <p>{available ? 'Mở AI Coach để lập kế hoạch từ công việc và lịch học của bạn.' : 'AI Coach chưa khả dụng trong môi trường này.'}</p>}
+          <Link className="button secondary dashboard-ai-action" to={action.to}><ActionIcon size={15} /> {action.label}</Link>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 function DashboardTodaySummary({ tasksRemaining, studyMinutes, weeklyTasksDone, streak }: { tasksRemaining: number; studyMinutes: number | null | undefined; weeklyTasksDone: number | null | undefined; streak: number | null | undefined }) {
   return <section className="panel dashboard-today-summary" aria-labelledby="dashboard-today-summary-title">
     <header><p className="eyebrow">HÔM NAY - TÓM TẮT</p><h2 id="dashboard-today-summary-title">Nhịp học của bạn</h2></header>
     <div className="dashboard-today-summary-grid">
-      <DashboardSummaryMetric icon={<CheckSquare size={17} />} label="Công việc còn lại" value={tasksRemaining} detail="Đến hạn hôm nay" tone="pine" />
-      <DashboardSummaryMetric icon={<Clock3 size={17} />} label="Thời gian học" value={studyMinutes} format={formatStudyMinutes} detail="Đã ghi nhận hôm nay" tone="sage" />
-      <DashboardSummaryMetric icon={<TrendingUp size={17} />} label="Tiến độ tuần" value={weeklyTasksDone} format={(value) => `${value} việc`} detail="Đã hoàn thành" tone="moss" />
-      <DashboardSummaryMetric icon={<Flame size={17} />} label="Chuỗi học" value={streak} format={(value) => `${value} ngày`} detail="Ngày liên tiếp" tone="amber" />
+      <DashboardSummaryMetric metric="tasksRemaining" label="Công việc còn lại" value={tasksRemaining} detail="Đến hạn hôm nay" />
+      <DashboardSummaryMetric metric="studyTime" label="Thời gian học" value={studyMinutes} format={formatStudyMinutes} detail="Đã ghi nhận hôm nay" />
+      <DashboardSummaryMetric metric="weeklyProgress" label="Tiến độ tuần" value={weeklyTasksDone} format={(value) => `${value} việc`} detail="Đã hoàn thành" />
+      <DashboardSummaryMetric metric="streak" label="Chuỗi học" value={streak} format={(value) => `${value} ngày`} detail="Ngày liên tiếp" />
     </div>
   </section>
 }
 
-function DashboardSummaryMetric({ icon, label, value, format = String, detail, tone }: { icon: React.ReactNode; label: string; value: number | null | undefined; format?: (value: number) => string; detail: string; tone: 'pine' | 'sage' | 'moss' | 'amber' }) {
+function DashboardSummaryMetric({ metric, label, value, format = String, detail }: { metric: DashboardSummaryMetricKind; label: string; value: number | null | undefined; format?: (value: number) => string; detail: string }) {
   const unavailable = value === null
+  const { icon: Icon, tone } = dashboardSummaryMetricMetadata[metric]
   return <article className={`dashboard-summary-metric tone-${tone}`}>
-    <span className="dashboard-summary-icon" aria-hidden="true">{icon}</span>
+    <span className="dashboard-summary-icon" aria-hidden="true"><Icon size={17} /></span>
     <span className="dashboard-summary-label">{label}</span>
     {value === undefined ? <Skeleton width={54} height={22} /> : <strong aria-label={unavailable ? `${label} chưa thể tải` : undefined}>{unavailable ? '—' : format(value)}</strong>}
     <small>{unavailable ? 'Chưa thể tải dữ liệu' : detail}</small>
@@ -231,4 +272,18 @@ function formatChartDate(date: string, range: Range) { const [year, month, day] 
 function ChartSkeleton() { return <div className="chart-wrap chart-skeleton"><Skeleton height="100%" /></div> }
 function InlineError({ onRetry }: { onRetry: () => void }) { return <ErrorState compact title="Không thể tải biểu đồ tiến độ." action={<button className="button secondary" onClick={onRetry}>Thử lại</button>} /> }
 function DashboardError({ onRetry }: { onRetry: () => void }) { return <div className="empty-page"><ErrorState title="Không thể tải dashboard." action={<button className="button primary" onClick={onRetry}>Thử lại</button>} /></div> }
-function DashboardSkeleton() { return <div className="dashboard"><section className="dashboard-hero dashboard-hero-skeleton"><div className="dashboard-hero-content"><Skeleton width={180} height={12} /><Skeleton width={300} height={36} className="skeleton-heading" /><Skeleton width={250} height={16} /><div className="dashboard-hero-actions"><Skeleton width={142} height={40} /><Skeleton width={174} height={40} /></div></div></section><section className="panel dashboard-today-summary dashboard-today-summary-skeleton"><Skeleton width={160} height={13} /><div>{[1, 2, 3, 4].map((item) => <Skeleton key={item} height={78} />)}</div></section><div className="dashboard-grid"><section className="panel"><Skeleton height={280} /></section><section className="panel"><Skeleton height={280} /></section></div></div> }
+function DashboardSkeleton() {
+  return (
+    <div className="dashboard">
+      <section className="dashboard-hero dashboard-hero-skeleton"><div className="dashboard-hero-content"><Skeleton width={180} height={12} /><Skeleton width={300} height={36} className="skeleton-heading" /><Skeleton width={250} height={16} /><div className="dashboard-hero-actions"><Skeleton width={142} height={40} /><Skeleton width={174} height={40} /></div></div></section>
+      <div className="dashboard-architecture-grid dashboard-overview-grid">
+        <section className="panel dashboard-today-summary dashboard-today-summary-skeleton"><Skeleton width={160} height={13} /><div>{[1, 2, 3, 4].map((item) => <Skeleton key={item} height={78} />)}</div></section>
+        <section className="panel dashboard-subjects-panel"><Skeleton height={238} /></section>
+        <section className="panel dashboard-pomodoro-card"><Skeleton height={238} /></section>
+      </div>
+      <div className="dashboard-architecture-grid dashboard-schedule-grid"><section className="panel dashboard-today-tasks"><Skeleton height={310} /></section><section className="panel dashboard-weekly-calendar"><Skeleton height={310} /></section></div>
+      <div className="dashboard-architecture-grid dashboard-progress-grid"><section className="panel dashboard-weekly-activity"><Skeleton height={300} /></section><section className="panel dashboard-next-tasks-panel"><Skeleton height={300} /></section><section className="panel dashboard-plans-panel"><Skeleton height={300} /></section></div>
+      <section className="panel dashboard-ai-panel"><Skeleton height={238} /></section>
+    </div>
+  )
+}
