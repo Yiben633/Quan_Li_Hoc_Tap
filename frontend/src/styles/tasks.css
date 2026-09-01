@@ -6,7 +6,6 @@
 .tasks-heading-accent { position: absolute; top: 0; right: 3px; display: grid; width: 53px; height: 34px; color: var(--nature-moss); pointer-events: none; }
 .tasks-heading-accent i { position: absolute; top: 17px; right: 5px; width: 43px; height: 1px; background: var(--nature-sage); border-radius: 999px; transform: rotate(-31deg); transform-origin: right center; }
 .tasks-heading-accent::after { position: absolute; top: 15px; right: 26px; width: 12px; height: 1px; background: var(--nature-sage); border-radius: 999px; content: ''; transform: rotate(54deg); transform-origin: left center; }
-.tasks-heading-accent svg { position: absolute; top: 0; right: 0; transform: rotate(-18deg); }
 .tasks-heading-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
 .task-scope-tabs { display: flex; flex-wrap: wrap; gap: 3px; width: fit-content; padding: 4px; background: var(--nature-bg-warm); border: 1px solid var(--nature-border); border-radius: 8px; }
 .task-scope-tabs button { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 0 11px; color: var(--nature-text-secondary); background: transparent; border: 1px solid transparent; border-radius: 6px; font-size: 12px; font-weight: 700; }
@@ -83,7 +82,6 @@
 .task-row-context { display: flex; align-items: center; gap: 4px; color: var(--nature-text-secondary); font-weight: 600; }
 .task-row-context a { display: inline-flex; align-items: center; gap: 5px; color: inherit; text-decoration: none; }
 .task-row-context a:hover, .task-row-context a:focus-visible { color: var(--nature-primary); text-decoration: underline; text-underline-offset: 2px; }
-.task-context-leaf { flex: 0 0 auto; color: var(--nature-moss); opacity: .72; }
 .task-subject-dot { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; box-shadow: 0 0 0 2px var(--nature-surface); }
 .task-deadline-overdue { color: var(--orange); font-weight: 700; }
 .task-row-progress { display: grid; grid-template-columns: auto minmax(80px, 150px) auto; align-items: center; gap: 8px; margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 700; }

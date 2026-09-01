@@ -1,4 +1,4 @@
-import { Check, CheckSquare, Leaf, ListFilter, Play, Plus, Search, Trash2, X } from 'lucide-react'
+import { Check, CheckSquare, ListFilter, Play, Plus, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -199,7 +199,7 @@ export function TasksPage() {
 
   return <div className="tasks-page">
     <div className="page-heading tasks-heading">
-      <div className="tasks-heading-copy"><h1>CÔNG VIỆC</h1><p className="subtle">Từng bước nhỏ cho một hành trình dài.</p><span className="tasks-heading-accent" aria-hidden="true"><i /><Leaf size={17} /></span></div>
+      <div className="tasks-heading-copy"><h1>CÔNG VIỆC</h1><p className="subtle">Từng bước nhỏ cho một hành trình dài.</p><span className="tasks-heading-accent" aria-hidden="true"><i /></span></div>
       <div className="tasks-heading-actions">
         <Button variant="secondary" onClick={() => selectionMode ? exitSelectionMode() : setSelectionMode(true)}><CheckSquare size={16} /> {selectionMode ? 'Thoát chọn' : 'Chọn nhiều'}</Button>
         <Button onClick={() => setCreateOpen(true)}><Plus size={16} /> Tạo công việc</Button>

@@ -317,7 +317,7 @@
 .flashcards-tabs .tabs button { display: inline-flex; align-items: center; gap: 7px; }
 .flashcard-set-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 340px)); gap: 16px; }
 .flashcard-set-card { display: grid; align-content: space-between; gap: 22px; min-height: 220px; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
-.flashcard-set-card:hover { border-color: rgba(56,103,232,.38); box-shadow: 0 8px 24px rgba(27,42,77,.07); }
+.flashcard-set-card:hover { border-color: var(--nature-sage); box-shadow: var(--nature-shadow-md); }
 .flashcard-set-card-head,
 .flashcard-set-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .flashcard-set-icon { display: grid; place-items: center; width: 38px; height: 38px; color: var(--green); background: var(--green-soft); border-radius: 7px; }
@@ -353,8 +353,8 @@
 .review-shell { display: grid; justify-items: center; gap: 18px; width: min(100%, 720px); margin: 0 auto; }
 .review-progress { display: flex; justify-content: space-between; width: 100%; color: var(--muted); font-size: 11px; }
 .review-progress strong { color: var(--ink); }
-.review-card { display: grid; place-items: center; align-content: center; gap: 18px; width: 100%; min-height: 360px; padding: 32px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 8px; text-align: center; box-shadow: 0 14px 35px rgba(25,39,73,.08); }
-.review-card:hover { border-color: rgba(56,103,232,.5); border-top-color: var(--blue); }
+.review-card { display: grid; place-items: center; align-content: center; gap: 18px; width: 100%; min-height: 360px; padding: 32px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: var(--nature-radius-card); text-align: center; box-shadow: var(--nature-shadow-sm); }
+.review-card:hover { border-color: var(--nature-sage); border-top-color: var(--blue); }
 .review-card > small { color: var(--blue); font-size: 10px; font-weight: 800; text-transform: uppercase; }
 .review-card > strong { max-width: 620px; font: 700 25px 'Plus Jakarta Sans', sans-serif; line-height: 1.4; }
 .review-card > div { width: min(100%, 590px); padding-top: 19px; border-top: 1px solid var(--line); }

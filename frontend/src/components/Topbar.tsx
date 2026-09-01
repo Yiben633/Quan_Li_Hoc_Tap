@@ -1,4 +1,4 @@
-import { Bell, Leaf, Menu, Search } from 'lucide-react'
+import { Bell, Menu, Search } from 'lucide-react'
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { notificationRoute, type NotificationItem } from '../features/notifications/notifications.api'
@@ -62,7 +62,7 @@ export function Topbar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boo
       {contextualSearch && <><form className="topbar-search" role="search" onSubmit={submitContextualSearch}>
         <Search size={17} aria-hidden="true" />
         <input value={contextualQuery} onChange={(event) => setContextualQuery(event.target.value)} placeholder={contextualSearch.placeholder} aria-label={contextualSearch.label} />
-      </form><span className="topbar-leaf-divider" aria-hidden="true"><Leaf size={14} /></span></>}
+      </form></>}
       <div className="topbar-actions">
         <ThemeToggle />
         <Dropdown ariaLabel="Thông báo" label={<span className="notification-button"><Bell size={18} />{unread > 0 && <span className="notification-dot" />}</span>}>

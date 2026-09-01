@@ -1,4 +1,4 @@
-import { CalendarDays, Leaf, List, ListTodo, Moon } from 'lucide-react'
+import { BookOpen, CalendarDays, Clock3, List, ListTodo, TriangleAlert } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -24,10 +24,10 @@ import { useTopicsQuery } from '../features/learning/learning.hooks'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 
 const promptSuggestions: StarterPrompt[] = [
-  { label: 'Hôm nay nên học gì?', icon: Leaf, tone: 'leaf' },
+  { label: 'Hôm nay nên học gì?', icon: BookOpen, tone: 'leaf' },
   { label: 'Lập kế hoạch tuần này', icon: CalendarDays, tone: 'plan' },
   { label: 'Sắp xếp việc quá hạn', icon: ListTodo, tone: 'overdue' },
-  { label: 'Tôi có 2 tiếng tối nay', icon: Moon, tone: 'evening' },
+  { label: 'Tôi có 2 tiếng tối nay', icon: Clock3, tone: 'evening' },
 ]
 
 type PendingMessage = Pick<CoachMessage, 'id' | 'role' | 'content'>
@@ -343,7 +343,7 @@ export function AICoachPage() {
             {streamingAssistantText && <ChatMessage message={{ id: 'assistant-streaming', role: 'assistant', content: streamingAssistantText }} pending={streamChat.isPending} />}
             {showTypingIndicator && <div className="ai-coach-typing" role="status"><NatureMascot animal="owl" size={38} frameDurationMs={900} /><span>AI Coach đang sắp xếp...</span></div>}
             {showProviderUnavailable && <section className="ai-coach-unavailable" role="alert">
-              <Leaf size={18} aria-hidden="true" />
+              <TriangleAlert size={18} aria-hidden="true" />
               <div>
                 <strong>Trợ lý AI đang tạm thời không phản hồi.</strong>
                 <p>Bạn vẫn có thể tiếp tục sắp xếp việc học trong StudyFlow.</p>

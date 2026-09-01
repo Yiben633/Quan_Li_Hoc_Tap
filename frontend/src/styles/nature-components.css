@@ -188,10 +188,7 @@
   border-radius: 0;
 }
 
-.error-state-leaf {
-  opacity: .72;
-  transform: rotate(-20deg);
-}
+.error-state-icon { color: var(--nature-danger); }
 
 .empty-state.error-state h3 {
   color: var(--nature-text);
@@ -225,7 +222,7 @@
   color: var(--nature-surface);
   background: var(--nature-primary);
   border-color: var(--nature-primary);
-  border-radius: 8px;
+  border-radius: var(--nature-radius-control);
   box-shadow: var(--nature-shadow-sm);
 }
 
@@ -295,7 +292,7 @@
   color: var(--nature-text);
   background: var(--nature-surface);
   border-color: var(--nature-border-strong);
-  border-radius: 8px;
+  border-radius: var(--nature-radius-control);
 }
 
 .field input::placeholder,
@@ -355,7 +352,7 @@
 .dropdown-menu {
   background: var(--nature-surface);
   border-color: var(--nature-border-strong);
-  border-radius: 8px;
+  border-radius: var(--nature-radius-menu);
   box-shadow: var(--nature-shadow-md);
 }
 
@@ -412,7 +409,7 @@
   padding: 4px;
   background: var(--nature-bg-warm);
   border: 1px solid var(--nature-border);
-  border-radius: 8px;
+  border-radius: var(--nature-radius-menu);
 }
 
 .tabs button {
@@ -476,11 +473,10 @@
 
 .panel,
 .stat-card,
-.modal,
-.drawer {
+.modal {
   background: var(--nature-surface);
   border-color: var(--nature-border);
-  border-radius: 8px;
+  border-radius: var(--nature-radius-card);
   box-shadow: var(--nature-shadow-sm);
 }
 
@@ -499,8 +495,23 @@
   box-shadow: var(--nature-shadow-md);
 }
 
+.modal { border-radius: 16px; }
+
 .drawer {
+  background: var(--nature-surface);
   border-radius: 0;
+}
+
+/* Keep the serif accent reserved for the app's most prominent headings. */
+.page-heading h1,
+.dashboard-hero h1,
+.plan-detail-hero h1,
+.topic-detail-head h1,
+.group-detail-hero h1,
+.ai-coach-heading h1 {
+  font-family: var(--nature-font-editorial);
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .modal-head,
@@ -510,6 +521,67 @@
 
 .modal-foot {
   background: var(--nature-bg-warm);
+}
+
+/* Repeated content cards inherit one quiet edge and elevation treatment. */
+.plan-card,
+.learning-card,
+.topic-card,
+.group-card,
+.document-card,
+.note-card,
+.flashcard-set-card,
+.review-card,
+.statistics-summary article,
+.admin-chart-card,
+.admin-table-section,
+.admin-attention-panel,
+.admin-ai-insight,
+.dashboard-trail-card,
+.ai-coach-heading,
+.ai-coach-shell,
+.ai-coach-plan-draft-card,
+.ai-coach-task-priority,
+.ai-coach-focus-proposal,
+.ai-coach-goal-draft-card,
+.ai-coach-analytics-card,
+.calendar-agenda,
+.kanban-column,
+.task-next-suggestion,
+.bulk-toolbar,
+.notifications-toolbar {
+  border-radius: var(--nature-radius-card);
+  box-shadow: var(--nature-shadow-sm);
+}
+
+.plan-card:hover,
+.learning-card:hover,
+.topic-card:hover,
+.group-card:hover,
+.document-card:hover,
+.flashcard-set-card:hover,
+.review-card:hover {
+  box-shadow: var(--nature-shadow-md);
+}
+
+.task-list-row,
+.kanban-card,
+.topic-task-item,
+.topic-priority-task,
+.topic-plan-preview,
+.invitation-list article,
+.ai-card-preview article {
+  border-radius: var(--nature-radius-control);
+}
+
+.search-field,
+.admin-search,
+.calendar-input-trigger,
+.topic-quick-task input,
+.drawer-subtask-form input,
+.topic-quick-task button {
+  border-color: var(--nature-border-strong);
+  border-radius: var(--nature-radius-control);
 }
 
 [data-theme='dark'] .overlay {

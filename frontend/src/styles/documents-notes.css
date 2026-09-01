@@ -11,7 +11,7 @@
 .document-results.grid { grid-template-columns: repeat(auto-fill, minmax(250px, 320px)); }
 .document-results.list { grid-template-columns: 1fr; }
 .document-card { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: 12px; min-height: 132px; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
-.document-card:hover { border-color: color-mix(in srgb, var(--blue) 45%, var(--line)); box-shadow: 0 8px 18px rgba(20,31,56,.08); transform: translateY(-1px); }
+.document-card:hover { border-color: var(--nature-sage); box-shadow: var(--nature-shadow-md); transform: translateY(-1px); }
 .document-card-list { grid-template-columns: auto minmax(0, 1fr) auto; min-height: 76px; align-items: center; }
 .document-type-icon { display: grid; place-items: center; width: 42px; height: 42px; color: var(--blue); background: var(--blue-soft); border: 1px solid color-mix(in srgb, var(--blue) 18%, var(--line)); border-radius: 8px; }
 .document-type-pdf { color: #cc5660; background: #fff0f1; }.document-type-excel { color: var(--green); background: var(--green-soft); }.document-type-image, .document-type-video { color: var(--violet); background: #f0eeff; }.document-type-code { color: var(--orange); background: var(--orange-soft); }

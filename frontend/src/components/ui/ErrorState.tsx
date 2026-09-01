@@ -1,4 +1,4 @@
-import { Leaf } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { EmptyState } from './EmptyState'
 
@@ -22,7 +22,7 @@ export function ErrorState({
     compact={compact}
     className={className}
     role="alert"
-    icon={<Leaf className="error-state-leaf" size={20} aria-hidden="true" />}
+    icon={<TriangleAlert className="error-state-icon" size={20} aria-hidden="true" />}
     title={title}
     description={description}
     action={action}

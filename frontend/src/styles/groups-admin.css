@@ -21,7 +21,7 @@
 .invitation-list .button { min-height: 34px; }
 .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 360px)); gap: 16px; }
 .group-card { display: grid; align-content: space-between; gap: 22px; min-height: 220px; padding: 19px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
-.group-card:hover { border-color: rgba(56,103,232,.46); box-shadow: 0 10px 25px rgba(24,38,72,.08); transform: translateY(-2px); }
+.group-card:hover { border-color: var(--nature-sage); box-shadow: var(--nature-shadow-md); transform: translateY(-2px); }
 .group-card-head { display: flex; align-items: center; justify-content: space-between; color: var(--muted); }
 .group-card-head span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; color: var(--green); background: var(--green-soft); border-radius: 999px; font-size: 10px; font-weight: 800; }
 .group-card h2 { margin: 0; font-size: 18px; }
@@ -53,8 +53,8 @@
 .group-kanban-column h2 { margin: 0; font-size: 12px; }
 .group-kanban-column > header strong { display: grid; min-width: 25px; height: 25px; place-items: center; color: var(--muted); background: var(--canvas); border-radius: 999px; font-size: 10px; }
 .group-kanban-column > div { display: grid; gap: 9px; }
-.group-task-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: 7px; box-shadow: 0 3px 10px rgba(20,31,56,.04); }
-.group-task-card.is-dragging { z-index: 10; opacity: .72; box-shadow: 0 14px 34px rgba(20,31,56,.2); }
+.group-task-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 12px; background: var(--canvas); border: 1px solid var(--line); border-radius: var(--nature-radius-control); box-shadow: var(--nature-shadow-sm); }
+.group-task-card.is-dragging { z-index: 10; opacity: .72; box-shadow: var(--nature-shadow-md); }
 .group-task-handle { align-self: start; padding: 2px 0; color: var(--muted); background: transparent; border: 0; cursor: grab; }
 .group-task-copy { display: grid; min-width: 0; gap: 6px; }
 .group-task-copy > strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; }

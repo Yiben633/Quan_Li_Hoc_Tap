@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Check, CheckSquare, Clock3, Flame, Leaf, ListTodo, Plus, Sparkles, Sprout, Target, TrendingUp } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Check, CheckSquare, Clock3, Flame, ListTodo, Plus, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { Area, AreaChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Link } from 'react-router-dom'
 import { ChartLegend, EmptyState, ErrorState, Skeleton, Tabs } from '../components/ui'
@@ -94,7 +94,7 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
   return <section className="dashboard-hero">
     <div className="dashboard-hero-content">
       <p className="dashboard-hero-eyebrow">KHÔNG GIAN HỌC TẬP CỦA BẠN</p>
-      <h1>Xin chào, {firstName}!<Leaf size={23} aria-hidden="true" /></h1>
+      <h1>Xin chào, {firstName}!</h1>
       <p>Một ngày mới, một cơ hội để tiến thêm một bước.</p>
       {streak !== null && <div className="dashboard-hero-metrics" aria-label={streak === undefined ? 'Đang tải chuỗi học' : `Chuỗi học hiện tại: ${streak} ngày`}>
         <span className="dashboard-hero-streak-icon"><Flame size={17} aria-hidden="true" /></span>
@@ -143,7 +143,7 @@ function DashboardPlanCard({ plan }: { plan: StudyPlan }) {
 
   return <article className="dashboard-trail-card">
     <div className="dashboard-trail-card-heading"><div><span>{plan.subject?.name ?? 'Kế hoạch cá nhân'}</span><h3><Link to={`/study-plans/${plan.id}`}>{plan.title}</Link></h3></div><strong>{progress}%</strong></div>
-    <div className="dashboard-trail-progress" style={{ '--trail-progress': `${progress}%` } as React.CSSProperties} aria-label={`${progress}% tiến độ`}><span><i /></span><Sprout size={16} aria-hidden="true" /></div>
+    <div className="dashboard-trail-progress" style={{ '--trail-progress': `${progress}%` } as React.CSSProperties} aria-label={`${progress}% tiến độ`}><span><i /></span></div>
     <div className="dashboard-trail-meta"><span className="dashboard-trail-task-count">{taskLabel}</span><span>{deadline}</span></div>
     {planTasksQuery.isLoading ? <div className="dashboard-plan-checklist-skeleton"><Skeleton height={34} /><Skeleton height={34} /><Skeleton height={34} /></div> : planTasksQuery.isError ? <div className="dashboard-plan-checklist-error"><span>Không thể tải checklist.</span><button type="button" onClick={() => planTasksQuery.refetch()}>Thử lại</button></div> : checklistTasks.length ? <ol className="dashboard-plan-checklist">{checklistTasks.map((task) => {
       const taskMeta = [task.estimatedMinutes !== null && task.estimatedMinutes !== undefined ? `${task.estimatedMinutes} phút` : null, formatTaskDeadline(task.dueDate)].filter(Boolean).join(' · ')

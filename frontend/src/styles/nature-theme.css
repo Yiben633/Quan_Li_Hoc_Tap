@@ -1,4 +1,5 @@
 :root {
+  --nature-font-editorial: 'Lora', Georgia, 'Times New Roman', serif;
   --nature-bg: #f2f3eb;
   --nature-bg-warm: #f6f1e6;
   --nature-surface: #fffdf7;
@@ -29,8 +30,11 @@
   --nature-danger: #8f3f3a;
   --nature-danger-soft: #f3d8d4;
   --nature-focus-ring: rgba(69, 107, 82, .24);
-  --nature-shadow-sm: 0 1px 2px rgba(54, 76, 58, .08);
-  --nature-shadow-md: 0 8px 24px rgba(54, 76, 58, .08);
+  --nature-radius-card: 14px;
+  --nature-radius-menu: 12px;
+  --nature-radius-control: 10px;
+  --nature-shadow-sm: 0 1px 2px rgba(54, 76, 58, .06);
+  --nature-shadow-md: 0 6px 18px rgba(54, 76, 58, .1);
 
   --color-bg: var(--nature-bg);
   --color-bg-warm: var(--nature-bg-warm);
@@ -112,8 +116,8 @@
   --nature-danger: #e79a8f;
   --nature-danger-soft: #4a2f2c;
   --nature-focus-ring: rgba(145, 177, 149, .28);
-  --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, .24);
-  --nature-shadow-md: 0 10px 28px rgba(0, 0, 0, .28);
+  --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, .2);
+  --nature-shadow-md: 0 7px 20px rgba(0, 0, 0, .26);
 
   /* Preserve the generic API while moving legacy controls into night forest. */
   --canvas: var(--nature-bg);

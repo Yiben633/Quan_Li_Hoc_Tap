@@ -1,6 +1,6 @@
 import { DndContext, PointerSensor, useDraggable, useDroppable, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
-import { Check, Clock3, GripVertical, Leaf, Plus, Search, Trash2 } from 'lucide-react'
+import { Check, Clock3, GripVertical, Plus, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
@@ -82,7 +82,7 @@ function KanbanColumn({ column, tasks, subjectId }: { column: { status: TaskStat
   }
 
   return <section ref={setNodeRef} className={`kanban-column kanban-${column.status}${isOver ? ' is-over' : ''}`}>
-    <header><div><span className="kanban-column-dot" /><h2>{column.label}</h2>{column.status === 'todo' && <Leaf className="kanban-column-flora" size={14} aria-hidden="true" />}</div><span>{tasks.length}</span></header>
+    <header><div><span className="kanban-column-dot" /><h2>{column.label}</h2></div><span>{tasks.length}</span></header>
     {quickAdd
       ? <form className="kanban-quick-form" onSubmit={(event) => { event.preventDefault(); createQuickTask() }} onPointerDown={(event) => event.stopPropagation()}><input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên công việc..." aria-label="Tên công việc mới" /><button type="submit" onPointerDown={(event) => event.stopPropagation()} disabled={create.isPending}><Check size={15} /></button><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setQuickAdd(false); setTitle('') }} aria-label="Hủy"><span>×</span></button></form>
       : <button className="kanban-quick-add" onClick={() => setQuickAdd(true)}><Plus size={15} /> Thêm nhanh</button>}

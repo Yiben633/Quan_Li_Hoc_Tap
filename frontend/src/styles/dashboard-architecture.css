@@ -640,16 +640,6 @@
   border-radius: inherit;
 }
 
-.dashboard-trail-progress > svg {
-  position: absolute;
-  left: clamp(7px, var(--trail-progress), calc(100% - 7px));
-  padding: 2px;
-  color: var(--nature-moss);
-  background: var(--nature-surface-soft);
-  border-radius: 50%;
-  transform: translateX(-50%);
-}
-
 .dashboard-trail-meta {
   display: flex;
   flex-wrap: wrap;
