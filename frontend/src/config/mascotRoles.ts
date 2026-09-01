@@ -1,0 +1,23 @@
+import type { NatureMotion } from '../components/nature/NatureMascot'
+import type { NatureMascotAnimal } from './natureAssets'
+
+export type MascotRoleDefinition = Readonly<{
+  animal: NatureMascotAnimal
+  motion: NatureMotion
+}>
+
+export const mascotRoles = {
+  dashboard: { animal: 'fox', motion: 'study' },
+  tasks: { animal: 'bunny', motion: 'study' },
+  studyPlans: { animal: 'fox', motion: 'study' },
+  subject: { animal: 'fox', motion: 'study' },
+  pomodoro: { animal: 'bear', motion: 'breathe' },
+  goals: { animal: 'deer', motion: 'breathe' },
+  notes: { animal: 'hedgehog', motion: 'float' },
+  flashcards: { animal: 'hedgehog', motion: 'study' },
+  calendar: { animal: 'robin', motion: 'perch' },
+  groups: { animal: 'raccoon', motion: 'peek' },
+  aiCoach: { animal: 'owl', motion: 'observe' },
+} as const satisfies Record<string, MascotRoleDefinition>
+
+export type MascotRole = keyof typeof mascotRoles
