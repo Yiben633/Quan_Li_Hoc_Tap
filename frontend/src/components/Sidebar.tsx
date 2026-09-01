@@ -9,6 +9,7 @@ import { aiFeaturesEnabled } from '../config/features'
 import { useGroupInvitationsQuery } from '../features/groups/groups.hooks'
 import { natureAssets } from '../config/natureAssets'
 import { useMediaQuery } from '../hooks/useMediaQuery'
+import { useDialogBehavior } from './ui/useDialogBehavior'
 
 type SidebarLink = { to: string; label: string; icon: LucideIcon; invitationCount?: boolean }
 
@@ -51,8 +52,13 @@ export function Sidebar({ open, onClose, collapsed, collapseLocked = false, onTo
   const isCollapsed = collapsed && !isDrawerViewport
   const resourceRouteActive = resourceLinks.some((link) => location.pathname === link.to || location.pathname.startsWith(`${link.to}/`))
   const [resourcesOpen, setResourcesOpen] = useState(resourceRouteActive)
-  const sidebarRef = useRef<HTMLElement>(null)
-  const navigationRef = useRef<HTMLElement>(null)
+  const sidebarRef = useRef<HTMLElement | null>(null)
+  const dialogRef = useDialogBehavior(isDrawerViewport && open, onClose)
+
+  const setSidebarRef = (element: HTMLElement | null) => {
+    sidebarRef.current = element
+    dialogRef.current = element
+  }
 
   useEffect(() => {
     const sidebar = sidebarRef.current
@@ -64,7 +70,6 @@ export function Sidebar({ open, onClose, collapsed, collapseLocked = false, onTo
     }
 
     sidebar.removeAttribute('inert')
-    if (isDrawerViewport && open) navigationRef.current?.querySelector<HTMLAnchorElement>('a[href]')?.focus()
   }, [isDrawerViewport, open])
 
   useEffect(() => {
@@ -75,9 +80,9 @@ export function Sidebar({ open, onClose, collapsed, collapseLocked = false, onTo
     <Icon size={18} aria-hidden="true" /><span>{label}</span>{showsInvitationCount && invitationCount > 0 && <span className="nav-invitation-count" aria-label={`${invitationCount} lời mời đang chờ`}>{invitationCount > 99 ? '99+' : invitationCount}</span>}
   </NavLink>
 
-  return <aside ref={sidebarRef} id="app-navigation" className={`sidebar ${open ? 'sidebar-open' : ''}${isCollapsed ? ' sidebar-collapsed' : ''}${collapseLocked ? ' sidebar-collapse-locked' : ''}`} aria-hidden={isDrawerViewport && !open ? true : undefined}>
+  return <aside ref={setSidebarRef} id="app-navigation" className={`sidebar ${open ? 'sidebar-open' : ''}${isCollapsed ? ' sidebar-collapsed' : ''}${collapseLocked ? ' sidebar-collapse-locked' : ''}`} role={isDrawerViewport ? 'dialog' : undefined} aria-modal={isDrawerViewport && open ? true : undefined} aria-label={isDrawerViewport ? 'Điều hướng chính' : undefined} aria-hidden={isDrawerViewport && !open ? true : undefined}>
     <div className="sidebar-head"><Logo collapsed={isCollapsed} /><button className="icon-button sidebar-collapse-button" onClick={onToggleCollapse} aria-label={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'} aria-controls="app-navigation" aria-expanded={!isCollapsed} title={isCollapsed ? 'Mở rộng thanh điều hướng' : 'Thu gọn thanh điều hướng'}>{isCollapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}</button><button className="icon-button mobile-only" onClick={onClose} aria-label="Đóng menu"><X size={18} /></button></div>
-    <nav ref={navigationRef} className="sidebar-navigation" aria-label="Điều hướng chính">
+    <nav className="sidebar-navigation" aria-label="Điều hướng chính">
       {navigationSections.map((section) => <section className="nav-section" key={section.label} aria-label={section.label}>
         <p className="nav-section-label">{section.label}</p>
         <div className="nav-list">

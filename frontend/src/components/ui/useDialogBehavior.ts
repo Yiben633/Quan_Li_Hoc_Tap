@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 export function useDialogBehavior(open: boolean, onClose: () => void) {
-  const dialogRef = useRef<HTMLElement>(null)
+  const dialogRef = useRef<HTMLElement | null>(null)
   const onCloseRef = useRef(onClose)
 
   useEffect(() => { onCloseRef.current = onClose }, [onClose])

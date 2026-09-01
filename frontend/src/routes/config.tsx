@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom'
 import { ProtectedRoute, AdminRoute } from './guards'
 import { AppLayout } from '../layouts/AppLayout'
 import { DashboardPage } from '../pages/DashboardPage'
@@ -32,7 +32,7 @@ import { OfflinePage } from '../pages/OfflinePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { aiFeaturesEnabled } from '../config/features'
 
-export const router = createBrowserRouter([
+export const routeDefinitions: RouteObject[] = [
   { errorElement: <RouteErrorPage />, children: [
   { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
   { path: '/register', element: <AuthLayout><RegisterPage /></AuthLayout> },
@@ -69,4 +69,6 @@ export const router = createBrowserRouter([
   ] }] },
   { path: '*', element: <NotFoundPage /> },
   ] },
-])
+]
+
+export const router = createBrowserRouter(routeDefinitions)
