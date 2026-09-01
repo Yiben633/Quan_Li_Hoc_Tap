@@ -122,8 +122,8 @@ export function TopicDetailPage() {
       <div className="topic-detail-scenic" aria-hidden="true">
         <span className="topic-scenic-pine topic-scenic-pine-left" />
         <span className="topic-scenic-pine topic-scenic-pine-right" />
-        <img className="topic-scenic-grass" src={natureAssets.flora.bush[0]} alt="" width="90" height="90" />
-        <NatureMascot animal="fox" animation="static" size={112} className="topic-scenic-fox" />
+        <img className="topic-scenic-grass" src={natureAssets.flora.bush} alt="" width="90" height="90" />
+        <NatureMascot animal="fox" motion="none" size={112} className="topic-scenic-fox" />
       </div>
     </header>
 

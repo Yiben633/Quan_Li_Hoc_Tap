@@ -1,7 +1,7 @@
 import type { ReactElement, ReactNode } from 'react'
 import { EmptyState } from '../ui/EmptyState'
 import type { NatureEmptyMascotKind } from './NatureEmptyMascot'
-import { NatureMascot, NATURE_IDLE_FRAME_DURATION_MS } from './NatureMascot'
+import { NatureMascot } from './NatureMascot'
 
 export type NatureEmptyStateSize = 'sm' | 'md' | 'lg'
 
@@ -39,7 +39,7 @@ export function NatureEmptyState({
   className,
 }: NatureEmptyStateProps) {
   const mascotContent = typeof mascot === 'string'
-    ? <NatureMascot animal={mascotAnimals[mascot]} size={mascotSizes[size]} frameDurationMs={NATURE_IDLE_FRAME_DURATION_MS} />
+    ? <NatureMascot animal={mascotAnimals[mascot]} size={mascotSizes[size]} />
     : mascot
   const actions = action || secondaryAction
     ? <div className="nature-empty-state-actions">{action}{secondaryAction}</div>

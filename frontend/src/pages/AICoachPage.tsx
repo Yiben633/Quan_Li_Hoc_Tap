@@ -325,7 +325,7 @@ export function AICoachPage() {
         {showHeadingScene && <div className="ai-coach-heading-scene" aria-hidden="true">
           <span className="ai-coach-heading-moon" />
           <span className="ai-coach-heading-branch" />
-          {!showEmptyChat && !showTypingIndicator && <NatureMascot animal="owl" size={104} frameDurationMs={900} className="ai-coach-heading-owl" />}
+          {!showEmptyChat && !showTypingIndicator && <NatureMascot animal="owl" motion="observe" size={104} className="ai-coach-heading-owl" />}
         </div>}
       </header>
 
@@ -344,7 +344,7 @@ export function AICoachPage() {
             {!showMessageLoading && !showMessageError && visibleMessages.map((message) => <ChatMessage key={message.id} message={message} />)}
             {pendingMessage && <ChatMessage message={pendingMessage} pending />}
             {streamingAssistantText && <ChatMessage message={{ id: 'assistant-streaming', role: 'assistant', content: streamingAssistantText }} pending={streamChat.isPending} />}
-            {showTypingIndicator && <div className="ai-coach-typing" role="status"><NatureMascot animal="owl" size={38} frameDurationMs={900} /><span>AI Coach đang sắp xếp...</span></div>}
+            {showTypingIndicator && <div className="ai-coach-typing" role="status"><NatureMascot animal="owl" motion="none" size={38} /><span>AI Coach đang sắp xếp...</span></div>}
             {showProviderUnavailable && <section className="ai-coach-unavailable" role="alert">
               <TriangleAlert size={18} aria-hidden="true" />
               <div>
