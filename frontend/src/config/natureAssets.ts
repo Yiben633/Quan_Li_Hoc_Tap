@@ -18,12 +18,11 @@ const existingMascotAssets: Record<NatureMascotAnimal, string> = {
   fox: `${natureBasePath}/mascots/fox${natureAssetExtension}`,
   bear: `${natureBasePath}/mascots/bear${natureAssetExtension}`,
   owl: `${natureBasePath}/mascots/owl${natureAssetExtension}`,
-  // These static fallbacks keep the registry valid until dedicated illustrations are available.
-  deer: `${natureBasePath}/mascots/deer/deer.png`,
+  deer: `${natureBasePath}/mascots/deer.png`,
   squirrel: `${natureBasePath}/mascots/squirrel${natureAssetExtension}`,
-  hedgehog: `${natureBasePath}/mascots/hedgehog/hedgehog.png`,
-  robin: `${natureBasePath}/mascots/robin/robin.png`,
-  raccoon: `${natureBasePath}/mascots/raccoon/raccoon.png`,
+  hedgehog: `${natureBasePath}/mascots/hedgehog.png`,
+  robin: `${natureBasePath}/mascots/robin.png`,
+  raccoon: `${natureBasePath}/mascots/raccoon.png`,
   frog: `${natureBasePath}/mascots/frog${natureAssetExtension}`,
 }
 
