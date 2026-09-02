@@ -14,7 +14,6 @@
 .ai-coach-fireflies .nature-firefly { position: absolute; width: 4px; height: 4px; background: var(--nature-sand); border-radius: 50%; box-shadow: 0 0 7px color-mix(in srgb, var(--nature-amber) 75%, transparent); }
 .ai-coach-firefly-one { top: 23px; left: 40px; --nature-firefly-duration: 7.8s; }
 .ai-coach-fireflies .ai-coach-firefly-two { top: 47px; right: 20px; width: 3px; height: 3px; --nature-firefly-duration: 9.2s; animation-delay: -2.8s; }
-.ai-coach-firefly-three { right: 63px; bottom: 28px; --nature-firefly-duration: 8.6s; animation-delay: -5.1s; }
 .ai-coach-heading-branch { position: absolute; right: -15px; bottom: 20px; width: 150px; height: 7px; background: var(--nature-bark); border-radius: 999px; opacity: .92; transform: rotate(-8deg); }
 .ai-coach-heading-branch::before, .ai-coach-heading-branch::after { position: absolute; width: 17px; height: 8px; content: ''; background: var(--nature-sage); border-radius: 100% 0 100% 0; }
 .ai-coach-heading-branch::before { top: -10px; left: 42px; box-shadow: 25px -7px 0 var(--nature-moss), 52px -2px 0 var(--nature-sage); transform: rotate(-16deg); }
@@ -233,6 +232,8 @@
 
 .ai-page > .page-heading,
 .flashcards-page > .page-heading { margin-bottom: 2px; }
+.flashcards-heading-actions { display: inline-flex; align-items: center; gap: 12px; }
+.flashcards-heading-hedgehog { flex: 0 0 auto; pointer-events: none; }
 
 .ai-schedule-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, .75fr); gap: 18px; align-items: start; }
 .ai-builder,
@@ -467,4 +468,8 @@
   .flashcard-set-card-foot .button { width: 100%; }
   .review-actions { width: 100%; }
   .review-actions .button { flex: 1; }
+}
+
+@media (max-width: 640px) {
+  .flashcards-heading-hedgehog { display: none; }
 }

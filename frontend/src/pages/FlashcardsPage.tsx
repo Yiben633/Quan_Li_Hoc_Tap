@@ -2,6 +2,7 @@ import { BookOpenCheck, Brain, Check, Edit3, Plus, RotateCcw, Sparkles, Trash2, 
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Badge, Button, Checkbox, ConfirmDialog, Drawer, EmptyState, IconButton, Input, Modal, Select, Skeleton, Tabs, Textarea } from '../components/ui'
+import { NatureMascot } from '../components/nature/NatureMascot'
 import { aiFeaturesEnabled } from '../config/features'
 import { useGenerateFlashcardsMutation } from '../features/ai/ai.hooks'
 import type { GeneratedCard } from '../features/ai/ai.api'
@@ -195,7 +196,7 @@ export function FlashcardsPage() {
   const topicById = useMemo(() => new Map(topics.data?.items.map((topic) => [topic.id, topic]) ?? []), [topics.data])
 
   return <div className="flashcards-page">
-    <div className="page-heading"><div><p className="eyebrow">GHI NHỚ CHỦ ĐỘNG</p><h1>Thẻ ghi nhớ</h1><p className="subtle">Tạo bộ thẻ theo cách của bạn và ôn lại đúng lúc.</p></div><Button onClick={() => { setEditingSet(undefined); setEditorOpen(true) }}><Plus size={17} /> Tạo bộ thẻ</Button></div>
+    <div className="page-heading flashcards-heading"><div><p className="eyebrow">GHI NHỚ CHỦ ĐỘNG</p><h1>Thẻ ghi nhớ</h1><p className="subtle">Tạo bộ thẻ theo cách của bạn và ôn lại đúng lúc.</p></div><div className="flashcards-heading-actions"><Button onClick={() => { setEditingSet(undefined); setEditorOpen(true) }}><Plus size={17} /> Tạo bộ thẻ</Button><NatureMascot animal="hedgehog" motion="float" size={104} className="flashcards-heading-hedgehog" /></div></div>
     <div className="flashcards-tabs"><Tabs value={tab} onChange={setTab} items={[{ value: 'sets', label: 'Bộ thẻ' }, { value: 'review', label: <>Ôn tập {Boolean(due.data?.length) && <Badge tone="orange">{due.data?.length}</Badge>}</> }]} /></div>
     {tab === 'review' ? <ReviewQueue /> : sets.isLoading ? <div className="flashcard-set-grid">{[1, 2, 3].map((item) => <Skeleton key={item} height={210} />)}</div> : sets.isError ? <EmptyState icon={<Brain size={24} />} title="Không thể tải bộ thẻ" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => sets.refetch()}>Thử lại</Button>} /> : sets.data?.length ? <div className="flashcard-set-grid">{sets.data.map((set) => {
       const topic = set.subjectId ? topicById.get(set.subjectId) : undefined

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useSearchParams } from 'react-router-dom'
 import { Button, ConfirmDialog, EmptyState, Input, Modal, Pagination, Select, Skeleton } from '../components/ui'
+import { NatureMascot } from '../components/nature/NatureMascot'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import type { Note, NoteInput } from '../features/notes/notes.api'
 import { useNoteCreateMutation, useNoteDeleteMutation, useNotePinMutation, useNotesQuery, useNoteUpdateMutation } from '../features/notes/notes.hooks'
@@ -127,7 +128,7 @@ export function NotesPage() {
   const openEdit = (note: Note) => { setEditing(note); setEditorOpen(true) }
 
   return <div className="notes-page">
-    <div className="page-heading notes-heading"><div><p className="eyebrow">KHÔNG GIAN Ý TƯỞNG</p><h1>Ghi chú</h1><p className="subtle">Ghi lại điều quan trọng, gắn vào môn học hoặc công việc khi cần.</p></div><Button onClick={openNew}><Plus size={17} /> Ghi chú mới</Button></div>
+    <div className="page-heading notes-heading"><div><p className="eyebrow">KHÔNG GIAN Ý TƯỞNG</p><h1>Ghi chú</h1><p className="subtle">Ghi lại điều quan trọng, gắn vào môn học hoặc công việc khi cần.</p></div><div className="notes-heading-actions"><Button onClick={openNew}><Plus size={17} /> Ghi chú mới</Button><NatureMascot animal="hedgehog" motion="float" size={104} className="notes-heading-hedgehog" /></div></div>
     <section className="notes-toolbar" aria-label="Tìm và lọc ghi chú"><Input className="notes-search" aria-label="Tìm ghi chú" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm ghi chú..." /><Select customMenu aria-label="Lọc môn học ghi chú" value={subjectId} onChange={(event) => setFilter(setSubjectId, event.target.value)}><option value="">Mọi môn học</option>{topics.data?.items.map((topic) => <option key={topic.id} value={topic.id}>{topic.code ? `${topic.code} · ${topic.name}` : topic.name}</option>)}</Select><Select customMenu aria-label="Lọc công việc ghi chú" value={taskId} onChange={(event) => setFilter(setTaskId, event.target.value)}><option value="">Mọi công việc</option>{tasks.data?.items.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}</Select></section>
     {query.isLoading && <div className="note-grid">{Array.from({ length: 6 }, (_, index) => <article className="note-card" key={index}><Skeleton height={18} width="62%" /><Skeleton height={66} /><Skeleton height={14} width="35%" /></article>)}</div>}
     {query.isError && <EmptyState icon={<FileText size={24} />} title="Chưa thể tải ghi chú" description="Kiểm tra kết nối rồi thử lại nhé." action={<Button onClick={() => query.refetch()}>Thử lại</Button>} />}

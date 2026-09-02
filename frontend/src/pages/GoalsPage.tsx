@@ -2,6 +2,7 @@ import { Archive, CalendarDays, Edit3, Plus, Target } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Button, ConfirmDialog, DatePicker, EmptyState, Input, Modal, ProgressBar, Select, Skeleton } from '../components/ui'
+import { NatureMascot } from '../components/nature'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import type { Goal, GoalInput, GoalStatus, GoalType } from '../features/goals/goals.api'
 import { useGoalArchiveMutation, useGoalCreateMutation, useGoalsQuery, useGoalUpdateMutation } from '../features/goals/goals.hooks'
@@ -186,7 +187,7 @@ export function GoalsPage() {
         <h1>Mục tiêu</h1>
         <p className="subtle">Theo dõi những điều bạn muốn hoàn thành theo nhịp của riêng mình.</p>
       </div>
-      <Button onClick={openCreate}><Plus size={17} /> Tạo mục tiêu</Button>
+      <div className="goals-heading-actions"><Button onClick={openCreate}><Plus size={17} /> Tạo mục tiêu</Button><NatureMascot animal="deer" motion="breathe" size={116} className="goals-heading-deer" /></div>
     </div>
 
     <section className="goals-toolbar" aria-label="Lọc mục tiêu">

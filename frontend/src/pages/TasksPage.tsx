@@ -16,7 +16,8 @@ import { useOverdueTasksQuery, usePlansQuery, useTaskCreateMutation, useTaskDele
 import { formatTaskDeadline } from '../utils/taskDate'
 import { getNextTaskSuggestion } from '../utils/nextTask'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { NatureEmptyState } from '../components/nature'
+import { NatureEmptyState, NatureMascot } from '../components/nature'
+import { natureAssets } from '../config/natureAssets'
 
 type TaskScope = 'today' | 'upcoming' | 'overdue' | 'all'
 type TaskFilterState = { search: string; status: string; priority: string; subjectId: string; studyPlanId: string; dueDate: string; difficulty: string; page: number }
@@ -258,12 +259,19 @@ function TaskEmptyState({ scope, onCreate }: { scope: TaskScope; onCreate: () =>
     : `Bạn chưa có công việc nào ${scopeLabels[scope].toLowerCase()}.`
 
   return <NatureEmptyState
-    mascot="tasks"
+    mascot={<TaskEmptyIllustration />}
     size="lg"
     title={title}
     description={description}
     action={<Button onClick={onCreate}><Plus size={16} /> Thêm công việc</Button>}
   />
+}
+
+function TaskEmptyIllustration() {
+  return <span className="task-empty-illustration" aria-hidden="true">
+    <img className="task-empty-bush nature-bush--sway" src={natureAssets.flora.bush} alt="" width={120} height={96} loading="lazy" decoding="async" />
+    <NatureMascot animal="bunny" motion="study" size={132} />
+  </span>
 }
 
 function NextTaskSuggestion({ task, onStart, loading }: { task: Task; onStart: () => void; loading: boolean }) {

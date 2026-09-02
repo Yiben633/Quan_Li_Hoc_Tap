@@ -1,6 +1,7 @@
 import { Bell, Clock3, Coffee, Minus, Pause, Play, Plus, Settings2, Square, TimerReset, Volume2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
+import { NatureMascot } from '../../components/nature'
 import { Button, Switch } from '../../components/ui'
 import { getApiErrorMessage } from '../auth/auth.api'
 import type { ActivePomodoro, ActiveStudySession, PomodoroType, StudySessionState } from './studySessions.api'
@@ -150,11 +151,14 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
     }
   }
 
-  return <section className="panel study-timer-widget">
+  const isBreakPomodoro = pomodoro?.sessionType === 'short_break' || pomodoro?.sessionType === 'long_break'
+
+  return <section className={`panel study-timer-widget${active.state.status === 'running' ? ' is-running' : ''}`}>
     <div className="study-widget-head">
       <div><p className="eyebrow">PHIÊN TẬP TRUNG</p><h2>{subjectName ?? 'Phiên học tự do'}</h2></div>
       <span className={`study-session-state ${active.state.status}`}>{active.state.status === 'running' ? 'Đang học' : 'Đang tạm dừng'}</span>
     </div>
+    {!isBreakPomodoro && <div className="study-timer-mascot" aria-hidden="true"><NatureMascot animal="bear" motion="breathe" size={132} /></div>}
     <strong className="study-timer"><Clock3 size={22} /> {formatStudyClock(elapsed)}</strong>
     <p className="subtle">Phiên đang chạy được xác nhận bởi máy chủ và sẽ tiếp tục đúng thời gian sau khi bạn tải lại trang.</p>
     <div className="study-session-actions">

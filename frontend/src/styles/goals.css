@@ -1,5 +1,7 @@
 .goals-page { display: grid; gap: 18px; }
 .goals-heading { margin-bottom: 4px; }
+.goals-heading-actions { display: flex; align-items: center; gap: 14px; }
+.goals-heading-deer { flex: 0 0 116px; pointer-events: none; }
 .goals-toolbar { display: flex; flex-wrap: wrap; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
 .goals-toolbar .field { width: min(100%, 210px); }
 .goal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(275px, 340px)); gap: 16px; }
@@ -25,4 +27,4 @@
 .goal-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; min-width: 0; }
 .goal-form-grid > .field { min-width: 0; }
 .goal-skeleton { min-height: 270px; align-content: start; }
-@media (max-height: 680px), (max-width: 640px) { .modal:has(#goal-form) { max-height: calc(100vh - 24px); overflow-y: auto; overflow-x: hidden; }.modal:has(#goal-form) .modal-body { overflow: visible; }.goals-heading .button { width: 100%; }.goals-toolbar .field { width: 100%; }.goal-grid { grid-template-columns: 1fr; }.goal-form-grid { grid-template-columns: 1fr; } }
+@media (max-height: 680px), (max-width: 640px) { .modal:has(#goal-form) { max-height: calc(100vh - 24px); overflow-y: auto; overflow-x: hidden; }.modal:has(#goal-form) .modal-body { overflow: visible; }.goals-heading-actions { width: 100%; }.goals-heading-actions .button { flex: 1; width: 100%; }.goals-heading-deer { display: none; }.goals-toolbar .field { width: 100%; }.goal-grid { grid-template-columns: 1fr; }.goal-form-grid { grid-template-columns: 1fr; } }

@@ -264,3 +264,14 @@
     transform: none;
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .study-timer-widget.is-running .nature-mascot-motion-breathe img {
+    animation-duration: 9s;
+  }
+
+  .study-timer-widget.is-running .nature-mascot--steam::before,
+  .study-timer-widget.is-running .nature-mascot--steam::after {
+    animation-duration: 7.2s;
+  }
+}

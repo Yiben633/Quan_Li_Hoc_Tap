@@ -121,9 +121,10 @@
 .calendar-agenda-item-exam, .calendar-agenda-item-schedule-exam { --agenda-color: var(--nature-amber); }
 .calendar-agenda-item-schedule-presentation { --agenda-color: var(--nature-bark); }
 .calendar-agenda-empty { display: grid; justify-items: center; gap: 6px; padding: 4px 2px 2px; text-align: center; }
-.calendar-agenda-empty-art { position: relative; width: 112px; height: 66px; margin-bottom: 2px; }
-.calendar-agenda-empty-cloud { position: absolute; top: 0; left: 3px; width: 64px; height: 36px; object-fit: contain; opacity: .78; }
-.calendar-agenda-empty-bush { position: absolute; right: 0; bottom: -10px; width: 72px; height: 72px; object-fit: contain; }
+.calendar-agenda-empty-art { position: relative; width: 128px; height: 78px; margin-bottom: 2px; }
+.calendar-agenda-empty-cloud { position: absolute; z-index: 0; top: 0; left: 4px; width: 64px; height: 36px; object-fit: contain; opacity: .78; }
+.calendar-agenda-empty-robin { position: absolute; z-index: 2; bottom: -4px; left: 15px; }
+.calendar-agenda-empty-bush { position: absolute; z-index: 1; right: 0; bottom: -10px; width: 72px; height: 72px; object-fit: contain; }
 .calendar-agenda-empty h3 { margin: 0; color: var(--nature-pine); font-size: 14px; }
 .calendar-agenda-empty p { max-width: 24ch; margin: 0; color: var(--nature-text-secondary); font-size: 11px; line-height: 1.45; }
 .calendar-agenda-empty p + p { color: var(--nature-text-muted); }

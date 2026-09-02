@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 import { Avatar, Button, EmptyState, Input, Modal, Skeleton, Textarea } from '../components/ui'
 import { NatureEmptyState } from '../components/nature'
+import { NatureMascot } from '../components/nature/NatureMascot'
 import { getApiErrorMessage } from '../features/auth/auth.api'
 import type { GroupInput } from '../features/groups/groups.api'
 import { useGroupCreateMutation, useGroupInvitationsQuery, useGroupsQuery, useInvitationAcceptMutation, useInvitationRejectMutation } from '../features/groups/groups.hooks'
@@ -64,7 +65,7 @@ export function StudyGroupsPage() {
 
     {groups.isLoading && <div className="group-grid">{Array.from({ length: 3 }, (_, index) => <Skeleton key={index} height={220} />)}</div>}
     {groups.isError && <EmptyState icon={<Users size={24} />} title="Không thể tải nhóm" description="Kiểm tra kết nối rồi thử lại." action={<Button onClick={() => groups.refetch()}>Thử lại</Button>} />}
-    {!groups.isLoading && !groups.isError && !groups.data?.length && <NatureEmptyState size="md" title="Bạn chưa tham gia nhóm nào." description="Học cùng nhau có thể giúp duy trì nhịp học." action={<Button onClick={() => setEditorOpen(true)}><Plus size={16} /> Tạo nhóm đầu tiên</Button>} />}
+    {!groups.isLoading && !groups.isError && !groups.data?.length && <NatureEmptyState size="md" mascot={<NatureMascot animal="raccoon" motion="peek" size={104} />} title="Bạn chưa tham gia nhóm nào." description="Học cùng nhau có thể giúp duy trì nhịp học." action={<Button onClick={() => setEditorOpen(true)}><Plus size={16} /> Tạo nhóm đầu tiên</Button>} />}
     {Boolean(groups.data?.length) && <div className="group-grid">{groups.data?.map((group) => <Link className="group-card" to={`/groups/${group.id}`} key={group.id}>
       <div className="group-card-head"><span><LockKeyhole size={14} /> Riêng tư</span><ArrowRight size={18} /></div>
       <div><h2>{group.name}</h2>{group.description && <p>{group.description}</p>}</div>

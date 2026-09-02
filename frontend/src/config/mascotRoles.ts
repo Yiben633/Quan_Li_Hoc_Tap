@@ -14,7 +14,7 @@ export const mascotRoles = {
   pomodoro: { animal: 'bear', motion: 'breathe' },
   goals: { animal: 'deer', motion: 'breathe' },
   notes: { animal: 'hedgehog', motion: 'float' },
-  flashcards: { animal: 'hedgehog', motion: 'study' },
+  flashcards: { animal: 'hedgehog', motion: 'float' },
   calendar: { animal: 'robin', motion: 'perch' },
   groups: { animal: 'raccoon', motion: 'peek' },
   aiCoach: { animal: 'owl', motion: 'observe' },
