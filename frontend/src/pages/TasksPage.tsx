@@ -269,7 +269,7 @@ function TaskEmptyState({ scope, onCreate }: { scope: TaskScope; onCreate: () =>
 
 function TaskEmptyIllustration() {
   return <span className="task-empty-illustration" aria-hidden="true">
-    <img className="task-empty-bush nature-bush--sway" src={natureAssets.flora.bush} alt="" width={120} height={96} loading="lazy" decoding="async" />
+    <img className="task-empty-bush nature-bush--sway nature-motion" src={natureAssets.flora.bush} alt="" width={120} height={96} loading="lazy" decoding="async" />
     <NatureMascot animal="bunny" motion="study" size={132} />
   </span>
 }

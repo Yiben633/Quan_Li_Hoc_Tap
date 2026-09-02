@@ -58,6 +58,7 @@ export function NatureMascot({
     'nature-mascot',
     `nature-mascot-${typeof size === 'number' ? 'custom' : size}`,
     `nature-mascot-motion-${resolvedMotion}`,
+    (resolvedMotion !== 'none' || shouldShowBearSteam) && 'nature-motion',
     shouldShowBearSteam && 'nature-mascot--steam',
     className,
   ]
@@ -76,6 +77,7 @@ export function NatureMascot({
         alt={decorative ? '' : alt}
         decoding="async"
         draggable={false}
+        fetchPriority={priority ? 'high' : undefined}
         height={pixelSize}
         loading={priority ? 'eager' : 'lazy'}
         src={natureAssets.mascots[animal]}

@@ -246,20 +246,20 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nature-mascot-motion-float img,
-  .nature-mascot-motion-breathe img,
-  .nature-mascot-motion-study img,
-  .nature-mascot-motion-focus img,
-  .nature-mascot-motion-observe img,
-  .nature-mascot-motion-peek img,
-  .nature-mascot-motion-perch img,
-  .nature-bush--sway,
+  .nature-motion,
+  .nature-motion::before,
+  .nature-motion::after,
+  .nature-motion > img {
+    animation: none;
+    transform: none;
+  }
+}
+
+@media (max-width: 639px) {
   .nature-cloud--drift,
   .nature-leaf--drift,
   .nature-firefly,
-  .nature-mascot--steam::before,
-  .nature-mascot--steam::after,
-  .nature-owl--lantern-glow::before {
+  .nature-bush--sway {
     animation: none;
     transform: none;
   }

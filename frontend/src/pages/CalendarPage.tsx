@@ -593,7 +593,7 @@ function TodayAgenda({ items, loading, error, onCreate, onSelect, onRetry }: { i
 
 function CalendarAgendaEmpty({ onCreate }: { onCreate: () => void }) {
   return <div className="calendar-agenda-empty">
-    <div className="calendar-agenda-empty-art" aria-hidden="true"><img className="calendar-agenda-empty-cloud nature-cloud--drift" src={natureEmptyStateAssets.calendar.cloud} alt="" width={64} height={36} /><NatureMascot animal="robin" motion="perch" size={72} className="calendar-agenda-empty-robin" /><NatureFlora name="bush" width={72} height={72} className="calendar-agenda-empty-bush" /></div>
+    <div className="calendar-agenda-empty-art" aria-hidden="true"><img className="calendar-agenda-empty-cloud nature-cloud--drift nature-motion" src={natureEmptyStateAssets.calendar.cloud} alt="" width={64} height={36} /><NatureMascot animal="robin" motion="perch" size={72} className="calendar-agenda-empty-robin" /><NatureFlora name="bush" width={72} height={72} className="calendar-agenda-empty-bush" /></div>
     <h3>Chưa có sự kiện trong ngày này.</h3>
     <Button onClick={onCreate}><Plus size={16} /> Thêm lịch học</Button>
   </div>

@@ -12,11 +12,12 @@ const dashboardState = vi.hoisted(() => ({
   overdueTasks: [] as Task[],
   plan: null as StudyPlan | null,
   planTasks: [] as Task[],
+  showHeroScene: false,
   updateTaskStatus: vi.fn(),
 }))
 
 vi.mock('../config/features', () => ({ aiFeaturesEnabled: false }))
-vi.mock('../hooks/useMediaQuery', () => ({ useMediaQuery: () => false }))
+vi.mock('../hooks/useMediaQuery', () => ({ useMediaQuery: () => dashboardState.showHeroScene }))
 vi.mock('../features/dashboard/dashboard.hooks', () => ({
   useDashboardSummaryQuery: () => ({ data: dashboardState.summary, isLoading: false, isError: false, refetch: vi.fn() }),
   useProgressChartQuery: () => ({ data: { range: 'week', points: [] }, isLoading: false, isError: false, refetch: vi.fn() }),
@@ -96,6 +97,7 @@ describe('DashboardPage data states', () => {
     dashboardState.overdueTasks = []
     dashboardState.plan = null
     dashboardState.planTasks = []
+    dashboardState.showHeroScene = false
     dashboardState.updateTaskStatus.mockReset()
     useAuthStore.setState({ accessToken: 'dashboard-token', csrfToken: null, user: student, roles: student.roles, isAuthenticated: true })
   })
@@ -105,6 +107,32 @@ describe('DashboardPage data states', () => {
 
     expect(screen.getByText('Hôm nay chưa có việc')).toBeInTheDocument()
     expect(screen.getByText('Bắt đầu xây dựng nhịp của bạn')).toBeInTheDocument()
+  })
+
+  it('renders the fox hero with the current scenic layers and no stale hills class', () => {
+    dashboardState.showHeroScene = true
+    const { container } = renderDashboard()
+
+    expect(container.querySelector('.dashboard-hero-mascot')).toHaveAttribute('data-animal', 'fox')
+    expect(container.querySelectorAll('.dashboard-hero-mascot')).toHaveLength(1)
+    expect(container.querySelector('.dashboard-hero-cloud')).toBeInTheDocument()
+    expect(container.querySelectorAll('.dashboard-hero-leaf')).toHaveLength(1)
+    expect(container.querySelector('.dashboard-hero-mist')).toBeInTheDocument()
+    expect(container.querySelector('.dashboard-hero-mountains')).toBeInTheDocument()
+    expect(container.querySelector('.dashboard-hero-lake')).toBeInTheDocument()
+    expect(container.querySelector('.dashboard-hero-hills')).not.toBeInTheDocument()
+  })
+
+  it('uses semantic metadata icons instead of a universal trend icon', () => {
+    const { container } = renderDashboard()
+    const metric = (label: string) => Array.from(container.querySelectorAll<HTMLElement>('.dashboard-summary-metric'))
+      .find((item) => item.querySelector('.dashboard-summary-label')?.textContent === label)
+
+    expect(metric('Công việc còn lại')?.querySelector('.lucide-calendar-days')).toBeInTheDocument()
+    expect(metric('Thời gian học')?.querySelector('.lucide-clock3')).toBeInTheDocument()
+    expect(metric('Tiến độ tuần')?.querySelector('.lucide-calendar-days')).toBeInTheDocument()
+    expect(metric('Chuỗi học')?.querySelector('.lucide-flame')).toBeInTheDocument()
+    expect(container.querySelector('.dashboard-summary-metric .lucide-trending-up')).not.toBeInTheDocument()
   })
 
   it('limits a large today task result to five compact tasks', () => {
@@ -158,6 +186,21 @@ describe('DashboardPage data states', () => {
     expect(screen.queryByText('Subject 5')).not.toBeInTheDocument()
     expect(screen.getAllByText('Tiến độ công việc')).toHaveLength(4)
     expect(screen.getByText('40%')).toBeInTheDocument()
+  })
+
+  it('does not render subject progress when task counts are missing or invalid', () => {
+    dashboardState.summary = createSummary({
+      activeSubjects: [
+        { id: 'subject-missing', name: 'Missing progress', code: 'MP', colorHex: '#456b52' },
+        { id: 'subject-invalid', name: 'Invalid progress', code: 'IP', colorHex: '#456b52', taskProgress: { taskTotal: 0, taskDone: 0, progressPercent: 88 } },
+      ],
+    })
+    renderDashboard()
+
+    expect(screen.getByText('Missing progress')).toBeInTheDocument()
+    expect(screen.getByText('Invalid progress')).toBeInTheDocument()
+    expect(screen.queryByText('Tiến độ công việc')).not.toBeInTheDocument()
+    expect(screen.queryByText('88%')).not.toBeInTheDocument()
   })
 
   it('uses the AI unavailable fallback instead of a fabricated briefing', () => {

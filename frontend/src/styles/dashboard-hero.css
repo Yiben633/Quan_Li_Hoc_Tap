@@ -137,14 +137,6 @@
   --nature-leaf-drift-duration: 13.5s;
 }
 
-.dashboard-hero-leaf-two {
-  top: 118px;
-  right: 36px;
-  width: 9px;
-  height: 6px;
-  --nature-leaf-drift-duration: 16.5s;
-}
-
 .dashboard-hero-mist {
   position: absolute;
   z-index: 1;

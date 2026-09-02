@@ -14,17 +14,17 @@ export type NatureMascotAnimal =
   | 'frog'
 
 const existingMascotAssets: Record<NatureMascotAnimal, string> = {
-  bunny: `${natureBasePath}/mascots/bunny/frame-1${natureAssetExtension}`,
-  fox: `${natureBasePath}/mascots/fox/frame-1${natureAssetExtension}`,
-  bear: `${natureBasePath}/mascots/bear/frame-1${natureAssetExtension}`,
-  owl: `${natureBasePath}/mascots/owl/frame-1${natureAssetExtension}`,
-  // These fallbacks keep the registry valid until dedicated static assets are copied.
+  bunny: `${natureBasePath}/mascots/bunny${natureAssetExtension}`,
+  fox: `${natureBasePath}/mascots/fox${natureAssetExtension}`,
+  bear: `${natureBasePath}/mascots/bear${natureAssetExtension}`,
+  owl: `${natureBasePath}/mascots/owl${natureAssetExtension}`,
+  // These static fallbacks keep the registry valid until dedicated illustrations are available.
   deer: `${natureBasePath}/mascots/deer/deer.png`,
-  squirrel: `${natureBasePath}/mascots/bunny/frame-1${natureAssetExtension}`,
+  squirrel: `${natureBasePath}/mascots/squirrel${natureAssetExtension}`,
   hedgehog: `${natureBasePath}/mascots/hedgehog/hedgehog.png`,
   robin: `${natureBasePath}/mascots/robin/robin.png`,
   raccoon: `${natureBasePath}/mascots/raccoon/raccoon.png`,
-  frog: `${natureBasePath}/mascots/bear/frame-1${natureAssetExtension}`,
+  frog: `${natureBasePath}/mascots/frog${natureAssetExtension}`,
 }
 
 export const natureAssets = {
@@ -34,7 +34,7 @@ export const natureAssets = {
   },
   mascots: existingMascotAssets,
   flora: {
-    bush: `${natureBasePath}/flora/bush/frame-1${natureAssetExtension}`,
+    bush: `${natureBasePath}/flora/bush/bush${natureAssetExtension}`,
   },
   effects: {
     cloud01: `${natureBasePath}/effects/cloud-01${natureAssetExtension}`,

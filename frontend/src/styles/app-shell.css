@@ -3,7 +3,7 @@
 }
 
 .app-shell.sidebar-is-collapsed {
-  --sidebar: 76px;
+  --sidebar: 80px;
 }
 
 :where(a, button, input, textarea, select, [role='tab']):focus-visible {
@@ -140,14 +140,15 @@
 }
 
 .sidebar.sidebar-collapsed {
-  padding-right: 10px;
-  padding-left: 10px;
+  padding-right: 6px;
+  padding-left: 6px;
 }
 
 .sidebar.sidebar-collapsed .sidebar-head {
   justify-content: space-between;
-  padding-right: 4px;
-  padding-left: 4px;
+  gap: 0;
+  padding-right: 2px;
+  padding-left: 2px;
 }
 
 .sidebar.sidebar-collapsed .brand-logo-full {
@@ -156,6 +157,13 @@
 
 .sidebar.sidebar-collapsed .brand-logo-mark {
   display: block;
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar.sidebar-collapsed .sidebar-collapse-button {
+  width: 32px;
+  height: 32px;
 }
 
 .sidebar.sidebar-collapsed .sidebar-navigation {
@@ -265,6 +273,7 @@
   display: block;
   width: 100%;
   height: auto;
+  pointer-events: none;
 }
 
 [data-theme='dark'] .sidebar-forest-decoration {

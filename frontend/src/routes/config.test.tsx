@@ -12,7 +12,6 @@ vi.mock('../pages/DashboardPage', () => ({ DashboardPage: () => <main data-testi
 vi.mock('../pages/TasksPage', () => ({ TasksPage: () => <main data-testid="tasks-page">Tasks</main> }))
 vi.mock('../pages/StudyPlansPage', () => ({ StudyPlansPage: () => <main data-testid="study-plans-page">Study plans</main> }))
 vi.mock('../pages/CalendarPage', () => ({ CalendarPage: () => <main data-testid="calendar-page">Calendar</main> }))
-vi.mock('../pages/AICoachPage', () => ({ AICoachPage: () => <main data-testid="ai-coach-page">AI Coach</main> }))
 vi.mock('../pages/AdminPage', () => ({ AdminPage: () => <main data-testid="admin-page">Admin</main> }))
 vi.mock('../pages/LoginPage', () => ({ LoginPage: () => <main data-testid="login-page">Login</main> }))
 vi.mock('../pages/NotFoundPage', () => ({ NotFoundPage: () => <main data-testid="not-found-page">Not found</main> }))
@@ -63,7 +62,6 @@ describe('application routes', () => {
     ['/tasks', 'tasks-page'],
     ['/study-plans', 'study-plans-page'],
     ['/calendar', 'calendar-page'],
-    ['/ai-coach', 'ai-coach-page'],
   ])('opens %s from a direct URL without a route error', async (path, pageTestId) => {
     const router = await renderRoute(path)
 
@@ -71,6 +69,17 @@ describe('application routes', () => {
     expect(router.state.location.pathname).toBe(path)
     expect(router.state.errors ?? null).toBeNull()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('keeps /ai-coach registered and renders the safe unavailable page when AI is disabled', async () => {
+    const router = await renderRoute('/ai-coach')
+
+    expect(await screen.findByRole('status')).toHaveTextContent('AI Coach chưa khả dụng trong môi trường này.')
+    expect(screen.getByRole('link', { name: 'Công việc' })).toHaveAttribute('href', '/tasks')
+    expect(screen.getByRole('link', { name: 'Kế hoạch' })).toHaveAttribute('href', '/study-plans')
+    expect(router.state.location.pathname).toBe('/ai-coach')
+    expect(router.state.errors ?? null).toBeNull()
+    expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument()
   })
 
   it('keeps /admin behind the admin role guard on a direct URL', async () => {
@@ -85,12 +94,46 @@ describe('application routes', () => {
     expect(adminRouter.state.errors ?? null).toBeNull()
   })
 
+  it.each([
+    '/admin',
+    '/admin?tab=overview',
+    '/admin?tab=users',
+    '/admin?tab=templates',
+    '/admin?tab=feedback',
+    '/admin?tab=logs',
+    '/admin?tab=content',
+  ])('opens %s directly without a route error', async (path) => {
+    const router = await renderRoute(path, admin)
+
+    expect(await screen.findByTestId('admin-page')).toBeInTheDocument()
+    expect(router.state.location.pathname).toBe('/admin')
+    expect(router.state.location.search).toBe(new URL(path, 'http://studyflow.local').search)
+    expect(router.state.errors ?? null).toBeNull()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
   it('handles unsupported /admin/* URLs with the safe not-found route', async () => {
     const router = await renderRoute('/admin/unknown', admin)
 
     expect(await screen.findByTestId('not-found-page')).toBeInTheDocument()
     expect(router.state.errors ?? null).toBeNull()
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('preserves safe admin URLs through back and forward navigation', async () => {
+    const router = await renderRoute('/admin?tab=overview', admin)
+    expect(await screen.findByTestId('admin-page')).toBeInTheDocument()
+
+    await act(async () => { await router.navigate('/admin?tab=users') })
+    expect(router.state.location.search).toBe('?tab=users')
+
+    await act(async () => { await router.navigate(-1) })
+    expect(router.state.location.search).toBe('?tab=overview')
+
+    await act(async () => { await router.navigate(1) })
+    expect(router.state.location.search).toBe('?tab=users')
+    expect(await screen.findByTestId('admin-page')).toBeInTheDocument()
+    expect(router.state.errors ?? null).toBeNull()
   })
 
   it('supports back and forward navigation between protected routes', async () => {
