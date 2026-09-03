@@ -466,13 +466,6 @@
   opacity: .42;
 }
 
-.dashboard-pomodoro-fireflies { display: none; }
-[data-theme='dark'] .dashboard-pomodoro-fireflies { position: absolute; inset: 0; z-index: 0; display: block; pointer-events: none; }
-[data-theme='dark'] .dashboard-pomodoro-fireflies .nature-firefly { position: absolute; width: 4px; height: 4px; background: var(--nature-sand); border-radius: 50%; box-shadow: 0 0 7px color-mix(in srgb, var(--nature-amber) 72%, transparent); }
-[data-theme='dark'] .dashboard-pomodoro-firefly-one { top: 48px; right: 28px; --nature-firefly-duration: 8.2s; }
-[data-theme='dark'] .dashboard-pomodoro-fireflies .dashboard-pomodoro-firefly-two { top: 102px; right: 52px; width: 3px; height: 3px; --nature-firefly-duration: 9.4s; animation-delay: -3.3s; }
-[data-theme='dark'] .dashboard-pomodoro-firefly-three { right: 18px; bottom: 47px; --nature-firefly-duration: 7.6s; animation-delay: -5.4s; }
-
 .dashboard-pomodoro-skeleton { align-content: center; }
 .dashboard-pomodoro-unavailable { align-content: space-between; justify-items: start; text-align: left; }
 .dashboard-pomodoro-unavailable > div { display: grid; gap: 6px; }

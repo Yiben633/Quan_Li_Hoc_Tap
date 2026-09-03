@@ -1,10 +1,7 @@
 const natureBasePath = '/assets/nature'
-const natureAssetExtension = '.webp'
-
 export type NatureMascotAnimal =
   | 'bunny'
   | 'fox'
-  | 'bear'
   | 'owl'
   | 'deer'
   | 'squirrel'
@@ -13,30 +10,27 @@ export type NatureMascotAnimal =
   | 'raccoon'
   | 'frog'
 
-const existingMascotAssets: Record<NatureMascotAnimal, string> = {
-  bunny: `${natureBasePath}/mascots/bunny${natureAssetExtension}`,
-  fox: `${natureBasePath}/mascots/fox${natureAssetExtension}`,
-  bear: `${natureBasePath}/mascots/bear${natureAssetExtension}`,
-  owl: `${natureBasePath}/mascots/owl${natureAssetExtension}`,
-  deer: `${natureBasePath}/mascots/deer.png`,
-  squirrel: `${natureBasePath}/mascots/squirrel${natureAssetExtension}`,
-  hedgehog: `${natureBasePath}/mascots/hedgehog.png`,
-  robin: `${natureBasePath}/mascots/robin.png`,
-  raccoon: `${natureBasePath}/mascots/raccoon.png`,
-  frog: `${natureBasePath}/mascots/frog${natureAssetExtension}`,
-}
-
 export const natureAssets = {
   brand: {
-    logoMark: `${natureBasePath}/brand/logo-mark${natureAssetExtension}`,
-    logoFull: `${natureBasePath}/brand/logo-full${natureAssetExtension}`,
+    logoMark: `${natureBasePath}/brand/logo-mark.webp`,
+    logoFull: `${natureBasePath}/brand/logo-full.webp`,
   },
-  mascots: existingMascotAssets,
+  mascots: {
+    fox: `${natureBasePath}/mascots/fox.png`,
+    owl: `${natureBasePath}/mascots/owl.png`,
+    bunny: `${natureBasePath}/mascots/bunny.png`,
+    deer: `${natureBasePath}/mascots/deer.png`,
+    squirrel: `${natureBasePath}/mascots/squirrel.png`,
+    raccoon: `${natureBasePath}/mascots/raccoon.png`,
+    hedgehog: `${natureBasePath}/mascots/hedgehog.png`,
+    frog: `${natureBasePath}/mascots/frog.png`,
+    robin: `${natureBasePath}/mascots/robin.png`,
+  },
   flora: {
-    bush: `${natureBasePath}/flora/bush/bush${natureAssetExtension}`,
+    bush: `${natureBasePath}/flora/bush/bush.webp`,
   },
   effects: {
-    cloud01: `${natureBasePath}/effects/cloud-01${natureAssetExtension}`,
+    cloud01: `${natureBasePath}/effects/cloud-01.webp`,
   },
   icons: {},
 } as const satisfies {
@@ -60,7 +54,6 @@ export const natureEmptyStateAssets = {
     bush: natureAssets.flora.bush,
   },
   ai: natureAssets.mascots.owl,
-  focus: natureAssets.mascots.bear,
   subject: natureAssets.mascots.fox,
   admin: null,
 } as const

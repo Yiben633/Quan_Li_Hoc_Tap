@@ -23,11 +23,10 @@ const mascotSizes: Record<NatureEmptyStateSize, number> = {
 
 const mascotAnimals = {
   ai: 'owl',
-  focus: 'bear',
   plan: 'fox',
   subject: 'fox',
   tasks: 'bunny',
-} as const satisfies Record<NatureEmptyMascotKind, 'bunny' | 'fox' | 'bear' | 'owl'>
+} as const satisfies Record<NatureEmptyMascotKind, 'bunny' | 'fox' | 'owl'>
 
 export function NatureEmptyState({
   title,

@@ -82,6 +82,15 @@ describe('application routes', () => {
     expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument()
   })
 
+  it('keeps /assistant redirect registered when AI is disabled', async () => {
+    const router = await renderRoute('/assistant')
+
+    expect(await screen.findByRole('status')).toHaveTextContent('AI Coach chưa khả dụng trong môi trường này.')
+    expect(router.state.location.pathname).toBe('/ai-coach')
+    expect(router.state.errors ?? null).toBeNull()
+    expect(screen.queryByTestId('not-found-page')).not.toBeInTheDocument()
+  })
+
   it('keeps /admin behind the admin role guard on a direct URL', async () => {
     const studentRouter = await renderRoute('/admin')
     expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument()

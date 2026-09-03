@@ -118,14 +118,13 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
       </div>
     </div>
     {showScene && <div className="dashboard-hero-scene" aria-hidden="true">
-      <img className="dashboard-hero-cloud nature-cloud--drift nature-motion" src={natureAssets.effects.cloud01} alt="" width={256} height={128} />
-      {useFullHeroScene && <span className="dashboard-hero-leaf dashboard-hero-leaf-one nature-leaf--drift nature-motion" />}
+      <img className="dashboard-hero-cloud nature-cloud--drift nature-motion" src={natureAssets.effects.cloud01} alt="" width={256} height={128} loading="eager" decoding="async" />
       <span className="dashboard-hero-mist" />
       <span className="dashboard-hero-mountains" />
       <span className="dashboard-hero-lake" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-back" />
-      <NatureMascot animal="fox" motion={useFullHeroScene ? 'study' : 'none'} size={useFullHeroScene ? 188 : 132} priority={useFullHeroScene} className="dashboard-hero-mascot" />
-      <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-front nature-bush--sway nature-motion" />
+      <NatureMascot animal="fox" motion={useFullHeroScene ? 'study' : 'none'} size={useFullHeroScene ? 188 : 132} priority={showScene} className="dashboard-hero-mascot" />
+      <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-front" />
     </div>}
   </section>
 }

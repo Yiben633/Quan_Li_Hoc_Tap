@@ -13,8 +13,6 @@ export type NatureMotion =
 export type NatureMascotSize = 'sm' | 'md' | 'lg' | 'xl' | number
 
 type NatureMascotBaseProps = {
-  /** @deprecated Use motion. This maps the former static/idle display intent without frame animation. */
-  animation?: 'idle' | 'static'
   animal: NatureMascotAnimal
   className?: string
   motion?: NatureMotion
@@ -42,7 +40,6 @@ const sizeMap: Record<Exclude<NatureMascotSize, number>, number> = {
 }
 
 export function NatureMascot({
-  animation,
   animal,
   alt = '',
   className = '',
@@ -52,14 +49,12 @@ export function NatureMascot({
   size = 'md',
 }: NatureMascotProps) {
   const pixelSize = typeof size === 'number' ? size : sizeMap[size]
-  const resolvedMotion = motion ?? (animation === 'idle' ? 'study' : 'none')
-  const shouldShowBearSteam = animal === 'bear' && pixelSize >= 120
+  const resolvedMotion = motion ?? 'none'
   const mascotClassName = [
     'nature-mascot',
     `nature-mascot-${typeof size === 'number' ? 'custom' : size}`,
     `nature-mascot-motion-${resolvedMotion}`,
-    (resolvedMotion !== 'none' || shouldShowBearSteam) && 'nature-motion',
-    shouldShowBearSteam && 'nature-mascot--steam',
+    resolvedMotion !== 'none' && 'nature-motion',
     className,
   ]
     .filter(Boolean)

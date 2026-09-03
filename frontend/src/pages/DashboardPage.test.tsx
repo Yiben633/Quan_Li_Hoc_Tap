@@ -116,7 +116,7 @@ describe('DashboardPage data states', () => {
     expect(container.querySelector('.dashboard-hero-mascot')).toHaveAttribute('data-animal', 'fox')
     expect(container.querySelectorAll('.dashboard-hero-mascot')).toHaveLength(1)
     expect(container.querySelector('.dashboard-hero-cloud')).toBeInTheDocument()
-    expect(container.querySelectorAll('.dashboard-hero-leaf')).toHaveLength(1)
+    expect(container.querySelectorAll('.dashboard-hero-leaf')).toHaveLength(0)
     expect(container.querySelector('.dashboard-hero-mist')).toBeInTheDocument()
     expect(container.querySelector('.dashboard-hero-mountains')).toBeInTheDocument()
     expect(container.querySelector('.dashboard-hero-lake')).toBeInTheDocument()

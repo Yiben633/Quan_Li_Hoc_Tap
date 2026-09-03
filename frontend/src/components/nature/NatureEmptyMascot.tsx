@@ -1,6 +1,6 @@
 import { natureEmptyStateAssets } from '../../config/natureAssets'
 
-export type NatureEmptyMascotKind = 'tasks' | 'plan' | 'ai' | 'focus' | 'subject'
+export type NatureEmptyMascotKind = 'tasks' | 'plan' | 'ai' | 'subject'
 
 type NatureEmptyMascotProps = {
   kind: NatureEmptyMascotKind

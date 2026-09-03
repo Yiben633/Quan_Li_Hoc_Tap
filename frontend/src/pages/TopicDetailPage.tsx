@@ -83,7 +83,12 @@ export function TopicDetailPage() {
   const totalTasks = topic.statistics.taskTotal
   const completedTasks = topic.statistics.taskDone
   const remainingTasks = Math.max(totalTasks - completedTasks, 0)
-  const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+  const hasReliableTaskProgress = Number.isFinite(totalTasks)
+    && Number.isFinite(completedTasks)
+    && totalTasks > 0
+    && completedTasks >= 0
+    && completedTasks <= totalTasks
+  const progressPercent = hasReliableTaskProgress ? Math.round((completedTasks / totalTasks) * 100) : null
   const topTasks = priorityTasks(taskItems)
   const visibleTasks = taskItems.filter((task) => taskScope === 'all' || (taskScope === 'open' && task.status !== 'done') || (taskScope === 'in_progress' && task.status === 'in_progress') || (taskScope === 'done' && task.status === 'done'))
   const openTaskCreate = () => { setTab('tasks'); setQuickCreateFocusKey((current) => current + 1) }
@@ -132,8 +137,8 @@ export function TopicDetailPage() {
     {tab === 'overview'
       ? <>
         <section className="panel topic-overview-progress">
-          <div><p className="eyebrow">TIẾN ĐỘ MÔN HỌC</p><h2>{progressPercent}% hoàn thành</h2><p className="subtle">Tiến độ được tính từ các công việc trong môn học.</p></div>
-          <div className="topic-progress-value"><div className="topic-progress-track"><i style={{ width: `${progressPercent}%` }} /></div><strong>{completedTasks}/{totalTasks}</strong></div>
+          <div><p className="eyebrow">TIẾN ĐỘ CÔNG VIỆC</p><h2>{progressPercent === null ? 'Chưa đủ dữ liệu' : `${progressPercent}% hoàn thành`}</h2><p className="subtle">{progressPercent === null ? 'Chưa có đủ dữ liệu công việc để tính phần trăm.' : 'Tiến độ được tính từ các công việc trong môn học.'}</p></div>
+          {progressPercent !== null && <div className="topic-progress-value"><div className="topic-progress-track"><i style={{ width: `${progressPercent}%` }} /></div><strong>{completedTasks}/{totalTasks}</strong></div>}
         </section>
         <section className="topic-stats">
           <Stat label="Việc còn lại" value={remainingTasks} icon={<CheckSquare size={18} />} />

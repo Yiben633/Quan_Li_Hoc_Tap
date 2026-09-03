@@ -89,14 +89,4 @@ describe('NatureMascot', () => {
     expect(container.querySelector('img')).not.toHaveAttribute('fetchpriority')
   })
 
-  it('adds mug steam only for a large bear mascot', () => {
-    const { container, rerender } = render(<NatureMascot animal="bear" size={132} />)
-
-    expect(container.querySelector('.nature-mascot')).toHaveClass('nature-mascot--steam')
-
-    rerender(<NatureMascot animal="bear" size="md" />)
-
-    expect(container.querySelector('.nature-mascot')).not.toHaveClass('nature-mascot--steam')
-    expect(container.querySelector('.nature-mascot')).not.toHaveClass('nature-motion')
-  })
 })

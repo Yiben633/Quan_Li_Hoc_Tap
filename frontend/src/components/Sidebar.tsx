@@ -102,7 +102,7 @@ export function Sidebar({ open, onClose, collapsed, collapseLocked = false, onTo
       </section>
     </nav>
     <div className="sidebar-footer">
-      <div className="sidebar-forest-decoration nature-bush--sway nature-motion" aria-hidden="true"><img src={natureAssets.flora.bush} alt="" width={543} height={724} loading="lazy" decoding="async" /></div>
+      <div className="sidebar-forest-decoration" aria-hidden="true"><img src={natureAssets.flora.bush} alt="" width={543} height={724} loading="lazy" decoding="async" /></div>
       <div className="study-tip"><span className="tip-dot" /><div><strong>Giữ nhịp học tập</strong><p>Tiến từng bước nhỏ hôm nay.</p></div></div>
       <div className="sidebar-user-footer"><UserAccountMenu variant="sidebar" collapsed={isCollapsed} onNavigate={onClose} /></div>
     </div>

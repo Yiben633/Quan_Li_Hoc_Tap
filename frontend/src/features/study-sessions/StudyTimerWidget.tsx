@@ -158,7 +158,6 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
       <div><p className="eyebrow">PHIÊN TẬP TRUNG</p><h2>{subjectName ?? 'Phiên học tự do'}</h2></div>
       <span className={`study-session-state ${active.state.status}`}>{active.state.status === 'running' ? 'Đang học' : 'Đang tạm dừng'}</span>
     </div>
-    {!isBreakPomodoro && <div className="study-timer-mascot" aria-hidden="true"><NatureMascot animal="bear" motion="breathe" size={132} /></div>}
     <strong className="study-timer"><Clock3 size={22} /> {formatStudyClock(elapsed)}</strong>
     <p className="subtle">Phiên đang chạy được xác nhận bởi máy chủ và sẽ tiếp tục đúng thời gian sau khi bạn tải lại trang.</p>
     <div className="study-session-actions">

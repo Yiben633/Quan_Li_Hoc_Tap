@@ -13,7 +13,6 @@
 .ai-coach-fireflies { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .ai-coach-fireflies .nature-firefly { position: absolute; width: 4px; height: 4px; background: var(--nature-sand); border-radius: 50%; box-shadow: 0 0 7px color-mix(in srgb, var(--nature-amber) 75%, transparent); }
 .ai-coach-firefly-one { top: 23px; left: 40px; --nature-firefly-duration: 7.8s; }
-.ai-coach-fireflies .ai-coach-firefly-two { top: 47px; right: 20px; width: 3px; height: 3px; --nature-firefly-duration: 9.2s; animation-delay: -2.8s; }
 .ai-coach-heading-branch { position: absolute; right: -15px; bottom: 20px; width: 150px; height: 7px; background: var(--nature-bark); border-radius: 999px; opacity: .92; transform: rotate(-8deg); }
 .ai-coach-heading-branch::before, .ai-coach-heading-branch::after { position: absolute; width: 17px; height: 8px; content: ''; background: var(--nature-sage); border-radius: 100% 0 100% 0; }
 .ai-coach-heading-branch::before { top: -10px; left: 42px; box-shadow: 25px -7px 0 var(--nature-moss), 52px -2px 0 var(--nature-sage); transform: rotate(-16deg); }

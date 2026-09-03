@@ -112,18 +112,6 @@
   }
 }
 
-@keyframes nature-bear-steam {
-  0%, 100% {
-    opacity: 0;
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    opacity: 0.7;
-    transform: translate3d(0, -6px, 0);
-  }
-}
-
 @keyframes nature-owl-lantern-glow {
   0%, 100% {
     opacity: 0.35;
@@ -136,34 +124,6 @@
 
 .nature-bush--sway {
   transform-origin: 50% 100%;
-}
-
-.nature-mascot--steam {
-  position: relative;
-  overflow: visible;
-}
-
-.nature-mascot--steam::before,
-.nature-mascot--steam::after {
-  position: absolute;
-  z-index: 1;
-  top: 36%;
-  width: 3px;
-  height: 13%;
-  content: '';
-  border-left: 2px solid color-mix(in srgb, var(--nature-surface) 76%, transparent);
-  border-radius: 50%;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.nature-mascot--steam::before {
-  left: 47%;
-}
-
-.nature-mascot--steam::after {
-  left: 53%;
-  --nature-bear-steam-delay: -2.4s;
 }
 
 .nature-owl--lantern-glow {
@@ -235,11 +195,6 @@
     animation: nature-firefly var(--nature-firefly-duration, 8s) ease-in-out infinite;
   }
 
-  .nature-mascot--steam::before,
-  .nature-mascot--steam::after {
-    animation: nature-bear-steam 4.8s ease-in-out var(--nature-bear-steam-delay, 0s) infinite;
-  }
-
   .nature-owl--lantern-glow::before {
     animation: nature-owl-lantern-glow 5s ease-in-out infinite;
   }
@@ -270,8 +225,4 @@
     animation-duration: 9s;
   }
 
-  .study-timer-widget.is-running .nature-mascot--steam::before,
-  .study-timer-widget.is-running .nature-mascot--steam::after {
-    animation-duration: 7.2s;
-  }
 }

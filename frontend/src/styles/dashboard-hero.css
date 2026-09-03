@@ -120,23 +120,6 @@
   opacity: .38;
 }
 
-.dashboard-hero-leaf {
-  position: absolute;
-  z-index: 3;
-  display: block;
-  width: 12px;
-  height: 8px;
-  background: color-mix(in srgb, var(--nature-moss) 68%, transparent);
-  border-radius: 100% 0 100% 0;
-  pointer-events: none;
-}
-
-.dashboard-hero-leaf-one {
-  top: 70px;
-  right: 178px;
-  --nature-leaf-drift-duration: 13.5s;
-}
-
 .dashboard-hero-mist {
   position: absolute;
   z-index: 1;
