@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "npm run prisma:generate && tsc -p tsconfig.json",
+    "postbuild": "node scripts/copy-module-metadata.mjs",
     "start": "node dist/src/server.js",
     "test": "npm run test:admin-bootstrap && node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "test:admin-bootstrap": "node --test scripts/grant-bootstrap-admin.test.mjs",

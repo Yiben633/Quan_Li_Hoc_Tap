@@ -8,7 +8,7 @@
     "backend": {
       "root": "backend/",
       "framework": "express",
-      "entrypoint": "api/index.mts"
+      "entrypoint": "api/index.ts"
     }
   },
   "rewrites": [
