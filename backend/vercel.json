@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "includeFiles": ["src/package.json"],
   "crons": [{ "path": "/api/cron/notifications", "schedule": "0 0 * * *" }]
 }
