@@ -69,16 +69,18 @@ export function NatureMascot({
       data-motion={resolvedMotion}
       style={{ height: pixelSize, width: pixelSize }}
     >
-      <img
-        alt={decorative ? '' : alt}
-        decoding="async"
-        draggable={false}
-        fetchPriority={priority ? 'high' : undefined}
-        height={pixelSize}
-        loading={priority ? 'eager' : 'lazy'}
-        src={natureAssets.mascots[animal]}
-        width={pixelSize}
-      />
+      <span className="nature-mascot-art">
+        <img
+          alt={decorative ? '' : alt}
+          decoding="async"
+          draggable={false}
+          fetchPriority={priority ? 'high' : undefined}
+          height={pixelSize}
+          loading={priority ? 'eager' : 'lazy'}
+          src={natureAssets.mascots[animal]}
+          width={pixelSize}
+        />
+      </span>
     </span>
   )
 }

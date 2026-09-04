@@ -19,6 +19,23 @@
   user-select: none;
 }
 
+.nature-mascot-art {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  transform-origin: center;
+}
+
+/* Some transparent exports have more canvas margin than the original mascots. */
+.nature-mascot[data-animal='owl'] .nature-mascot-art { transform: scale(1.12); }
+.nature-mascot[data-animal='deer'] .nature-mascot-art { transform: scale(1.38); }
+.nature-mascot[data-animal='squirrel'] .nature-mascot-art { transform: scale(1.28); }
+.nature-mascot[data-animal='hedgehog'] .nature-mascot-art { transform: scale(1.36); }
+.nature-mascot[data-animal='robin'] .nature-mascot-art { transform: scale(1.3); }
+.nature-mascot[data-animal='raccoon'] .nature-mascot-art { transform: scale(1.3); }
+.nature-mascot[data-animal='frog'] .nature-mascot-art { transform: scale(1.2); }
+
 /* A shared softening pass keeps watercolor mascots from reading like stickers. */
 .nature-mascot img {
   opacity: 0.96;
