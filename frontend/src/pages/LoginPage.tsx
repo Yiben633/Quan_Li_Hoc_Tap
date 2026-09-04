@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRight, ChevronRight, GraduationCap, LayoutDashboard, ShieldCheck } from 'lucide-react'
+import { ArrowRight, ChevronRight, LayoutDashboard, ShieldCheck } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { getApiErrorMessage } from '../features/auth/auth.api'
 import { useLoginMutation } from '../features/auth/auth.hooks'
 import { loginSchema, type LoginValues } from '../features/auth/auth.schemas'
 import { useAuthStore } from '../stores/authStore'
+import { natureAssets } from '../config/natureAssets'
 
 type Destination = '/admin' | '/dashboard'
 
@@ -49,13 +50,17 @@ export function LoginPage() {
   })
 
   return <>
-    <main className="auth-page">
+    <main className="auth-page login-page">
+      <div className="login-page-decoration" aria-hidden="true">
+        <img src={natureAssets.effects.leaf01} alt="" width={84} height={84} loading="lazy" decoding="async" />
+        <img src={natureAssets.effects.leaf02} alt="" width={58} height={58} loading="lazy" decoding="async" />
+      </div>
       <section className="auth-panel">
-        <div className="auth-logo"><span className="brand-mark"><GraduationCap size={20} /></span>StudyFlow</div>
+        <div className="auth-logo"><img src={natureAssets.brand.logoMark} alt="" width={34} height={34} loading="eager" decoding="async" />StudyFlow</div>
         <div className="auth-copy">
-          <p className="eyebrow">KHÔNG GIAN HỌC TẬP CỦA BẠN</p>
-          <h1>Học có kế hoạch,<br /><em>tiến bộ có nhịp.</em></h1>
-          <p>Gom lịch học, công việc và mục tiêu vào một nơi rõ ràng hơn.</p>
+          <p className="eyebrow">CHÀO MỪNG TRỞ LẠI</p>
+          <h1>Tiếp tục<br /><em>nhịp học của bạn.</em></h1>
+          <p>Mở lại kế hoạch và việc cần làm tiếp theo.</p>
         </div>
         {feedback?.registered && <p className="form-success" role="status">Tài khoản đã tạo. Hãy đăng nhập để bắt đầu.</p>}
         {feedback?.resetSuccess && <p className="form-success" role="status">Mật khẩu đã được đặt lại thành công.</p>}

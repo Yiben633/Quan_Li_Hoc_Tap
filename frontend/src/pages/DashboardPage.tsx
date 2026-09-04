@@ -123,7 +123,7 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
       <span className="dashboard-hero-mountains" />
       <span className="dashboard-hero-lake" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-back" />
-      <NatureMascot animal="fox" motion={useFullHeroScene ? 'study' : 'none'} size={useFullHeroScene ? 188 : 132} priority={showScene} className="dashboard-hero-mascot" />
+      <NatureMascot animal="fox" motion={useFullHeroScene ? 'study' : 'none'} size={useFullHeroScene ? 168 : 116} priority={showScene} className="dashboard-hero-mascot" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-front" />
     </div>}
   </section>

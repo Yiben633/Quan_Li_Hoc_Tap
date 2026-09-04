@@ -52,6 +52,7 @@ export function NatureMascot({
   const resolvedMotion = motion ?? 'none'
   const mascotClassName = [
     'nature-mascot',
+    'nature-mascot-soft',
     `nature-mascot-${typeof size === 'number' ? 'custom' : size}`,
     `nature-mascot-motion-${resolvedMotion}`,
     resolvedMotion !== 'none' && 'nature-motion',

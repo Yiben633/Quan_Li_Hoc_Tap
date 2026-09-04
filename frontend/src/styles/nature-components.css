@@ -19,6 +19,16 @@
   user-select: none;
 }
 
+/* A shared softening pass keeps watercolor mascots from reading like stickers. */
+.nature-mascot img {
+  opacity: 0.96;
+  filter: saturate(0.88) contrast(0.94) brightness(1.01) drop-shadow(var(--nature-mascot-shadow));
+}
+
+.nature-mascot-soft img {
+  filter: saturate(0.85) contrast(0.92) brightness(1.02) drop-shadow(var(--nature-mascot-shadow));
+}
+
 .nature-mascot-sm {
   max-width: 72px;
   max-height: 72px;

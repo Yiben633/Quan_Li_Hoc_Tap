@@ -117,7 +117,7 @@
   right: 58px;
   width: 166px;
   height: auto;
-  opacity: .38;
+  opacity: .3;
 }
 
 .dashboard-hero-mist {
@@ -127,7 +127,8 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--nature-bg-warm) 82%, transparent), transparent 58%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nature-bg-warm) 64%, transparent), transparent 62%), radial-gradient(ellipse at 72% 54%, color-mix(in srgb, var(--nature-surface) 22%, transparent), transparent 48%);
+  opacity: .58;
 }
 
 .dashboard-hero-mountains {
@@ -174,13 +175,14 @@
 .dashboard-hero-bush-back {
   right: 180px;
   width: 230px;
-  opacity: .86;
+  opacity: .72;
 }
 
 .dashboard-hero-bush-front {
   right: -24px;
   z-index: 5;
   width: 190px;
+  opacity: .82;
 }
 
 .dashboard-hero-mascot {
@@ -204,7 +206,7 @@
 }
 
 [data-theme='dark'] .dashboard-hero-mist {
-  opacity: .78;
+  opacity: .5;
 }
 
 [data-theme='dark'] .dashboard-hero-lake {
@@ -212,11 +214,11 @@
 }
 
 [data-theme='dark'] .dashboard-hero-bush-back {
-  opacity: .58;
+  opacity: .48;
 }
 
 [data-theme='dark'] .dashboard-hero-bush-front {
-  opacity: .72;
+  opacity: .62;
 }
 
 [data-theme='dark'] .dashboard-hero-mascot {

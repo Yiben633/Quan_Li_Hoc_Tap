@@ -30,15 +30,16 @@ import { AdminPage } from '../pages/AdminPage'
 import { RouteErrorPage } from '../pages/RouteErrorPage'
 import { OfflinePage } from '../pages/OfflinePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
+import { LandingPage } from '../pages/LandingPage'
 
 export const routeDefinitions: RouteObject[] = [
   { errorElement: <RouteErrorPage />, children: [
+  { path: '/', element: <LandingPage /> },
   { path: '/login', element: <AuthLayout><LoginPage /></AuthLayout> },
   { path: '/register', element: <AuthLayout><RegisterPage /></AuthLayout> },
   { path: '/forgot-password', element: <AuthLayout><ForgotPasswordPage /></AuthLayout> },
   { path: '/offline', element: <OfflinePage /> },
   { element: <ProtectedRoute />, children: [{ element: <AppLayout />, errorElement: <RouteErrorPage />, children: [
-    { index: true, element: <DashboardPage /> },
     { path: 'dashboard', element: <DashboardPage /> },
     { path: 'tasks', element: <TasksPage /> },
     { path: 'tasks/kanban', element: <KanbanPage /> },

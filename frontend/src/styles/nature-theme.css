@@ -35,6 +35,7 @@
   --nature-radius-control: 10px;
   --nature-shadow-sm: 0 1px 2px rgba(54, 76, 58, .06);
   --nature-shadow-md: 0 6px 18px rgba(54, 76, 58, .1);
+  --nature-mascot-shadow: 0 2px 4px rgba(54, 76, 58, .12);
 
   --color-bg: var(--nature-bg);
   --color-bg-warm: var(--nature-bg-warm);
@@ -118,6 +119,7 @@
   --nature-focus-ring: rgba(145, 177, 149, .28);
   --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, .2);
   --nature-shadow-md: 0 7px 20px rgba(0, 0, 0, .26);
+  --nature-mascot-shadow: 0 2px 5px rgba(0, 0, 0, .2);
 
   /* Preserve the generic API while moving legacy controls into night forest. */
   --canvas: var(--nature-bg);

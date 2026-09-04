@@ -1,7 +1,8 @@
 const natureBasePath = '/assets/nature'
 export type NatureMascotAnimal =
-  | 'bunny'
   | 'fox'
+  | 'bunny'
+  | 'bear'
   | 'owl'
   | 'deer'
   | 'squirrel'
@@ -19,6 +20,7 @@ export const natureAssets = {
     fox: `${natureBasePath}/mascots/fox.png`,
     owl: `${natureBasePath}/mascots/owl.png`,
     bunny: `${natureBasePath}/mascots/bunny.png`,
+    bear: `${natureBasePath}/mascots/bear.png`,
     deer: `${natureBasePath}/mascots/deer.png`,
     squirrel: `${natureBasePath}/mascots/squirrel.png`,
     raccoon: `${natureBasePath}/mascots/raccoon.png`,
@@ -31,6 +33,8 @@ export const natureAssets = {
   },
   effects: {
     cloud01: `${natureBasePath}/effects/cloud-01.webp`,
+    leaf01: `${natureBasePath}/leaves/leaf_01.png`,
+    leaf02: `${natureBasePath}/leaves/leaf_02.png`,
   },
   icons: {},
 } as const satisfies {

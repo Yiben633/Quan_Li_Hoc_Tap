@@ -17,7 +17,7 @@
 .ai-coach-heading-branch::before, .ai-coach-heading-branch::after { position: absolute; width: 17px; height: 8px; content: ''; background: var(--nature-sage); border-radius: 100% 0 100% 0; }
 .ai-coach-heading-branch::before { top: -10px; left: 42px; box-shadow: 25px -7px 0 var(--nature-moss), 52px -2px 0 var(--nature-sage); transform: rotate(-16deg); }
 .ai-coach-heading-branch::after { top: 7px; left: 78px; box-shadow: 22px 3px 0 var(--nature-moss); transform: scaleX(-1) rotate(18deg); }
-.ai-coach-heading-owl { position: absolute; z-index: 2; right: 8px; bottom: 2px; filter: drop-shadow(0 6px 8px color-mix(in srgb, var(--nature-pine) 34%, transparent)); }
+.ai-coach-heading-owl { position: absolute; z-index: 2; right: 8px; bottom: 2px; }
 .ai-coach-mobile-list-button { display: none; }
 .ai-coach-shell { display: grid; grid-template-columns: 255px minmax(0, 1fr); block-size: min(680px, calc(100dvh - 180px)); min-block-size: 480px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
 .ai-coach-sidebar { min-width: 0; min-height: 0; overflow: hidden; background: var(--nature-surface-sage); border-right: 1px solid var(--nature-border); }

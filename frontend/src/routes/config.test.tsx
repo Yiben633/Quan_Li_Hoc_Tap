@@ -94,7 +94,7 @@ describe('application routes', () => {
   it('keeps /admin behind the admin role guard on a direct URL', async () => {
     const studentRouter = await renderRoute('/admin')
     expect(await screen.findByTestId('dashboard-page')).toBeInTheDocument()
-    expect(studentRouter.state.location.pathname).toBe('/')
+    expect(studentRouter.state.location.pathname).toBe('/dashboard')
     expect(studentRouter.state.errors ?? null).toBeNull()
 
     const adminRouter = await renderRoute('/admin', admin)
