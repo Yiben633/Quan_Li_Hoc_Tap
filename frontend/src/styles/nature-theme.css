@@ -30,12 +30,29 @@
   --nature-danger: #8f3f3a;
   --nature-danger-soft: #f3d8d4;
   --nature-focus-ring: rgba(69, 107, 82, .24);
-  --nature-radius-card: 14px;
+  --nature-radius-card: 20px;
   --nature-radius-menu: 12px;
   --nature-radius-control: 10px;
   --nature-shadow-sm: 0 1px 2px rgba(54, 76, 58, .06);
   --nature-shadow-md: 0 6px 18px rgba(54, 76, 58, .1);
+  --nature-shadow-card: 0 8px 28px rgba(55, 76, 52, .06);
   --nature-mascot-shadow: 0 2px 4px rgba(54, 76, 58, .12);
+  --nature-decoration-opacity: .86;
+  --nature-decoration-muted-opacity: .58;
+
+  /* StudyFlow palette aliases for new components. Keep one source of truth. */
+  --sf-forest: var(--nature-primary);
+  --sf-forest-deep: var(--nature-pine);
+  --sf-sage: var(--nature-sage);
+  --sf-sage-soft: var(--nature-primary-soft);
+  --sf-cream: var(--nature-bg-warm);
+  --sf-paper: var(--nature-surface);
+  --sf-sand: var(--nature-sand);
+  --sf-brown: var(--nature-bark);
+  --sf-orange: var(--nature-amber);
+  --sf-text: var(--nature-text);
+  --sf-muted: var(--nature-text-secondary);
+  --sf-border: var(--nature-border);
 
   --color-bg: var(--nature-bg);
   --color-bg-warm: var(--nature-bg-warm);
@@ -119,6 +136,7 @@
   --nature-focus-ring: rgba(145, 177, 149, .28);
   --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, .2);
   --nature-shadow-md: 0 7px 20px rgba(0, 0, 0, .26);
+  --nature-shadow-card: 0 8px 28px rgba(0, 0, 0, .16);
   --nature-mascot-shadow: 0 2px 5px rgba(0, 0, 0, .2);
 
   /* Preserve the generic API while moving legacy controls into night forest. */

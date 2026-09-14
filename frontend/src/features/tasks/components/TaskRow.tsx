@@ -1,4 +1,5 @@
-import { Check, Copy, Edit3, MoreHorizontal, Paperclip, Trash2 } from 'lucide-react'
+import { CalendarDays, Check, Clock3, Copy, Edit3, Flag, MoreHorizontal, Paperclip, Trash2 } from 'lucide-react'
+import type { KeyboardEvent, MouseEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Dropdown } from '../../../components/ui'
 import { formatTaskDeadline, isTaskDeadlineOverdue } from '../../../utils/taskDate'
@@ -38,15 +39,32 @@ export function TaskRow({ task, subject, studyPlan, mode = 'default', selectionM
   ].filter(Boolean)
   const progress = task.subTaskProgress
   const progressPercent = progress && progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0
+  const dueTime = formatTaskTime(task.dueDate)
+  const handleCardClick = (event: MouseEvent<HTMLElement>) => {
+    if (!onOpen || (event.target instanceof Element && event.target.closest('button, a, input, [role="menu"]'))) return
+    onOpen()
+  }
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (!onOpen || (event.target instanceof Element && event.target.closest('button, a, input, [role="menu"]'))) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onOpen()
+    }
+  }
 
-  return <article className={`task-list-row task-status-${task.status} task-priority-${task.priority}`}>
+  return <article className={`task-list-row task-status-${task.status} task-priority-${task.priority}`} onClick={handleCardClick} onKeyDown={handleCardKeyDown} tabIndex={onOpen ? 0 : undefined} role={onOpen ? 'button' : undefined} aria-label={onOpen ? `Mở chi tiết ${task.title}` : undefined}>
     {selectionMode
       ? <input type="checkbox" checked={selected} onChange={onSelect} aria-label={`Chọn ${task.title} để thao tác hàng loạt`} />
       : <button type="button" className={`task-complete-toggle${isDone ? ' is-done' : ''}`} onClick={() => { if (!isDone) onStatusChange('done') }} disabled={isDone} aria-label={isDone ? `${task.title} đã hoàn thành` : `Đánh dấu hoàn thành ${task.title}`} title={isDone ? 'Đã hoàn thành' : 'Đánh dấu hoàn thành'}><Check size={13} /></button>}
     <div className="task-row-content">
       <div className="task-row-primary"><button type="button" className="task-row-main" onClick={onOpen}><span className="task-row-title">{task.title}</span></button></div>
       {(subject || studyPlan) && <p className="task-row-context">{subject && <Link to={`/topics/${subject.id}`}><i className="task-subject-dot" style={{ background: subject.colorHex }} aria-hidden="true" />{subject.code ? `${subject.code} · ${subject.name}` : subject.name}</Link>}{subject && studyPlan && <span aria-hidden="true"> · </span>}{studyPlan && <Link to={`/study-plans/${studyPlan.id}`}>{studyPlan.title}</Link>}</p>}
-      {metadata.length > 0 && <p className="task-row-meta">{task.dueDate && <span className={deadlineIsOverdue ? 'task-deadline-overdue' : undefined}>{deadline}</span>}{task.estimatedMinutes !== null && task.estimatedMinutes !== undefined && <span> · {task.estimatedMinutes} phút</span>}{task.difficulty && <span> · {DIFFICULTY_LABELS[task.difficulty as keyof typeof DIFFICULTY_LABELS]}</span>}<span> · {PRIORITY_LABELS[task.priority]}</span></p>}
+      {metadata.length > 0 && <div className="task-row-meta">
+        {task.dueDate && <span className={`task-row-deadline${deadlineIsOverdue ? ' task-deadline-overdue' : ''}`}><CalendarDays size={13} aria-hidden="true" /> {deadline}{dueTime && <><Clock3 size={12} aria-hidden="true" /> {dueTime}</>}</span>}
+        {task.estimatedMinutes !== null && task.estimatedMinutes !== undefined && <span>{task.estimatedMinutes} phút</span>}
+        {task.difficulty && <span>{DIFFICULTY_LABELS[task.difficulty as keyof typeof DIFFICULTY_LABELS]}</span>}
+        <span className={`task-row-priority priority-${task.priority}`}><Flag size={12} aria-hidden="true" /> {PRIORITY_LABELS[task.priority]}</span>
+      </div>}
       <span className={`status-label task-row-status task-pill-${task.status}`} aria-label={`Trạng thái: ${TASK_STATUS_LABELS[task.status]}`}>{TASK_STATUS_LABELS[task.status]}</span>
       {progress && progress.total > 0 && <div className="task-row-progress" aria-label={`Checklist ${progress.done}/${progress.total}, ${progressPercent}% hoàn thành`}><span>Checklist {progress.done}/{progress.total}</span><div><i style={{ width: `${progressPercent}%` }} /></div><strong>{progressPercent}%</strong></div>}
       {task.attachmentCount && task.attachmentCount > 0 && <button type="button" className="task-attachment-link" onClick={onOpen} aria-label={`Xem ${task.attachmentCount} tệp đính kèm của ${task.title}`}><Paperclip size={13} /> {task.attachmentCount} tệp đính kèm</button>}
@@ -58,4 +76,12 @@ export function TaskRow({ task, subject, studyPlan, mode = 'default', selectionM
       {onDelete && <button type="button" className="menu-item danger-text" onClick={onDelete}><Trash2 size={15} /> Xóa</button>}
     </Dropdown>
   </article>
+}
+
+function formatTaskTime(value?: string | null) {
+  const match = value?.match(/T(\d{2}):(\d{2})/)
+  if (!match || (match[1] === '00' && match[2] === '00')) return null
+  const date = new Date(value ?? '')
+  if (Number.isNaN(date.getTime())) return null
+  return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit' }).format(date)
 }

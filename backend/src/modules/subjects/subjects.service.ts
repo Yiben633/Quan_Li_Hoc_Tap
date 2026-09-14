@@ -36,7 +36,34 @@ export async function list(userId: string, query: { semesterId?: string; search?
     prisma.subject.findMany({ where, orderBy: { [query.sort]: query.order }, skip: (query.page - 1) * query.limit, take: query.limit }),
     prisma.subject.count({ where }),
   ]);
-  return { items: items.map((item) => ({ ...item, targetGrade: decimal(item.targetGrade) })), pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) } };
+  const taskGroups = items.length
+    ? await prisma.task.groupBy({
+      by: ['subjectId', 'status'],
+      where: { userId, deletedAt: null, subjectId: { in: items.map((item) => item.id) } },
+      _count: { _all: true },
+    })
+    : [];
+  const taskProgress = new Map<string, { taskTotal: number; taskDone: number }>();
+  for (const group of taskGroups) {
+    if (!group.subjectId) continue;
+    const current = taskProgress.get(group.subjectId) ?? { taskTotal: 0, taskDone: 0 };
+    current.taskTotal += group._count._all;
+    if (group.status === 'done') current.taskDone += group._count._all;
+    taskProgress.set(group.subjectId, current);
+  }
+  return {
+    items: items.map((item) => {
+      const progress = taskProgress.get(item.id);
+      return {
+        ...item,
+        targetGrade: decimal(item.targetGrade),
+        taskProgress: progress && progress.taskTotal > 0
+          ? { ...progress, progressPercent: Math.round((progress.taskDone / progress.taskTotal) * 100) }
+          : null,
+      };
+    }),
+    pagination: { page: query.page, limit: query.limit, total, totalPages: Math.ceil(total / query.limit) },
+  };
 }
 
 export async function create(userId: string, input: {

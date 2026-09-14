@@ -1,9 +1,9 @@
-import { ArrowRight, CalendarDays, Clock3, Edit3, MoreHorizontal, Pause, Trash2 } from 'lucide-react'
-import { Dropdown, Tooltip } from '../../../components/ui'
+import { ArrowRight, CalendarDays, Clock3, Edit3, Flag, MoreHorizontal, Pause, Trash2 } from 'lucide-react'
+import { Card, Dropdown, Tooltip } from '../../../components/ui'
 import { formatTaskDate, formatTaskDeadline } from '../../../utils/taskDate'
 import { getPlanHealth } from '../../../utils/planHealth'
 import { natureAssets } from '../../../config/natureAssets'
-import { PLAN_STATUS_LABELS } from '../task.constants'
+import { PLAN_STATUS_LABELS, PRIORITY_LABELS } from '../task.constants'
 import type { StudyPlan } from '../tasks.api'
 
 function dateRange(plan: StudyPlan) {
@@ -28,9 +28,12 @@ export function StudyPlanCard({ plan, onView, onEdit, onPause, onDelete }: { pla
   const subjectLabel = plan.subject?.code || plan.subject?.name
   const health = getPlanHealth(plan.startDate, plan.endDate, progressPercent)
 
-  return <article className={`plan-card plan-card-${plan.status}`}>
+  return <Card as="article" className={`plan-card plan-card-${plan.status}`}>
     <header className="plan-card-head">
-      <span className={`plan-status plan-${plan.status}`} aria-label={`Trạng thái: ${statusLabel}`}>{statusLabel}</span>
+      <div className="plan-card-badges">
+        <span className={`plan-status plan-${plan.status}`} aria-label={`Trạng thái: ${statusLabel}`}>{statusLabel}</span>
+        <span className={`plan-priority plan-priority-${plan.priority}`}><Flag size={12} aria-hidden="true" /> {PRIORITY_LABELS[plan.priority]}</span>
+      </div>
       <Dropdown ariaLabel={`Thao tác với ${plan.title}`} label={<><MoreHorizontal size={18} /><span className="sr-only">Thao tác với {plan.title}</span></>} showChevron={false}>
         <button type="button" className="menu-item" onClick={onView}>Xem chi tiết</button>
         <button type="button" className="menu-item" onClick={onEdit}><Edit3 size={15} /> Chỉnh sửa</button>
@@ -43,9 +46,9 @@ export function StudyPlanCard({ plan, onView, onEdit, onPause, onDelete }: { pla
       {(subjectLabel || plan.targetGoal) && <p>{[subjectLabel, plan.targetGoal ? `Mục tiêu ${plan.targetGoal}` : null].filter(Boolean).join(' · ')}</p>}
     </div>
     {(range || plan.endDate) && <p className="plan-card-date"><CalendarDays size={14} /> {range}{plan.endDate && <><span>·</span><strong>{formatTaskDeadline(plan.endDate)}</strong></>}</p>}
-    <div className="plan-card-progress"><div className="progress-line" aria-label={`${progressPercent}% tiến độ`}><span style={{ width: `${progressPercent}%` }} /></div><strong>{progressPercent}%</strong></div>
-    {(taskTotal > 0 || estimate) && <p className="plan-card-meta">{taskTotal > 0 && <span>{taskDone}/{taskTotal} công việc</span>}{taskTotal > 0 && estimate && <i>·</i>}{estimate && <span><Clock3 size={13} /> {estimate}</span>}</p>}
+    <div className="plan-card-progress"><div className="plan-card-progress-head"><span>Tiến độ</span><strong>{progressPercent}%</strong></div><div className="progress-line" aria-label={`${progressPercent}% tiến độ`}><span style={{ width: `${progressPercent}%` }} /></div></div>
+    <p className="plan-card-meta"><span>{taskTotal > 0 ? `${taskDone}/${taskTotal} công việc` : 'Chưa có công việc'}</span>{estimate && <><i>·</i><span><Clock3 size={13} /> {estimate}</span></>}</p>
     <img className="plan-card-flora" src={natureAssets.flora.bush} width={36} height={36} loading="lazy" decoding="async" alt="" aria-hidden="true" />
     <footer className="plan-card-footer">{health ? <Tooltip label="Đánh giá dựa trên thời gian đã trôi qua và tiến độ công việc."><span className={`plan-health plan-health-${health.status}`}>{health.label}</span></Tooltip> : <span />}<button type="button" onClick={onView}>Tiếp tục <ArrowRight size={15} /></button></footer>
-  </article>
+  </Card>
 }

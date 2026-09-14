@@ -71,6 +71,14 @@ describe('NatureMascot', () => {
     expect(image).toHaveAttribute('fetchpriority', 'high')
   })
 
+  it('provides a responsive hero size preset', () => {
+    const { container } = render(<NatureMascot animal="fox" size="hero" />)
+    const mascot = container.querySelector('.nature-mascot')
+
+    expect(mascot).toHaveClass('nature-mascot-hero')
+    expect(mascot).toHaveStyle({ width: '260px', height: '260px' })
+  })
+
   it('hides decorative mascots from assistive technology', () => {
     const { container } = render(<NatureMascot animal="fox" />)
 

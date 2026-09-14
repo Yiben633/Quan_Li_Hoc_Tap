@@ -19,16 +19,16 @@ const navigationSections: Array<{ label: string; links: SidebarLink[] }> = [
     label: 'HỌC TẬP',
     links: [
       { to: '/subjects', label: 'Môn học', icon: BookOpen },
-      { to: '/study-plans', label: 'Kế hoạch', icon: ListTodo },
       { to: '/tasks', label: 'Công việc', icon: CheckSquare },
-      { to: '/calendar', label: 'Lịch', icon: CalendarDays },
+      { to: '/calendar', label: 'Lịch học', icon: CalendarDays },
+      { to: '/study-plans', label: 'Kế hoạch', icon: ListTodo },
     ],
   },
   {
     label: 'PHÁT TRIỂN',
     links: [
       { to: '/goals', label: 'Mục tiêu', icon: Target },
-      { to: '/study', label: 'Tập trung', icon: Timer },
+      { to: '/study', label: 'Pomodoro', icon: Timer },
       { to: '/statistics', label: 'Thống kê', icon: BarChart3 },
     ],
   },

@@ -2,7 +2,7 @@ import apiClient from '../../services/apiClient'
 
 type ApiResponse<T> = { success: boolean; message: string; data: T }
 export type LearningSpace = { id: string; name: string; academicYear: string; startDate: string; endDate: string; status: 'planning' | 'active' | 'closed' | 'archived'; targetGpa?: number | null; note?: string | null }
-export type Topic = { id: string; semesterId: string; code: string; name: string; credits: number; colorHex: string; targetGrade?: number | null; status: 'in_progress' | 'completed' | 'dropped' | 'archived'; lecturer?: string | null; note?: string | null }
+export type Topic = { id: string; semesterId: string; code: string; name: string; credits: number; colorHex: string; targetGrade?: number | null; status: 'in_progress' | 'completed' | 'dropped' | 'archived'; lecturer?: string | null; note?: string | null; taskProgress?: { taskTotal: number; taskDone: number; progressPercent: number } | null }
 export type TopicDetail = Topic & { statistics: { taskTotal: number; taskDone: number; totalStudyMinutes: number; currentAverage: number | null } }
 export type Paginated<T> = { items: T[]; pagination: { page: number; limit: number; total: number; totalPages: number } }
 

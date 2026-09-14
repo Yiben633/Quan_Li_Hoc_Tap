@@ -168,7 +168,7 @@ export function StudyTimerWidget({ active, subjectName, onActiveChange, onEnded 
     </div>
 
     <section className="pomodoro-panel" aria-label="Pomodoro">
-      <div className="pomodoro-head"><div><span><TimerReset size={17} /> Pomodoro</span><p>{pomodoro ? pomodoroLabels[pomodoro.sessionType] : `Sẵn sàng ${pomodoroLabels[nextPomodoroType].toLowerCase()}`}</p></div>{pomodoro && <strong>{formatStudyClock(pomodoroRemaining)}</strong>}</div>
+      <div className="pomodoro-head"><div><span><TimerReset size={17} /> Pomodoro</span><p>{pomodoro ? pomodoroLabels[pomodoro.sessionType] : `Sẵn sàng ${pomodoroLabels[nextPomodoroType].toLowerCase()}`}</p></div><strong>{pomodoro ? formatStudyClock(pomodoroRemaining) : formatStudyClock(nextPomodoroMinutes * 60, false)}</strong></div>
       {pomodoro ? <Button variant="secondary" onClick={() => finishPomodoro(pomodoro)} loading={endPomodoro.isPending}>Hoàn thành {pomodoroLabels[pomodoro.sessionType].toLowerCase()}</Button> : <Button variant="secondary" onClick={() => startPomodoro.mutate({ sessionId: active.session.id, input: { sessionType: nextPomodoroType, plannedMinutes: nextPomodoroMinutes } }, { onSuccess: (next) => { autoEndingPomodoro.current = null; setPomodoro(next); toast.success(`Bắt đầu ${pomodoroLabels[nextPomodoroType].toLowerCase()}`) }, onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể bắt đầu Pomodoro')) })} loading={startPomodoro.isPending}><Coffee size={16} /> {pomodoroLabels[nextPomodoroType]} {nextPomodoroMinutes} phút</Button>}
       <small>{completedFocusCount} lượt tập trung đã hoàn thành trong phiên này. Nghỉ dài sau mỗi 4 lượt.</small>
     </section>

@@ -1,20 +1,20 @@
-@keyframes nature-float {
+@keyframes studyflow-float {
   0%, 100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translateY(0);
   }
 
   50% {
-    transform: translate3d(0, -4px, 0) rotate(0.35deg);
+    transform: translateY(-6px);
   }
 }
 
-@keyframes nature-breathe {
+@keyframes studyflow-breathe {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 
   50% {
-    transform: translateY(-2px) scale(1.012);
+    transform: scale(1.015);
   }
 }
 
@@ -68,13 +68,13 @@
   }
 }
 
-@keyframes nature-bush-sway {
+@keyframes studyflow-sway {
   0%, 100% {
-    transform: rotate(-0.8deg);
+    transform: rotate(0deg);
   }
 
   50% {
-    transform: rotate(0.8deg);
+    transform: rotate(1.5deg);
   }
 }
 
@@ -152,11 +152,11 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .nature-mascot-motion-float img {
-    animation: nature-float 6.2s ease-in-out infinite;
+    animation: studyflow-float 6.2s ease-in-out infinite;
   }
 
   .nature-mascot-motion-breathe img {
-    animation: nature-breathe 5.2s ease-in-out infinite;
+    animation: studyflow-breathe 5.2s ease-in-out infinite;
   }
 
   .nature-mascot-motion-study img {
@@ -180,7 +180,7 @@
   }
 
   .nature-bush--sway {
-    animation: nature-bush-sway 4.8s ease-in-out infinite;
+    animation: studyflow-sway 4.8s ease-in-out infinite;
   }
 
   .nature-cloud--drift {

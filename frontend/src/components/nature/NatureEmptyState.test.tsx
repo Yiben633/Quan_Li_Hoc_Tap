@@ -19,6 +19,6 @@ describe('NatureEmptyState', () => {
     expect(screen.getByRole('button', { name: 'Thêm công việc' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Mở kế hoạch' })).toHaveAttribute('href', '/study-plans')
     expect(container.querySelector('.nature-empty-state-lg')).toBeInTheDocument()
-    expect(container.querySelector('img')).toHaveAttribute('width', '132')
+    expect(container.querySelector('img')).toHaveAttribute('width', '180')
   })
 })

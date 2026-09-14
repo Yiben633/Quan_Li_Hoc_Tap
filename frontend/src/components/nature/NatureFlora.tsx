@@ -27,7 +27,7 @@ export function NatureFlora({
   return (
     <span
       aria-hidden="true"
-      className={['nature-flora', className].filter(Boolean).join(' ')}
+      className={['nature-flora', 'nature-decoration', className].filter(Boolean).join(' ')}
       data-flora={name}
       style={style}
     >

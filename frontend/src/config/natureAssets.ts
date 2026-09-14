@@ -28,13 +28,33 @@ export const natureAssets = {
     frog: `${natureBasePath}/mascots/frog.png`,
     robin: `${natureBasePath}/mascots/robin.png`,
   },
+  mascotVariants: {
+    bunnyLaptop: `${natureBasePath}/mascots/bunny_laptop.png`,
+    foxSleep: `${natureBasePath}/mascots/fox_sleep.png`,
+  },
   flora: {
     bush: `${natureBasePath}/flora/bush/bush.webp`,
+  },
+  leaves: {
+    leaf01: `${natureBasePath}/leaves/leaf_01.png`,
+    leaf02: `${natureBasePath}/leaves/leaf_02.png`,
+    leaf03: `${natureBasePath}/leaves/leaf_03.png`,
+    leaf04: `${natureBasePath}/leaves/leaf_04.png`,
+    leaf05: `${natureBasePath}/leaves/leaf_05.png`,
   },
   effects: {
     cloud01: `${natureBasePath}/effects/cloud-01.webp`,
     leaf01: `${natureBasePath}/leaves/leaf_01.png`,
     leaf02: `${natureBasePath}/leaves/leaf_02.png`,
+  },
+  decorations: {
+    books: `${natureBasePath}/decorations/books.png`,
+    calendarCheck: `${natureBasePath}/decorations/calendar_check.png`,
+    coffee: `${natureBasePath}/decorations/coffee.png`,
+    keepGoingSign: `${natureBasePath}/decorations/keep_going_sign.png`,
+    lantern: `${natureBasePath}/decorations/lantern.png`,
+    mushroom: `${natureBasePath}/decorations/mushroom.png`,
+    openBook: `${natureBasePath}/decorations/open_book.png`,
   },
   icons: {},
 } as const satisfies {
@@ -43,10 +63,13 @@ export const natureAssets = {
     logoFull: string
   }
   mascots: Record<NatureMascotAnimal, string>
+  mascotVariants: Record<string, string>
   flora: {
     bush: string
   }
+  leaves: Record<string, string>
   effects: Record<string, string>
+  decorations: Record<string, string>
   icons: Record<string, string>
 }
 

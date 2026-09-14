@@ -17,7 +17,8 @@
   position: relative;
   z-index: 2;
   align-self: center;
-  max-width: 620px;
+  max-width: min(620px, calc(100% - 270px));
+  min-width: 0;
 }
 
 .dashboard-hero-eyebrow {
@@ -105,7 +106,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 48%;
+  width: 47%;
   overflow: hidden;
   pointer-events: none;
 }
@@ -188,8 +189,8 @@
 .dashboard-hero-mascot {
   position: absolute;
   z-index: 4;
-  right: 110px;
-  bottom: -14px;
+  right: 104px;
+  bottom: 0;
 }
 
 .dashboard-hero-skeleton {
@@ -235,6 +236,10 @@
     width: 42%;
   }
 
+  .dashboard-hero-content {
+    max-width: min(100%, calc(100% - 200px));
+  }
+
   .dashboard-hero-cloud {
     right: 32px;
     width: 120px;
@@ -251,7 +256,7 @@
 
   .dashboard-hero-mascot {
     right: 52px;
-    bottom: -6px;
+    bottom: 0;
   }
 }
 

@@ -68,20 +68,23 @@ export function DashboardPage() {
 
       {!hasData && <section className="panel dashboard-welcome"><EmptyState icon={<Target size={24} />} title="Bắt đầu xây dựng nhịp của bạn" description="Tạo một việc hoặc một kế hoạch nhỏ. Bạn luôn có thể thêm môn học sau." action={<div className="quick-actions"><Link className="button primary" to="/tasks"><Plus size={16} /> Tạo việc đầu tiên</Link><Link className="button secondary" to="/study-plans"><Plus size={16} /> Tạo kế hoạch</Link></div>} /></section>}
 
-      <div className="dashboard-architecture-grid dashboard-overview-grid">
+      <div className="dashboard-architecture-grid dashboard-summary-grid">
         <DashboardTodaySummary
           tasksRemaining={todayTasksRemaining}
           studyMinutes={todayStudy.isLoading ? undefined : todayStudy.isError ? null : todayStudy.data?.totalMinutes ?? 0}
           weeklyTasksDone={weeklyProgress.isLoading ? undefined : weeklyProgress.isError ? null : weeklyTasksDone ?? 0}
           streak={streakChart.isLoading ? undefined : streakChart.isError ? null : streak ?? 0}
         />
-        <ActiveSubjectsPanel subjects={data.activeSubjects} />
+      </div>
+
+      <div className="dashboard-architecture-grid dashboard-focus-grid">
+        <TodayTaskList tasks={todayTaskItems} loading={todayTasks.isLoading || overdueTasks.isLoading} error={todayTasks.isError || overdueTasks.isError} onRetry={() => { void todayTasks.refetch(); void overdueTasks.refetch() }} onStatusChange={(id, status) => taskStatus.mutate({ id, status })} />
         <DashboardPomodoroCard />
       </div>
 
-      <div className="dashboard-architecture-grid dashboard-schedule-grid">
-        <TodayTaskList tasks={todayTaskItems} loading={todayTasks.isLoading || overdueTasks.isLoading} error={todayTasks.isError || overdueTasks.isError} onRetry={() => { void todayTasks.refetch(); void overdueTasks.refetch() }} onStatusChange={(id, status) => taskStatus.mutate({ id, status })} />
+      <div className="dashboard-architecture-grid dashboard-study-grid">
         <DashboardWeeklyCalendar />
+        <ActiveSubjectsPanel subjects={data.activeSubjects} />
       </div>
 
       <div className="dashboard-architecture-grid dashboard-progress-grid">
@@ -123,7 +126,7 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
       <span className="dashboard-hero-mountains" />
       <span className="dashboard-hero-lake" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-back" />
-      <NatureMascot animal="fox" motion={useFullHeroScene ? 'study' : 'none'} size={useFullHeroScene ? 168 : 116} priority={showScene} className="dashboard-hero-mascot" />
+      <NatureMascot animal="fox" motion={useFullHeroScene ? 'study' : 'none'} size={useFullHeroScene ? 'hero' : 176} priority={showScene} className="dashboard-hero-mascot" />
       <NatureFlora name="bush" width={543} height={724} className="dashboard-hero-bush dashboard-hero-bush-front" />
     </div>}
   </section>
@@ -209,6 +212,9 @@ function AICoachPanel({ briefing, available }: { briefing?: DashboardSummary['da
             : <p>{available ? 'Mở AI Coach để lập kế hoạch từ công việc và lịch học của bạn.' : 'AI Coach chưa khả dụng trong môi trường này.'}</p>}
           <Link className="button secondary dashboard-ai-action" to={action.to}><ActionIcon size={15} /> {action.label}</Link>
         </div>
+        <div className="dashboard-ai-mascot" aria-hidden="true">
+          <NatureMascot animal="owl" motion="observe" size={76} />
+        </div>
       </div>
     </section>
   )
@@ -275,12 +281,11 @@ function DashboardSkeleton() {
   return (
     <div className="dashboard">
       <section className="dashboard-hero dashboard-hero-skeleton"><div className="dashboard-hero-content"><Skeleton width={180} height={12} /><Skeleton width={300} height={36} className="skeleton-heading" /><Skeleton width={250} height={16} /><div className="dashboard-hero-actions"><Skeleton width={142} height={40} /><Skeleton width={174} height={40} /></div></div></section>
-      <div className="dashboard-architecture-grid dashboard-overview-grid">
+      <div className="dashboard-architecture-grid dashboard-summary-grid">
         <section className="panel dashboard-today-summary dashboard-today-summary-skeleton"><Skeleton width={160} height={13} /><div>{[1, 2, 3, 4].map((item) => <Skeleton key={item} height={78} />)}</div></section>
-        <section className="panel dashboard-subjects-panel"><Skeleton height={238} /></section>
-        <section className="panel dashboard-pomodoro-card"><Skeleton height={238} /></section>
       </div>
-      <div className="dashboard-architecture-grid dashboard-schedule-grid"><section className="panel dashboard-today-tasks"><Skeleton height={310} /></section><section className="panel dashboard-weekly-calendar"><Skeleton height={310} /></section></div>
+      <div className="dashboard-architecture-grid dashboard-focus-grid"><section className="panel dashboard-today-tasks"><Skeleton height={310} /></section><section className="panel dashboard-pomodoro-card"><Skeleton height={238} /></section></div>
+      <div className="dashboard-architecture-grid dashboard-study-grid"><section className="panel dashboard-weekly-calendar"><Skeleton height={310} /></section><section className="panel dashboard-subjects-panel"><Skeleton height={238} /></section></div>
       <div className="dashboard-architecture-grid dashboard-progress-grid"><section className="panel dashboard-weekly-activity"><Skeleton height={300} /></section><section className="panel dashboard-next-tasks-panel"><Skeleton height={300} /></section><section className="panel dashboard-plans-panel"><Skeleton height={300} /></section></div>
       <section className="panel dashboard-ai-panel"><Skeleton height={238} /></section>
     </div>

@@ -10,7 +10,7 @@ export type NatureMotion =
   | 'peek'
   | 'perch'
 
-export type NatureMascotSize = 'sm' | 'md' | 'lg' | 'xl' | number
+export type NatureMascotSize = 'sm' | 'md' | 'lg' | 'xl' | 'hero' | number
 
 type NatureMascotBaseProps = {
   animal: NatureMascotAnimal
@@ -37,6 +37,7 @@ const sizeMap: Record<Exclude<NatureMascotSize, number>, number> = {
   md: 88,
   lg: 128,
   xl: 180,
+  hero: 260,
 }
 
 export function NatureMascot({

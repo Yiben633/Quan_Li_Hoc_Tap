@@ -1,15 +1,41 @@
 .nature-mascot,
-.nature-flora {
+.nature-flora,
+.nature-decoration {
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
-  overflow: hidden;
-  contain: layout paint;
+  contain: layout;
   line-height: 0;
   vertical-align: middle;
 }
 
-.nature-mascot img,
+.nature-decoration {
+  opacity: var(--nature-decoration-opacity);
+  pointer-events: none;
+  user-select: none;
+}
+
+.nature-mascot {
+  position: relative;
+  overflow: visible;
+}
+
+.nature-flora {
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.nature-mascot img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
 .nature-flora img {
   display: block;
   width: 100%;
@@ -39,11 +65,12 @@
 /* A shared softening pass keeps watercolor mascots from reading like stickers. */
 .nature-mascot img {
   opacity: 0.96;
-  filter: saturate(0.88) contrast(0.94) brightness(1.01) drop-shadow(var(--nature-mascot-shadow));
+  filter: saturate(0.88) contrast(0.94) brightness(1.01);
 }
 
 .nature-mascot-soft img {
-  filter: saturate(0.85) contrast(0.92) brightness(1.02) drop-shadow(var(--nature-mascot-shadow));
+  opacity: 0.95;
+  filter: saturate(0.85) contrast(0.92) brightness(1.02);
 }
 
 .nature-mascot-sm {
@@ -66,6 +93,11 @@
   max-height: 220px;
 }
 
+.nature-mascot-hero {
+  max-width: 280px;
+  max-height: 280px;
+}
+
 @media (max-width: 639px) {
   .nature-mascot-lg {
     max-width: 104px;
@@ -75,6 +107,11 @@
   .nature-mascot-xl {
     max-width: 112px;
     max-height: 112px;
+  }
+
+  .nature-mascot-hero {
+    max-width: 170px;
+    max-height: 170px;
   }
 }
 
@@ -498,18 +535,61 @@
   border-color: color-mix(in srgb, var(--nature-bark) 25%, var(--nature-border));
 }
 
+.studyflow-card,
 .panel,
 .stat-card,
 .modal {
+  box-sizing: border-box;
   background: var(--nature-surface);
   border-color: var(--nature-border);
   border-radius: var(--nature-radius-card);
-  box-shadow: var(--nature-shadow-sm);
+  box-shadow: var(--nature-shadow-card);
 }
 
-.panel,
-.stat-card {
-  box-shadow: var(--nature-shadow-sm);
+.studyflow-card {
+  padding: 20px;
+}
+
+.studyflow-card-interactive {
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.studyflow-card-interactive:hover {
+  border-color: var(--nature-sage);
+  box-shadow: var(--nature-shadow-md);
+  transform: translateY(-1px);
+}
+
+.studyflow-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.studyflow-card-title {
+  margin: 0;
+  color: var(--nature-text);
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.studyflow-card-description {
+  margin: 5px 0 0;
+  color: var(--nature-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.studyflow-card-content {
+  min-width: 0;
+}
+
+.studyflow-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .overlay {
@@ -578,7 +658,7 @@
 .bulk-toolbar,
 .notifications-toolbar {
   border-radius: var(--nature-radius-card);
-  box-shadow: var(--nature-shadow-sm);
+  box-shadow: var(--nature-shadow-card);
 }
 
 .plan-card:hover,
