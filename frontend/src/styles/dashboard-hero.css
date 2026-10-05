@@ -8,7 +8,8 @@
   overflow: hidden;
   isolation: isolate;
   padding: 32px 38px;
-  background: linear-gradient(118deg, var(--nature-surface) 0%, var(--nature-bg-warm) 54%, var(--nature-surface-sage) 100%);
+  background-position: center;
+  background-size: cover;
   border: 1px solid var(--nature-border);
   border-radius: 16px;
   box-shadow: var(--nature-shadow-sm), var(--nature-shadow-md);
@@ -102,6 +103,7 @@
 }
 
 .dashboard-hero-scene {
+  display: none;
   position: absolute;
   z-index: 1;
   top: 0;

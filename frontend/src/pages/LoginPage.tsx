@@ -74,7 +74,7 @@ export function LoginPage() {
           {mutation.isError && <p className="form-api-error" role="alert">{getApiErrorMessage(mutation.error, 'Email hoặc mật khẩu không đúng.')}</p>}
           <Button className="wide" type="submit" loading={mutation.isPending}>Đăng nhập <ArrowRight size={17} /></Button>
           <div className="divider"><span>hoặc</span></div>
-          <Button className="wide google-button" type="button" variant="secondary"><span className="google-mark">G</span> Đăng nhập bằng Google</Button>
+          <Button className="wide google-button" type="button" variant="secondary"><span className="google-mark" aria-hidden="true">G</span> Đăng nhập bằng Google</Button>
         </form>
         <p className="auth-foot">Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link></p>
       </section>

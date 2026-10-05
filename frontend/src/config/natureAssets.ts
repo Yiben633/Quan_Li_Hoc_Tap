@@ -13,7 +13,7 @@ export type NatureMascotAnimal =
 
 export const natureAssets = {
   brand: {
-    logoMark: `${natureBasePath}/brand/logo-mark.webp`,
+    logoMark: `${natureBasePath}/brand/auth-logo-mark.png`,
     logoFull: `${natureBasePath}/brand/logo-full.webp`,
   },
   mascots: {
@@ -47,6 +47,11 @@ export const natureAssets = {
     leaf01: `${natureBasePath}/leaves/leaf_01.png`,
     leaf02: `${natureBasePath}/leaves/leaf_02.png`,
   },
+  scenes: {
+    pastelSunriseLakeValley: `${natureBasePath}/scenes/pastel-sunrise-lake-valley.png`,
+    pastelMeadowSignboard: `${natureBasePath}/scenes/pastel-meadow-signboard-border.png`,
+    foxReadingLakeside: `${natureBasePath}/scenes/fox-reading-lakeside-meadow.png`,
+  },
   decorations: {
     books: `${natureBasePath}/decorations/books.png`,
     calendarCheck: `${natureBasePath}/decorations/calendar_check.png`,
@@ -69,6 +74,11 @@ export const natureAssets = {
   }
   leaves: Record<string, string>
   effects: Record<string, string>
+  scenes: {
+    pastelSunriseLakeValley: string
+    pastelMeadowSignboard: string
+    foxReadingLakeside: string
+  }
   decorations: Record<string, string>
   icons: Record<string, string>
 }

@@ -105,7 +105,7 @@ function DashboardHero({ firstName, streak }: { firstName: string; streak: numbe
   const showScene = useMediaQuery('(min-width: 768px)')
   const useFullHeroScene = useMediaQuery('(min-width: 1025px)')
 
-  return <section className="dashboard-hero">
+  return <section className="dashboard-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(255, 253, 247, .96) 0%, rgba(255, 253, 247, .78) 38%, rgba(255, 253, 247, .12) 72%), url("${natureAssets.scenes.foxReadingLakeside}")` }}>
     <div className="dashboard-hero-content">
       <p className="dashboard-hero-eyebrow">KHÔNG GIAN HỌC TẬP CỦA BẠN</p>
       <h1>Xin chào, {firstName}!</h1>

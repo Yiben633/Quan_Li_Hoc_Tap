@@ -25,7 +25,10 @@ export function LandingPage() {
   if (accessToken) return <Navigate to="/dashboard" replace />
 
   return (
-    <div className="landing-page">
+    <div
+      className="landing-page"
+      style={{ backgroundImage: `linear-gradient(180deg, rgba(247, 244, 233, .42), rgba(247, 244, 233, .58)), url("${natureAssets.scenes.pastelSunriseLakeValley}")` }}
+    >
       <header className="landing-navbar">
         <div className="landing-container landing-navbar-inner">
           <a className="landing-brand" href="#top" aria-label="StudyFlow - về đầu trang">
@@ -57,7 +60,11 @@ export function LandingPage() {
               </div>
               <p className="landing-hero-note"><CheckCircle2 size={15} aria-hidden="true" /> Bắt đầu từ một bước nhỏ hôm nay.</p>
             </div>
-            <div className="landing-hero-visual" aria-hidden="true">
+            <div
+              className="landing-hero-visual"
+              aria-hidden="true"
+              style={{ backgroundImage: `linear-gradient(145deg, rgba(235, 243, 232, .12), rgba(248, 245, 229, .08)), url("${natureAssets.scenes.pastelSunriseLakeValley}")` }}
+            >
               <div className="landing-hero-glow" />
               <div className="landing-hero-mountain landing-hero-mountain-back" />
               <div className="landing-hero-mountain landing-hero-mountain-front" />
