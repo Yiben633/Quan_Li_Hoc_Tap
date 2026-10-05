@@ -98,6 +98,7 @@
 .dashboard-architecture-grid {
   display: grid;
   gap: 18px;
+  min-width: 0;
   margin-bottom: 18px;
 }
 
@@ -834,6 +835,24 @@
 
   .dashboard-weekly-calendar-grid,
   .dashboard-weekly-calendar-skeleton { min-width: 560px; }
+
+  .dashboard-next-tasks-list a {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .dashboard-next-tasks-list svg {
+    display: none;
+  }
+
+  .dashboard-next-tasks-copy strong,
+  .dashboard-next-tasks-copy small,
+  .dashboard-plan-checklist strong,
+  .dashboard-plan-checklist small,
+  .dashboard-subject-row strong,
+  .dashboard-subject-row small {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
 }
 
 @media (max-width: 560px) {

@@ -51,6 +51,7 @@ export function NatureMascot({
 }: NatureMascotProps) {
   const pixelSize = typeof size === 'number' ? size : sizeMap[size]
   const resolvedMotion = motion ?? 'none'
+  const priorityAttributes = priority ? ({ fetchpriority: 'high' } as Record<string, string>) : {}
   const mascotClassName = [
     'nature-mascot',
     'nature-mascot-soft',
@@ -75,11 +76,11 @@ export function NatureMascot({
           alt={decorative ? '' : alt}
           decoding="async"
           draggable={false}
-          fetchPriority={priority ? 'high' : undefined}
           height={pixelSize}
           loading={priority ? 'eager' : 'lazy'}
           src={natureAssets.mascots[animal]}
           width={pixelSize}
+          {...priorityAttributes}
         />
       </span>
     </span>

@@ -69,7 +69,7 @@ function GroupTaskCard({ groupId, task, members }: { groupId: string; task: Grou
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined
   const changeStatus = (status: GroupTaskStatus) => update.mutate({ groupId, taskId: task.id, input: { status } }, { onError: (error) => toast.error(getApiErrorMessage(error, 'Không thể đổi trạng thái')) })
   return <article ref={setNodeRef} style={style} className={`group-task-card${isDragging ? ' is-dragging' : ''}`}>
-    <button type="button" className="group-task-handle" aria-label={`Kéo công việc ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} /></button>
+    <button type="button" className="group-task-handle" aria-label={`Kéo công việc ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} aria-hidden="true" /></button>
     <div className="group-task-copy"><strong>{task.title}</strong>{task.description && <p>{task.description}</p>}<div>{assignee && <span><UserRound size={13} /> {assignee.fullName}</span>}{task.dueDate && <span><CalendarDays size={13} /> {new Date(task.dueDate).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</span>}</div></div>
     <Select customMenu aria-label={`Trạng thái của ${task.title}`} value={task.status} onChange={(event) => changeStatus(event.target.value as GroupTaskStatus)}>{columns.map((column) => <option key={column.status} value={column.status}>{column.label}</option>)}</Select>
   </article>

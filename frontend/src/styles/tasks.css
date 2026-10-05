@@ -292,3 +292,66 @@
     border-radius: 14px;
   }
 }
+
+/* Task 21: responsive guards for task and plan surfaces. */
+.tasks-page,
+.plans-page,
+.task-toolbar,
+.plan-toolbar,
+.task-list-page,
+.task-list-row,
+.task-row-content,
+.plan-grid,
+.plan-card {
+  min-width: 0;
+}
+
+.task-toolbar,
+.plan-toolbar {
+  flex-wrap: wrap;
+}
+
+.task-row-title,
+.task-row-context,
+.task-row-meta,
+.plan-card-copy h2,
+.plan-card-copy p {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .task-list-page {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .task-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .task-toolbar .search-field,
+  .task-toolbar .task-filter-trigger,
+  .task-toolbar .task-sort-select,
+  .task-toolbar .custom-select,
+  .task-toolbar .custom-select-trigger {
+    width: 100%;
+  }
+
+  .task-list-row {
+    grid-template-columns: 22px minmax(0, 1fr);
+  }
+
+  .task-list-row > .dropdown {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 2px;
+  }
+
+  .task-row-title,
+  .task-row-context,
+  .task-row-meta {
+    white-space: normal;
+  }
+}

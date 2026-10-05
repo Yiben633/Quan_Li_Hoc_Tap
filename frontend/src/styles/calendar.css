@@ -227,3 +227,57 @@
     padding: 5px 6px;
   }
 }
+
+/* Task 21: calendar surfaces stay inside the app shell; planner grids scroll only by design. */
+.calendar-page,
+.calendar-content-layout,
+.calendar-toolbar,
+.calendar-grid,
+.calendar-weekdays,
+.calendar-cells,
+.calendar-cell,
+.calendar-agenda {
+  min-width: 0;
+}
+
+.calendar-nav,
+.calendar-toolbar .tabs {
+  min-width: 0;
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .calendar-content-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .calendar-weekdays,
+  .calendar-cells {
+    min-width: 560px;
+  }
+
+  .calendar-grid {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .calendar-nav strong,
+  .calendar-item .calendar-item-title,
+  .calendar-item small,
+  .calendar-agenda-item strong {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 390px) {
+  .calendar-toolbar .tabs {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .calendar-toolbar .tabs button {
+    flex: 0 0 auto;
+  }
+}

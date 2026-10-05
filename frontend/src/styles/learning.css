@@ -214,3 +214,59 @@
   .topic-task-scopes { display: flex; grid-template-columns: none; width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
   .topic-task-scopes button { width: auto; flex: 0 0 auto; }
 }
+
+/* Task 21: keep learning and subject layouts predictable at every viewport. */
+.learning-page,
+.topic-detail,
+.learning-grid,
+.topic-grid,
+.learning-card,
+.topic-card,
+.topic-detail-head,
+.topic-detail-copy,
+.topic-detail-header-actions {
+  min-width: 0;
+}
+
+.learning-grid,
+.topic-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.topic-card h2,
+.topic-task-copy strong,
+.topic-priority-task strong,
+.topic-plan-copy strong,
+.topic-resource-list strong,
+.topic-resource-list small {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1025px) {
+  .topic-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .learning-grid,
+  .topic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .learning-grid,
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topic-card h2,
+  .topic-task-copy strong,
+  .topic-priority-task strong,
+  .topic-plan-copy strong,
+  .topic-resource-list strong,
+  .topic-resource-list small {
+    white-space: normal;
+  }
+}

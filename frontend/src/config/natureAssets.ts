@@ -84,3 +84,19 @@ export const natureEmptyStateAssets = {
   subject: natureAssets.mascots.fox,
   admin: null,
 } as const
+
+// Stable product-facing aliases for shared UI that should not depend on the
+// more detailed nature registry shape.
+export const studyflowAssets = {
+  animals: {
+    bear: natureAssets.mascots.bear,
+    bunny: natureAssets.mascots.bunny,
+    fox: natureAssets.mascots.fox,
+    owl: natureAssets.mascots.owl,
+  },
+  nature: {
+    bush: natureAssets.flora.bush,
+    leaf: natureAssets.leaves.leaf01,
+    cloud: natureAssets.effects.cloud01,
+  },
+} as const

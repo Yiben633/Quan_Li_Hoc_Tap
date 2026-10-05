@@ -472,3 +472,68 @@
 @media (max-width: 640px) {
   .flashcards-heading-hedgehog { display: none; }
 }
+
+/* Task 21: AI Coach and Flashcards stay readable across 360-1440px. */
+.ai-coach-page,
+.ai-coach-shell,
+.ai-coach-chat,
+.ai-coach-messages,
+.ai-coach-message,
+.ai-schedule-layout,
+.assistant-layout,
+.flashcard-set-grid,
+.flashcard-set-card,
+.review-shell,
+.review-card {
+  min-width: 0;
+}
+
+.flashcard-set-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ai-coach-plan-draft-card h3,
+.ai-coach-plan-draft-sessions strong,
+.ai-coach-task-priority-copy > strong,
+.ai-coach-focus-proposal header strong,
+.ai-coach-goal-draft-card h3,
+.ai-coach-plan-preview-day strong,
+.ai-coach-plan-editor-session-head strong,
+.ai-selected-list strong,
+.ai-assignment-list strong,
+.flashcard-card-list strong,
+.flashcard-set-card-foot > span {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .flashcard-set-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ai-coach-shell {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 639px) {
+  .flashcard-set-grid,
+  .ai-schedule-layout,
+  .assistant-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-coach-plan-draft-card h3,
+  .ai-coach-plan-draft-sessions strong,
+  .ai-coach-task-priority-copy > strong,
+  .ai-coach-focus-proposal header strong,
+  .ai-coach-goal-draft-card h3,
+  .ai-coach-plan-preview-day strong,
+  .ai-coach-plan-editor-session-head strong,
+  .ai-selected-list strong,
+  .ai-assignment-list strong,
+  .flashcard-card-list strong,
+  .flashcard-set-card-foot > span {
+    white-space: normal;
+  }
+}

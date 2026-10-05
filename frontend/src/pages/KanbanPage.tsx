@@ -84,7 +84,7 @@ function KanbanColumn({ column, tasks, subjectId }: { column: { status: TaskStat
   return <section ref={setNodeRef} className={`kanban-column kanban-${column.status}${isOver ? ' is-over' : ''}`}>
     <header><div><span className="kanban-column-dot" /><h2>{column.label}</h2></div><span>{tasks.length}</span></header>
     {quickAdd
-      ? <form className="kanban-quick-form" onSubmit={(event) => { event.preventDefault(); createQuickTask() }} onPointerDown={(event) => event.stopPropagation()}><input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên công việc..." aria-label="Tên công việc mới" /><button type="submit" onPointerDown={(event) => event.stopPropagation()} disabled={create.isPending}><Check size={15} /></button><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setQuickAdd(false); setTitle('') }} aria-label="Hủy"><span>×</span></button></form>
+      ? <form className="kanban-quick-form" onSubmit={(event) => { event.preventDefault(); createQuickTask() }} onPointerDown={(event) => event.stopPropagation()}><input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên công việc..." aria-label="Tên công việc mới" /><button type="submit" onPointerDown={(event) => event.stopPropagation()} disabled={create.isPending} aria-label="Thêm công việc nhanh"><Check size={15} aria-hidden="true" /></button><button type="button" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setQuickAdd(false); setTitle('') }} aria-label="Hủy"><span>×</span></button></form>
       : <button className="kanban-quick-add" onClick={() => setQuickAdd(true)}><Plus size={15} /> Thêm nhanh</button>}
     <div className="kanban-cards">{tasks.length ? tasks.map((task) => <KanbanCard key={task.id} task={task} />) : <p className="kanban-empty">Thả task vào đây</p>}</div>
   </section>
@@ -103,7 +103,7 @@ function KanbanCard({ task }: { task: KanbanTask }) {
   })
 
   return <><article ref={setNodeRef} style={style} className={`kanban-card kanban-priority-${task.priority}${isDragging ? ' is-dragging' : ''}`}>
-    <button className="kanban-drag-handle" aria-label={`Kéo ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} /></button>
+    <button type="button" className="kanban-drag-handle" aria-label={`Kéo ${task.title}`} {...listeners} {...attributes}><GripVertical size={16} aria-hidden="true" /></button>
     <strong>{task.title}</strong>
     <button type="button" className="kanban-delete-task" onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); setConfirmOpen(true) }} disabled={remove.isPending} aria-label={`Xóa ${task.title}`}><Trash2 size={14} /></button>
     {(task.subject?.name || task.studyPlan?.title) && <span className="kanban-context">{task.subject?.colorHex && <i className="kanban-subject-dot" style={{ backgroundColor: task.subject.colorHex }} />}{task.subject?.name ?? task.studyPlan?.title}</span>}

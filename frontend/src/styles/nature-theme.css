@@ -1,5 +1,14 @@
 :root {
+  --nature-font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --nature-font-heading: 'Plus Jakarta Sans', var(--nature-font-body);
   --nature-font-editorial: 'Lora', Georgia, 'Times New Roman', serif;
+  --nature-type-h1: clamp(32px, 3.15vw, 42px);
+  --nature-type-h2: clamp(24px, 2.15vw, 30px);
+  --nature-type-h3: clamp(18px, 1.45vw, 22px);
+  --nature-type-body: clamp(14px, 1vw, 16px);
+  --nature-type-body-sm: 14px;
+  --nature-type-caption: 12px;
+  --nature-type-caption-lg: 13px;
   --nature-bg: #f2f3eb;
   --nature-bg-warm: #f6f1e6;
   --nature-surface: #fffdf7;

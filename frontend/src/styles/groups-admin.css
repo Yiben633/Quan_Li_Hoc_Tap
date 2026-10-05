@@ -280,3 +280,51 @@
   .template-intro { grid-template-columns: auto minmax(0, 1fr); }
   .template-intro .button { grid-column: 1 / -1; width: 100%; }
 }
+
+/* Task 21: responsive width guards for groups and admin. */
+.groups-page,
+.group-detail-page,
+.admin-page,
+.admin-shell-content,
+.group-grid,
+.group-card,
+.group-detail-hero,
+.admin-overview,
+.admin-analytics-grid,
+.admin-chart-card,
+.admin-table-section,
+.admin-table-wrap {
+  min-width: 0;
+}
+
+.group-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.group-card h2,
+.group-card p,
+.group-task-copy > strong,
+.group-task-copy > p,
+.admin-attention-item strong,
+.admin-attention-item p,
+.admin-ai-insight-copy > span,
+.feedback-list p {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+  .group-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .group-grid,
+  .admin-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-wrap {
+    max-width: 100%;
+  }
+}
